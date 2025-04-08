@@ -1,0 +1,59 @@
+/* Сброс */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  text-decoration: none;
+}
+
+body {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  background-color: #f5f7fa;
+  background-image: url(../src/assets/backiee-297160-landscape.jpg);
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-attachment: fixed;
+  overflow: hidden;
+  /* Скрываем скролл браузера */
+}
+
+#root {
+  max-width: 1920px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  overflow: hidden;
+  /* Скрываем скролл для #root */
+}
+
+/* Контейнер маршрутов */
+.routes__container {
+  padding: 10px;
+  max-height: 95vh;
+  transition: margin-left 0.3s ease-in-out;
+  background: rgba(26, 26, 26, 0.4);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 40px;
+  overflow: hidden;
+  margin: 10px 40px 10px 10px;
+  /* Убираем скролл здесь, прокрутка будет внутри */
+}
+
+@media (max-width: 768px) {
+  body {
+    background-image: url(../src/assets/backiee-297160-portrait.jpg);
+  }
+
+  .routes__container {
+    margin: 0 0 0 0;
+    max-height: 100vh;
+    border-radius: 0px;
+    margin-bottom: 100px;
+  }
+
+}
