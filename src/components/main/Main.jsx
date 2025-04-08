@@ -18,160 +18,181 @@ import {
 } from '@mui/material';
 import PersonIcon from '@mui/icons-material/Person';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
-import BadgeIcon from '@mui/icons-material/Badge';
-import FingerprintIcon from '@mui/icons-material/Fingerprint';
+import SchoolIcon from '@mui/icons-material/School';
+import AssignmentIcon from '@mui/icons-material/Assignment';
 import TagIcon from '@mui/icons-material/Tag';
 
-// Army color scheme
+// Цветовая схема для учебного стиля
 const colors = {
-  armyGreen: '#3D4A26', // Dark green for table headers
-  rowBackground: 'transparent', // Прозрачный фон для строк
-  black: '#1C2526', // Main dark background
-  khaki: '#D4A017', // Golden hue for text headers
-  white: '#EDEDED', // White for text in table
-  accent: '#A32929', // Red accent
-  hoverBackground: 'rgba(58, 70, 71, 0.3)', // Полупрозрачный ховер эффект
+  darkBlue: '#1A3C5A', // Темно-синий для заголовков
+  rowBackground: 'transparent', // Прозрачный фон строк
+  lightGray: '#F5F6F5', // Светлый фон для карточек
+  accentBlue: '#2A6EBB', // Акцентный синий для текста
+  white: '#FFFFFF', // Белый для текста
+  hoverBackground: 'rgba(42, 110, 187, 0.1)', // Полупрозрачный ховер
+  borderColor: '#D3DCE6', // Цвет границ
 };
 
 // Styled components
 const MainContainer = styled('div')(({ theme }) => ({
-  width: '100%',
-  margin: '70px auto',
-  padding: '12px',
+  width: '90%',
+  maxWidth: '1200px',
+  margin: '40px auto',
+  padding: '16px',
+  // background: colors.lightGray,
+  borderRadius: 12,
   [theme.breakpoints.down('sm')]: {
     margin: '20px auto',
-    padding: '8px',
+    padding: '10px',
   },
 }));
 
-const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
-  background: 'transparent', // Прозрачный фон для всей таблицы
-  border: `1px solid ${colors.armyGreen}`,
+const StyledTableContainer = styled(TableContainer)({
+  background: 'transparent',
   borderRadius: 8,
-  boxShadow: '0 4px 16px rgba(0, 0, 0, 0.5)',
-  [theme.breakpoints.down('sm')]: {
-    borderRadius: 6,
-  },
-}));
+  border: `1px solid ${colors.borderColor}`,
+});
 
 const StyledTable = styled(Table)({
+  background: colors.lightGray,
+
   '& .MuiTableCell-root': {
-    borderBottom: `1px solid ${colors.armyGreen}50`,
-    padding: '8px', // Уменьшенные отступы для компактности
-    fontFamily: "'Montserrat', sans-serif",
+    borderBottom: `1px solid ${colors.borderColor}`,
+    padding: '12px',
+    fontFamily: "'Roboto', sans-serif",
   },
 });
 
 const StyledTableHeadCell = styled(TableCell)(({ theme }) => ({
-  backgroundColor: colors.armyGreen, // Green background for table headers
-  color: colors.white, // White text for headers
+  backgroundColor: colors.darkBlue,
+  color: colors.white,
   fontWeight: 600,
-  fontSize: 14,
+  fontSize: 15,
   textTransform: 'uppercase',
-  letterSpacing: '1px',
-  padding: '10px', // Уменьшенные отступы
-  borderRight: `1px solid ${colors.armyGreen}80`, // Добавляем вертикальные линии
+  letterSpacing: '0.8px',
+  padding: '12px',
+  borderRight: `1px solid ${colors.darkBlue}80`,
   '&:last-child': {
-    borderRight: 'none', // Убираем линию у последнего столбца
+    borderRight: 'none',
   },
   [theme.breakpoints.down('sm')]: {
-    fontSize: 12,
+    fontSize: 13,
     padding: '8px',
   },
 }));
 
 const StyledTableBodyCell = styled(TableCell)(({ theme }) => ({
-  color: colors.white, // White text in rows
+  color: colors.darkBlue,
   fontSize: 14,
-  backgroundColor: colors.rowBackground, // Прозрачный фон для ячеек
-  borderRight: `1px solid ${colors.armyGreen}50`, // Добавляем вертикальные линии
+  backgroundColor: colors.rowBackground,
+  borderRight: `1px solid ${colors.borderColor}`,
   '&:last-child': {
-    borderRight: 'none', // Убираем линию у последнего столбца
+    borderRight: 'none',
   },
   [theme.breakpoints.down('sm')]: {
     fontSize: 12,
-    padding: '6px',
+    padding: '8px',
   },
 }));
 
 // Mobile card styles
-const UserCard = styled(Card)(({ theme }) => ({
-  backgroundColor: colors.rowBackground, // Прозрачный фон для карточек
-  color: colors.white,
-  marginBottom: '16px',
-  border: `1px solid ${colors.armyGreen}`,
-  borderRadius: 6,
-  transition: 'transform 0.2s ease, background-color 0.3s ease',
+const CandidateCard = styled(Card)(({ theme }) => ({
+  backgroundColor: colors.white,
+  color: colors.darkBlue,
+  marginBottom: '12px',
+  border: `1px solid ${colors.borderColor}`,
+  borderRadius: 8,
+  transition: 'all 0.3s ease',
   '&:hover': {
     transform: 'translateY(-4px)',
-    backgroundColor: colors.hoverBackground, // Ховер эффект для карточек
-    boxShadow: `0 6px 12px rgba(0, 0, 0, 0.5)`,
+    backgroundColor: colors.hoverBackground,
+    boxShadow: `0 4px 12px rgba(0, 0, 0, 0.1)`,
   },
 }));
 
 const CardHeader = styled(Box)({
-  backgroundColor: colors.armyGreen,
+  backgroundColor: colors.darkBlue,
   padding: '10px 16px',
   display: 'flex',
   alignItems: 'center',
-  borderRadius: '6px 6px 0 0',
+  borderRadius: '8px 8px 0 0',
 });
 
 const CardRow = styled(Box)({
   display: 'flex',
   alignItems: 'center',
-  padding: '8px 0',
+  padding: '10px 16px',
 });
 
 const IconWrapper = styled(Box)({
-  color: colors.khaki,
+  color: colors.accentBlue,
   marginRight: '12px',
   display: 'flex',
   alignItems: 'center',
 });
 
 const LabelText = styled(Typography)({
-  color: colors.khaki,
+  color: colors.accentBlue,
   fontSize: 12,
   fontWeight: 500,
   textTransform: 'uppercase',
-  letterSpacing: '0.5px',
 });
 
 const ValueText = styled(Typography)({
-  color: colors.white,
+  color: colors.darkBlue,
   fontSize: 14,
   fontWeight: 400,
 });
 
-// Date formatting function
-const formatDateToDogTag = (date) => {
+// Форматирование даты
+const formatDate = (date) => {
   const d = new Date(date);
-  const day = d.getDate().toString().padStart(2, '0');
-  const month = (d.getMonth() + 1).toString().padStart(2, '0');
-  const year = d.getFullYear();
-  return `${day}/${month}/${year}`;
+  return d.toLocaleDateString('ru-RU', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  });
 };
 
-const Main = () => {
-  const [users, setUsers] = useState([]);
+const DoctoralApplications = () => {
+  const [candidates, setCandidates] = useState([]);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   useEffect(() => {
-    const storedUsers = JSON.parse(localStorage.getItem('users')) || [];
-    setUsers(storedUsers);
+    // Временные данные
+    const tempData = [
+      {
+        id: 'DCT-001',
+        name: 'Иван Петров',
+        submissionDate: '2025-03-15',
+        program: 'Физика',
+      },
+      {
+        id: 'DCT-002',
+        name: 'Анна Смирнова',
+        submissionDate: '2025-03-20',
+        program: 'Биология',
+      },
+      {
+        id: 'DCT-003',
+        name: 'Сергей Иванов',
+        submissionDate: '2025-04-01',
+        program: 'Математика',
+      },
+    ];
+    setCandidates(tempData);
   }, []);
 
-  // Mobile version uses cards instead of table
-  const MobileUserList = () => (
-    <Box sx={{ mt: 2 }}>
-      {users.map((user, index) => (
-        <UserCard key={index}>
+  // Мобильная версия с карточками
+  const MobileCandidateList = () => (
+    <Box sx={{ mt: 3 }}>
+      {candidates.map((candidate, index) => (
+        <CandidateCard key={index}>
           <CardHeader>
-            <FingerprintIcon sx={{ mr: 1, fontSize: '1.2rem' }} />
-            <Typography variant="subtitle1" fontWeight={600}>
-              ID: {user.id}
+            <AssignmentIcon sx={{ mr: 1, color: colors.white }} />
+            <Typography variant="subtitle1" color={colors.white} fontWeight={600}>
+              {candidate.id}
             </Typography>
           </CardHeader>
           <CardContent>
@@ -180,86 +201,72 @@ const Main = () => {
                 <TagIcon fontSize="small" />
               </IconWrapper>
               <Box>
-                <LabelText>Serial Number</LabelText>
+                <LabelText>Номер</LabelText>
                 <ValueText>#{index + 1}</ValueText>
               </Box>
             </CardRow>
-
-            <Divider sx={{ my: 1, borderColor: `${colors.armyGreen}50` }} />
-
             <CardRow>
               <IconWrapper>
                 <PersonIcon fontSize="small" />
               </IconWrapper>
               <Box>
-                <LabelText>Username</LabelText>
-                <ValueText>{user.username}</ValueText>
+                <LabelText>Имя</LabelText>
+                <ValueText>{candidate.name}</ValueText>
               </Box>
             </CardRow>
-
-            <Divider sx={{ my: 1, borderColor: `${colors.armyGreen}50` }} />
-
             <CardRow>
               <IconWrapper>
                 <CalendarTodayIcon fontSize="small" />
               </IconWrapper>
               <Box>
-                <LabelText>Date of Birth</LabelText>
-                <ValueText>{formatDateToDogTag(user.birthDate)}</ValueText>
+                <LabelText>Дата подачи</LabelText>
+                <ValueText>{formatDate(candidate.submissionDate)}</ValueText>
               </Box>
             </CardRow>
-
-            <Divider sx={{ my: 1, borderColor: `${colors.armyGreen}50` }} />
-
             <CardRow>
               <IconWrapper>
-                <BadgeIcon fontSize="small" />
+                <SchoolIcon fontSize="small" />
               </IconWrapper>
               <Box>
-                <LabelText>Rank</LabelText>
-                <ValueText>{user.rank || 'PRIVATE'}</ValueText>
+                <LabelText>Программа</LabelText>
+                <ValueText>{candidate.program}</ValueText>
               </Box>
             </CardRow>
           </CardContent>
-        </UserCard>
+        </CandidateCard>
       ))}
     </Box>
   );
 
-  // Desktop version uses table
-  const DesktopUserList = () => (
+  // Десктопная версия с таблицей
+  const DesktopCandidateList = () => (
     <StyledTableContainer component={Paper}>
       <StyledTable>
         <TableHead>
           <TableRow>
-            <StyledTableHeadCell sx={{ width: '10%', textAlign: 'center' }}>
-              Serial Number
-            </StyledTableHeadCell>
+            <StyledTableHeadCell sx={{ width: '15%' }}>№</StyledTableHeadCell>
             <StyledTableHeadCell sx={{ width: '20%' }}>ID</StyledTableHeadCell>
-            <StyledTableHeadCell sx={{ width: '25%' }}>Username</StyledTableHeadCell>
-            <StyledTableHeadCell sx={{ width: '25%' }}>Date of Birth</StyledTableHeadCell>
-            <StyledTableHeadCell sx={{ width: '20%' }}>Rank</StyledTableHeadCell>
+            <StyledTableHeadCell sx={{ width: '25%' }}>Имя</StyledTableHeadCell>
+            <StyledTableHeadCell sx={{ width: '20%' }}>Дата подачи</StyledTableHeadCell>
+            <StyledTableHeadCell sx={{ width: '20%' }}>Программа</StyledTableHeadCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {users.map((user, index) => (
+          {candidates.map((candidate, index) => (
             <TableRow
               key={index}
               sx={{
                 '&:hover': {
-                  backgroundColor: colors.hoverBackground, // Полупрозрачный ховер эффект
-                  boxShadow: `0 2px 8px rgba(0, 0, 0, 0.3)`, // Тень при ховере
+                  backgroundColor: colors.hoverBackground,
                 },
-                transition: 'background-color 0.3s ease, box-shadow 0.3s ease',
+                transition: 'background-color 0.3s ease',
               }}
             >
-              <StyledTableBodyCell sx={{ textAlign: 'center' }}>
-                #{index + 1}
-              </StyledTableBodyCell>
-              <StyledTableBodyCell>{user.id}</StyledTableBodyCell>
-              <StyledTableBodyCell>{user.username}</StyledTableBodyCell>
-              <StyledTableBodyCell>{formatDateToDogTag(user.birthDate)}</StyledTableBodyCell>
-              <StyledTableBodyCell>{user.rank || 'PRIVATE'}</StyledTableBodyCell>
+              <StyledTableBodyCell>#{index + 1}</StyledTableBodyCell>
+              <StyledTableBodyCell>{candidate.id}</StyledTableBodyCell>
+              <StyledTableBodyCell>{candidate.name}</StyledTableBodyCell>
+              <StyledTableBodyCell>{formatDate(candidate.submissionDate)}</StyledTableBodyCell>
+              <StyledTableBodyCell>{candidate.program}</StyledTableBodyCell>
             </TableRow>
           ))}
         </TableBody>
@@ -270,27 +277,21 @@ const Main = () => {
   return (
     <MainContainer>
       <Typography
-        variant="h4"
+        variant="h5"
         align="center"
         sx={{
           mb: 4,
           fontWeight: 700,
           color: colors.white,
-          fontFamily: "'Montserrat', sans-serif",
-          letterSpacing: '1.5px',
-          textTransform: 'uppercase',
-          background: `linear-gradient(90deg, ${colors.accent}, ${colors.khaki})`,
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          fontSize: isMobile ? '1.75rem' : '2.125rem',
+          fontFamily: "'Roboto', sans-serif",
+          letterSpacing: '1px',
         }}
       >
-        User List
+        Заявки на докторантуру
       </Typography>
-
-      {isMobile ? <MobileUserList /> : <DesktopUserList />}
+      {isMobile ? <MobileCandidateList /> : <DesktopCandidateList />}
     </MainContainer>
   );
 };
 
-export default Main;
+export default DoctoralApplications;

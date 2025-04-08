@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
-import { Navbar, Main, Test } from '../components/';
+import { Navbar, Main, Register } from '../components/';
 import Box from '@mui/material/Box';
 
 const AppRoutes = () => {
@@ -54,6 +54,8 @@ const AppRoutes = () => {
       >
         <Routes>
           <Route path="/" element={<Main />} />
+          <Route path="/register" element={<Register />} />
+          
         </Routes>
       </Box>
     </Box>

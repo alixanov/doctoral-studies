@@ -8,6 +8,7 @@ import HomeFilledIcon from '@mui/icons-material/HomeFilled';
 import PersonIcon from '@mui/icons-material/Person';
 import QuizIcon from '@mui/icons-material/Quiz';
 import LanguageIcon from '@mui/icons-material/Language';
+import AccountBoxIcon from '@mui/icons-material/AccountBox';
 
 const colors = {
   background: 'linear-gradient(135deg, #A32929 10%, #A8A14E 90%)',
@@ -73,7 +74,7 @@ const LogoContainer = styled(Box)({
 
 const LogoText = styled(Typography)({
   color: '#ffffff',
-  fontSize: 26,
+  fontSize: 22,
   fontFamily: "'Inter', sans-serif",
   fontWeight: 700,
   letterSpacing: '0.8px',
@@ -180,23 +181,21 @@ const Navbar = ({ sidebarOpen, setSidebarOpen, isMobile }) => {
     uz: {
       authenticated: [
         { to: '/', label: 'Asosiy', icon: HomeFilledIcon, active: location.pathname === '/' },
-        { to: '/homework', label: 'Vazifalar', icon: PersonIcon, active: location.pathname === '/homework' },
-        { to: '/test', label: ' Savollar', icon: QuizIcon, active: location.pathname === '/test' },
+        { to: '/register', label: ' Royhatdan otish', icon: AccountBoxIcon, active: location.pathname === '/test' },
       ],
       unauthenticated: [
         { to: '/', label: 'Asosiy', icon: HomeFilledIcon, active: location.pathname === '/' },
-        { to: '/test', label: ' Savollar', icon: QuizIcon, active: location.pathname === '/test' },
+        { to: '/register', label: ' Royhatdan otish', icon: AccountBoxIcon, active: location.pathname === '/test' },
       ],
     },
     ru: {
       authenticated: [
         { to: '/', label: 'Главная', icon: HomeFilledIcon, active: location.pathname === '/' },
-        { to: '/homework', label: 'Задания', icon: PersonIcon, active: location.pathname === '/homework' },
-        { to: '/test', label: 'Вопросы', icon: QuizIcon, active: location.pathname === '/test' },
+        { to: '/register', label: 'Регистрация', icon: AccountBoxIcon, active: location.pathname === '/test' },
       ],
       unauthenticated: [
         { to: '/', label: 'Главная', icon: HomeFilledIcon, active: location.pathname === '/' },
-        { to: '/test', label: 'Вопросы', icon: QuizIcon, active: location.pathname === '/test' },
+        { to: '/register', label: 'Регистрация', icon: AccountBoxIcon, active: location.pathname === '/test' },
       ],
     },
   };
@@ -245,7 +244,7 @@ const Navbar = ({ sidebarOpen, setSidebarOpen, isMobile }) => {
     <NavbarContainer variant="permanent" open={true}>
       <Box>
         <LogoContainer>
-          <LogoText>Code Voice</LogoText>
+          <LogoText>doctoral-studies</LogoText>
         </LogoContainer>
         <NavItems>
           {links.map(renderLink)}
