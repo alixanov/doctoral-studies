@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
-import { Navbar, Main, Register } from '../components/';
+import { Navbar, Main, Register, Cabinet } from '../components/';
 import Box from '@mui/material/Box';
 
 const AppRoutes = () => {
@@ -48,13 +48,14 @@ const AppRoutes = () => {
         className="routes__container"
         sx={{
           flexGrow: 1,
-          padding: location.pathname === '/cabinet' ? '0px' : '20px',
-          marginLeft: isMobile ? 0 : '250px', // Apply margin-left dynamically
+          padding: location.pathname === '/cabinet' ? '0px' : '0px',
+          marginLeft: isMobile ? 0 : '230px', // Apply margin-left dynamically
         }}
       >
         <Routes>
           <Route path="/" element={<Main />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/cabinet" element={<Cabinet />} />
           
         </Routes>
       </Box>

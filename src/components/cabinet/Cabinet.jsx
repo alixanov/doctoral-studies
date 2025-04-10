@@ -1,243 +1,297 @@
-import React, { useEffect, useState } from 'react';
-import { styled, keyframes } from '@mui/material/styles';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
-import { useNavigate } from 'react-router-dom';
-import './cabinet.css';
-// Import MUI icons
-import SecurityIcon from '@mui/icons-material/Security';
-import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
-import PersonIcon from '@mui/icons-material/Person';
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
-import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
-import LogoutIcon from '@mui/icons-material/Logout';
-import LockIcon from '@mui/icons-material/Lock';
+import React, { useState } from 'react';
+import { styled } from '@mui/material/styles';
+import { Box, Typography, TextField, Button, Input, Select, MenuItem } from '@mui/material';
 
-// Определение анимаций с помощью keyframes
-const fadeIn = keyframes`
-  0% { opacity: 0; transform: translateY(20px); }
-  100% { opacity: 1; transform: translateY(0); }
-`;
-
-const pulse = keyframes`
-  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(170, 30, 30, 0.7); }
-  70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(170, 30, 30, 0); }
-  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(170, 30, 30, 0); }
-`;
-
-const glow = keyframes`
-  0% { text-shadow: 0 0 5px rgba(170, 30, 30, 0.5); }
-  50% { text-shadow: 0 0 15px rgba(170, 30, 30, 0.8), 0 0 25px rgba(170, 30, 30, 0.5); }
-  100% { text-shadow: 0 0 5px rgba(170, 30, 30, 0.5); }
-`;
-
-// Updated color palette to match the screenshot
+// Цветовая схема
 const colors = {
-  primary: '#aa1e1e', // Dark red color from the register button
-  secondary: '#c68c53', // Orange-brown from "REGISTRATION" text
-  darkGray: 'rgba(32, 32, 32, 0.8)',
-  darkGrayHover: 'rgba(42, 42, 42, 0.9)',
-  hoverPrimary: '#c52626',
-  black: '#1C1C1C',
-  textLight: '#c68c53',
+  primary: '#1A3C59',
+  secondary: '#F5F6F5',
+  textPrimary: '#1A3C5A',
+  white: '#FFFFFF',
+  hover: '#2A4A6B',
+  border: '#E5E7EB',
 };
 
-// Стилизованные компоненты
-const CabinetContainer = styled(Box)(({ theme }) => ({
-  width: '100%',
+// Styled components
+const CabinetContainer = styled(Box)({
   minHeight: '100vh',
+  // background: colors.secondary,
+  padding: '24px',
   display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
   justifyContent: 'center',
-  color: colors.textLight,
-  padding: '0px',
-  animation: `${fadeIn} 1s ease-out`,
-  backgroundSize: 'cover',
-  [theme.breakpoints.down('sm')]: {
-    padding: '20px',
-    marginTop: -40,
-  },
-}));
-
-const ProfileBox = styled(Box)({
-  maxWidth: '1000px',
-  width: '100%',
-  margin: '0 auto',
-  opacity: 0,
-  animation: `${fadeIn} 1.2s ease-out forwards`,
-  animationDelay: '0.3s',
+  alignItems: 'flex-start',
 });
 
-const InfoSection = styled(Box)({
-  marginBottom: '20px',
-  padding: '15px',
-  backgroundColor: colors.darkGray,
-  borderLeft: `4px solid ${colors.primary}`,
-  transition: 'all 0.3s ease',
-  opacity: 0,
-  animation: `${fadeIn} 0.8s ease-out forwards`,
+const ContentWrapper = styled(Box)({
   display: 'flex',
-  alignItems: 'center',
-  '&:nth-of-type(1)': { animationDelay: '0.5s' },
-  '&:nth-of-type(2)': { animationDelay: '0.6s' },
-  '&:nth-of-type(3)': { animationDelay: '0.7s' },
-  '&:nth-of-type(4)': { animationDelay: '0.8s' },
-  '&:nth-of-type(5)': { animationDelay: '0.9s' },
-  '&:hover': {
-    transform: 'translateX(5px)',
-    backgroundColor: colors.darkGrayHover,
-    boxShadow: `0 0 15px rgba(170, 30, 30, 0.3)`,
+  width: '100%',
+  maxWidth: '1200px',
+  gap: '24px',
+  flexWrap: 'wrap',
+});
+
+const LeftColumn = styled(Box)({
+  flex: '1 1 300px',
+  background: colors.white,
+  borderRadius: 8,
+  padding: '24px',
+  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
+  border: `1px solid ${colors.border}`,
+});
+
+const RightColumn = styled(Box)({
+  flex: '2 1 600px',
+  background: colors.white,
+  borderRadius: 8,
+  padding: '24px',
+  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
+  border: `1px solid ${colors.border}`,
+});
+
+const StyledTextField = styled(TextField)({
+  '& .MuiOutlinedInput-root': {
+    borderRadius: 6,
+    background: colors.secondary,
+    color: colors.textPrimary,
+    fontSize: 14,
+    '& .MuiOutlinedInput-notchedOutline': {
+      borderColor: colors.border,
+    },
+    '&:hover .MuiOutlinedInput-notchedOutline': {
+      borderColor: colors.primary,
+    },
+    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+      borderColor: colors.primary,
+      borderWidth: 2,
+    },
+  },
+  '& .MuiInputLabel-root': {
+    color: colors.textPrimary,
+    fontSize: 14,
+    fontFamily: "'Inter', sans-serif",
+    '&.Mui-focused': {
+      color: colors.primary,
+    },
+  },
+  marginBottom: 16,
+});
+
+const StyledSelect = styled(Select)({
+  borderRadius: 6,
+  background: colors.secondary,
+  color: colors.textPrimary,
+  fontSize: 14,
+  '& .MuiOutlinedInput-notchedOutline': {
+    borderColor: colors.border,
+  },
+  '&:hover .MuiOutlinedInput-notchedOutline': {
+    borderColor: colors.primary,
+  },
+  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+    borderColor: colors.primary,
+    borderWidth: 2,
   },
 });
 
-const IconWrapper = styled(Box)({
-  marginRight: '15px',
-  color: colors.secondary,
+const StyledInput = styled(Input)({
+  padding: '8px 0',
+  fontSize: 14,
+  fontFamily: "'Inter', sans-serif",
+  color: colors.textPrimary,
+  '&:before': {
+    borderBottom: `1px solid ${colors.border}`,
+  },
+  '&:hover:not(.Mui-disabled):before': {
+    borderBottom: `1px solid ${colors.primary}`,
+  },
+  '&:after': {
+    borderBottom: `2px solid ${colors.primary}`,
+  },
 });
 
-const LogoutButton = styled(Button)({
-  marginTop: '20px',
-  padding: '12px 30px',
-  backgroundColor: 'transparent',
-  color: colors.primary,
-  fontWeight: 'bold',
-  textTransform: 'uppercase',
-  letterSpacing: '2px',
-  border: `2px solid ${colors.primary}`,
-  borderRadius: '0px', // Прямые углы для милитари-стиля
+const SubmitButton = styled(Button)({
+  background: colors.primary,
+  color: colors.white,
+  padding: '10px 0',
+  borderRadius: 6,
+  fontSize: 14,
+  fontWeight: 500,
+  fontFamily: "'Inter', sans-serif",
   transition: 'all 0.3s ease',
-  opacity: 0,
-  animation: `${fadeIn} 1s ease-out forwards`, // Плавное появление вместо пульсации
-  animationDelay: '1s',
   '&:hover': {
-    backgroundColor: colors.primary,
-    color: colors.black,
-    transform: 'translateY(-3px)',
-    boxShadow: `0 5px 15px rgba(170, 30, 30, 0.5)`,
+    background: colors.hover,
+    transform: 'translateY(-1px)',
   },
 });
 
-const Cabinet = ({ setIsAuthenticated }) => {
-  const [userData, setUserData] = useState(null);
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    const storedData = JSON.parse(localStorage.getItem('userData'));
-    if (storedData) {
-      setUserData(storedData);
-    }
-  }, []);
-
-  const handleLogout = () => {
-    localStorage.removeItem('userData');
-    setIsAuthenticated(false);
-    navigate('/register');
+const Cabinet = () => {
+  // Получаем данные пользователя из localStorage
+  const user = JSON.parse(localStorage.getItem('userData')) || {
+    name: 'Иван Петров',
+    email: 'ivan.petrov@example.com',
   };
 
-  if (!userData) {
-    return (
-      <CabinetContainer>
-        <Typography
-          variant="h4"
-          sx={{
-            color: colors.primary,
-            textShadow: `0 0 10px rgba(170, 30, 30, 0.5)`,
-            letterSpacing: '3px',
-            animation: `${glow} 3s infinite`,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <LockIcon sx={{ mr: 2, fontSize: '2rem' }} /> ACCESS DENIED
-        </Typography>
-      </CabinetContainer>
-    );
-  }
+  // Состояние для формы отправки
+  const [formData, setFormData] = useState({
+    subject: '',
+    recipient: '',
+    content: '',
+    file: null,
+    malumotnoma: null,
+    photo: null,
+    passport: null,
+    kengashBayyonomma: null,
+    dekanatTaqdimnoma: null,
+    sinovNatijalari: null,
+    ilmiyIshlar: null,
+    annotatsiya: null,
+    maqolalar: null,
+    xulosa: null,
+    testBallari: null,
+    tarjimaiXol: null,
+    reytingDaftarcha: null,
+    guvohnoma: null,
+    yutuqlar: null,
+    boshqa: null,
+  });
 
-  const formatDateToDogTag = (date) => {
-    const d = new Date(date);
-    const day = d.getDate().toString().padStart(2, '0');
-    const month = (d.getMonth() + 1).toString().padStart(2, '0');
-    const year = d.getFullYear();
-    return `${day}◆${month}◆${year}`;
+  const handleChange = (e) => {
+    const { name, value, files } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: files ? files[0] : value,
+    }));
   };
 
-  const formattedDate = formatDateToDogTag(userData.birthDate);
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log('Отправка данных:', formData);
+    // Здесь можно добавить логику отправки данных
+  };
+
+  const fileFields = [
+    { name: 'malumotnoma', label: "Ma'lumotnoma" },
+    { name: 'photo', label: "Nomzodning elektron shakldagi foto-surati" },
+    { name: 'passport', label: "Passport nusxasi" },
+    { name: 'kengashBayyonomma', label: "Institut Ilmiy Kengashi yigilishi bayyonommasidan ko'chirma" },
+    { name: 'dekanatTaqdimnoma', label: "Dekanat va Kafedra taqdimnomasi" },
+    { name: 'sinovNatijalari', label: "Birinchi bosqichda Tarix, Chet tili va Informatika fanlaridan erishgan sinov natijalari qaydnomasi(elektron)" },
+    { name: 'ilmiyIshlar', label: "Ilmiy ishlar Ro'yhati" },
+    { name: 'annotatsiya', label: "Ilmiy (ijodiy) ishlarning annotatsiyasi" },
+    { name: 'maqolalar', label: "Ilmiy maqolalar nusxasi" },
+    { name: 'xulosa', label: "Talabaning ilmiy izlasnishi tog'risida kafedra mudiri va ilmiy rahbar xulosasi" },
+    { name: 'testBallari', label: "Talabaning kirish test sinovlarida to'plagan ballari" },
+    { name: 'tarjimaiXol', label: "Talabaning tarjimai xoli" },
+    { name: 'reytingDaftarcha', label: "Reyting daftarcha" },
+    { name: 'guvohnoma', label: "Muallif guvohnomasi" },
+    { name: 'yutuqlar', label: "Yutuqlar" },
+    { name: 'boshqa', label: "Boshqa" },
+  ];
 
   return (
     <CabinetContainer>
-      <Typography
-        variant="h3"
-        sx={{
-          color: colors.secondary,
-          marginBottom: '40px',
-          textTransform: 'uppercase',
-          letterSpacing: '5px',
-          fontWeight: 'bold',
-          animation: `${glow} 3s infinite`,
-        }}
-      >
-        Classified
-      </Typography>
-
-      <ProfileBox className="profile-container">
-        <InfoSection>
-          <IconWrapper>
-            <SecurityIcon fontSize="medium" />
-          </IconWrapper>
-          <Typography className="service-number">
-            SERVICE NUMBER: {userData.id}
+      <ContentWrapper>
+        {/* Левый столбец: Информация о пользователе */}
+        <LeftColumn>
+          <Typography variant="h6" fontWeight={600} color={colors.textPrimary} mb={2}>
+            Личная информация
           </Typography>
-        </InfoSection>
+          <Box mb={2}>
+            <Typography variant="body2" color={colors.textPrimary} fontWeight={500}>
+              Имя и фамилия
+            </Typography>
+            <Typography variant="body1" color={colors.textPrimary}>
+              {user.name}
+            </Typography>
+          </Box>
+          <Box mb={2}>
+            <Typography variant="body2" color={colors.textPrimary} fontWeight={500}>
+              Email
+            </Typography>
+            <Typography variant="body1" color={colors.textPrimary}>
+              {user.email}
+            </Typography>
+          </Box>
+        </LeftColumn>
 
-        <InfoSection>
-          <IconWrapper>
-            <MilitaryTechIcon fontSize="medium" />
-          </IconWrapper>
-          <Typography className="rank-badge">
-            {userData.rank || 'PRIVATE'}
+        {/* Правый столбец: Форма отправки */}
+        <RightColumn>
+          <Typography variant="h6" fontWeight={600} color={colors.textPrimary} mb={2}>
+            Отправить письмо
           </Typography>
-        </InfoSection>
+          <form onSubmit={handleSubmit}>
+            <StyledTextField
+              fullWidth
+              label="Тема письма"
+              name="subject"
+              value={formData.subject}
+              onChange={handleChange}
+              variant="outlined"
+            />
+            <StyledSelect
+              fullWidth
+              name="recipient"
+              value={formData.recipient}
+              onChange={handleChange}
+              displayEmpty
+              renderValue={(selected) => (selected ? selected : 'Кому отправить')}
+            >
+              <MenuItem value="" disabled>
+                Кому отправить
+              </MenuItem>
+              <MenuItem value="admin@example.com">Администратору</MenuItem>
+              <MenuItem value="support@example.com">Поддержке</MenuItem>
+            </StyledSelect>
+            <StyledTextField
+              fullWidth
+              label="Краткое содержание"
+              name="content"
+              value={formData.content}
+              onChange={handleChange}
+              variant="outlined"
+              multiline
+              rows={4}
+              sx={{ mt: 2 }}
+            />
+            <Box mt={2} mb={2}>
+              <Typography variant="body2" color={colors.textPrimary} fontWeight={500} mb={1}>
+                Файл
+              </Typography>
+              <StyledInput
+                type="file"
+                name="file"
+                onChange={handleChange}
+                fullWidth
+              />
+              <Typography variant="caption" color={colors.textPrimary} mt={1}>
+                {formData.file ? formData.file.name : 'Файл не выбран'}
+              </Typography>
+            </Box>
 
-        <InfoSection>
-          <IconWrapper>
-            <PersonIcon fontSize="medium" />
-          </IconWrapper>
-          <Typography sx={{ fontSize: '1.2rem', letterSpacing: '2px' }}>
-            {userData.username}
-          </Typography>
-        </InfoSection>
+            {/* Новые поля для загрузки файлов */}
+            {fileFields.map((field) => (
+              <Box key={field.name} mt={2} mb={2}>
+                <Typography variant="body2" color={colors.textPrimary} fontWeight={500} mb={1}>
+                  {field.label}
+                </Typography>
+                <StyledInput
+                  type="file"
+                  name={field.name}
+                  onChange={handleChange}
+                  fullWidth
+                />
+                <Typography variant="caption" color={colors.textPrimary} mt={1}>
+                  {formData[field.name] ? formData[field.name].name : 'Файл не выбран'}
+                </Typography>
+              </Box>
+            ))}
 
-        <InfoSection>
-          <IconWrapper>
-            <CalendarTodayIcon fontSize="medium" />
-          </IconWrapper>
-          <Typography className="military-date">{formattedDate}</Typography>
-        </InfoSection>
-
-        <InfoSection>
-          <IconWrapper>
-            <RadioButtonCheckedIcon fontSize="medium" />
-          </IconWrapper>
-          <Typography
-            sx={{
-              color: colors.secondary,
-              opacity: 0.8,
-              fontStyle: 'italic',
-              letterSpacing: '1px',
-            }}
-          >
-            STATUS: ACTIVE
-          </Typography>
-        </InfoSection>
-
-        <LogoutButton onClick={handleLogout} startIcon={<LogoutIcon />}>
-          LOGOUT
-        </LogoutButton>
-      </ProfileBox>
+            <SubmitButton fullWidth type="submit">
+              Отправить
+            </SubmitButton>
+          </form>
+        </RightColumn>
+      </ContentWrapper>
     </CabinetContainer>
   );
 };

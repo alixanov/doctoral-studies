@@ -10,14 +10,23 @@ body {
   height: 100vh;
   display: flex;
   justify-content: center;
-  background-color: #f5f7fa;
-  background-image: url(../src/assets/backiee-297160-landscape.jpg);
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
   background-attachment: fixed;
-  overflow: hidden;
-  /* Скрываем скролл браузера */
+  background-color: white;
+  /* Скрываем скроллбар, но сохраняем прокрутку */
+  overflow-y: scroll;
+  /* Разрешаем прокрутку */
+  scrollbar-width: none;
+  /* Для Firefox */
+  -ms-overflow-style: none;
+  /* Для Internet Explorer и Edge */
+}
+
+/* Скрываем скроллбар для Webkit-браузеров (Chrome, Safari) */
+body::-webkit-scrollbar {
+  display: none;
 }
 
 #root {
@@ -26,8 +35,17 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  overflow: hidden;
-  /* Скрываем скролл для #root */
+  /* Скрываем скроллбар, но сохраняем прокрутку */
+  overflow-y: scroll;
+  scrollbar-width: none;
+  /* Для Firefox */
+  -ms-overflow-style: none;
+  /* Для Internet Explorer и Edge */
+}
+
+/* Скрываем скроллбар для Webkit-браузеров */
+#root::-webkit-scrollbar {
+  display: none;
 }
 
 /* Контейнер маршрутов */
@@ -35,25 +53,26 @@ body {
   padding: 10px;
   max-height: 95vh;
   transition: margin-left 0.3s ease-in-out;
-  background: rgba(26, 26, 26, 0.4);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border-radius: 40px;
-  overflow: hidden;
-  margin: 10px 40px 10px 10px;
-  /* Убираем скролл здесь, прокрутка будет внутри */
+  overflow-y: auto;
+  /* Разрешаем прокрутку внутри контейнера */
+  scrollbar-width: none;
+  /* Для Firefox */
+  -ms-overflow-style: none;
+  /* Для Internet Explorer и Edge */
 }
 
-@media (max-width: 768px) {
-  body {
-    background-image: url(../src/assets/backiee-297160-portrait.jpg);
-  }
-
-  .routes__container {
-    margin: 0 0 0 0;
-    max-height: 100vh;
-    border-radius: 0px;
-    margin-bottom: 100px;
-  }
-
+/* Скрываем скроллбар для Webkit-браузеров */
+.routes__container::-webkit-scrollbar {
+  display: none;
 }
+
+/* Дополнительные стили для .routes__container */
+.routes__container {
+  margin: 0 0 0 0;
+  max-height: 100vh;
+  border-radius: 0px;
+  margin-bottom: 100px;
+}
+

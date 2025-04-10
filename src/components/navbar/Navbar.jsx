@@ -11,28 +11,24 @@ import LanguageIcon from '@mui/icons-material/Language';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
 
 const colors = {
-  background: 'linear-gradient(135deg, #A32929 10%, #A8A14E 90%)',
-  accent: '#A32929',
-  khaki: '#A8A14E',
-  glow: 'rgba(255, 255, 255, 0.2)',
-  subtleGlow: 'rgba(255, 255, 255, 0.05)',
+  primaryGradient: 'linear-gradient(135deg,rgb(14, 49, 80) 0%, #1a3c59 100%)',
+  secondaryGradient: 'linear-gradient(135deg, #9333EA 0%, #D8B4FE 100%)',
+  textPrimary: '#FFFFFF',
+  textSecondary: '#D1D5DB',
+  activeBg: 'rgba(255, 255, 255, 0.15)',
+  hoverBg: 'rgba(255, 255, 255, 0.1)',
 };
 
 // Стили для боковой панели (десктоп)
 const NavbarContainer = styled(Drawer)(({ theme }) => ({
   '& .MuiDrawer-paper': {
-    width: 230,
-    height: '95vh',
-    margin: '10px 10px 10px 10px',
-    background: 'rgba(26, 26, 26, 0.4)',
-    backdropFilter: 'blur(10px)',
-    WebkitBackdropFilter: 'blur(15px)',
-    borderRadius: '40px',
+    width: 240,
+    height: '100vh',
+    background: colors.primaryGradient,
     borderRight: 'none',
-    boxShadow: '5px 0 25px rgba(0, 0, 0, 0.15)',
-    transition: theme.transitions.create(['box-shadow', 'background'], {
+    boxShadow: '4px 0 20px rgba(0, 0, 0, 0.1)',
+    transition: theme.transitions.create(['box-shadow'], {
       duration: theme.transitions.duration.standard,
-      easing: theme.transitions.easing.easeInOut,
     }),
     display: 'flex',
     flexDirection: 'column',
@@ -46,46 +42,33 @@ const FooterContainer = styled(Box)(({ theme }) => ({
   bottom: 0,
   left: 0,
   width: '100%',
-  backdropFilter: 'blur(15px)',
-  WebkitBackdropFilter: 'blur(15px)',
-  padding: '20px 0',
-  borderRadius: '20px 20px 0 0',
-  boxShadow: '0 -5px 20px rgba(0, 0, 0, 0.2)',
+  background: colors.primaryGradient,
+  padding: '15px 0',
+  boxShadow: '0 -4px 15px rgba(0, 0, 0, 0.15)',
   zIndex: 1300,
   display: 'flex',
-  flexDirection: 'row',
-  alignItems: 'center',
   justifyContent: 'center',
-  transition: theme.transitions.create(['background', 'box-shadow'], {
-    duration: theme.transitions.duration.short,
-  }),
-  '&:hover': {
-    background: 'rgba(40, 40, 40, 0.95)',
-  },
 }));
 
 const LogoContainer = styled(Box)({
-  padding: '35px 20px',
+  padding: '30px 20px',
   textAlign: 'center',
-  borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-  background: 'rgba(255, 255, 255, 0.03)',
-  borderRadius: '0 0 15px 15px',
+  borderBottom: `1px solid ${colors.hoverBg}`,
 });
 
 const LogoText = styled(Typography)({
-  color: '#ffffff',
-  fontSize: 22,
-  fontFamily: "'Inter', sans-serif",
+  color: colors.textPrimary,
+  fontSize: 24,
+  fontFamily: "'Poppins', sans-serif",
   fontWeight: 700,
-  letterSpacing: '0.8px',
-  textShadow: '0 0 8px rgba(255, 255, 255, 0.2)',
+  letterSpacing: '0.5px',
 });
 
 const NavItems = styled(Box)(({ isMobile }) => ({
   display: 'flex',
   flexDirection: isMobile ? 'row' : 'column',
-  gap: isMobile ? 30 : 12,
-  padding: isMobile ? '0 20px' : '25px 15px',
+  gap: isMobile ? 40 : 10,
+  padding: isMobile ? '0 20px' : '20px 15px',
   justifyContent: isMobile ? 'center' : 'flex-start',
   alignItems: 'center',
   width: '100%',
@@ -95,62 +78,46 @@ const NavItem = styled(Link)(({ theme, active, isMobile }) => ({
   display: 'flex',
   alignItems: 'center',
   justifyContent: isMobile ? 'center' : 'flex-start',
-  gap: isMobile ? 0 : 8,
-  flexDirection: isMobile ? 'row' : 'row', // Для десктопа иконка и текст в ряд
+  gap: 10,
   textDecoration: 'none',
-  color: '#ffffff',
-  padding: isMobile ? 10 : '10px 20px',
-  borderRadius: isMobile ? '50%' : '12px', // Круглые кнопки для мобильной версии, прямоугольные для десктопа
-  fontSize: isMobile ? 12 : 17,
+  color: active ? colors.textPrimary : colors.textSecondary,
+  padding: isMobile ? 12 : '12px 20px',
+  borderRadius: 10,
+  fontSize: isMobile ? 14 : 16,
   fontWeight: active ? 600 : 500,
-  background: active ? (isMobile ? colors.background : 'rgba(163, 41, 41, 0.2)') : 'rgba(255, 255, 255, 0.05)',
-  transition: theme.transitions.create(['background', 'transform', 'box-shadow'], {
+  background: active ? colors.activeBg : 'transparent',
+  transition: theme.transitions.create(['background', 'color', 'transform'], {
     duration: theme.transitions.duration.short,
-    easing: theme.transitions.easing.easeInOut,
   }),
   '&:hover': {
-    background: 'rgba(255, 255, 255, 0.1)',
-    transform: isMobile ? 'scale(1.1)' : 'translateY(-2px)',
-    boxShadow: `0 5px 15px ${colors.subtleGlow}`,
+    background: colors.hoverBg,
+    color: colors.textPrimary,
+    transform: isMobile ? 'scale(1.05)' : 'translateX(5px)',
   },
-  '& svg': {
-    filter: active ? 'drop-shadow(0 0 5px rgba(255, 255, 255, 0.3))' : 'none',
-  },
-  ...(active && !isMobile && {
-    transform: 'translateX(4px)',
-    background: `linear-gradient(90deg, rgba(163, 41, 41, 0.2), rgba(168, 161, 78, 0.2))`,
-  }),
 }));
 
 const LanguageToggle = styled(Box)(({ theme, active, isMobile }) => ({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  padding: isMobile ? 10 : '10px 20px',
-  borderRadius: isMobile ? '50%' : '12px', // Круглые кнопки для мобильной версии, прямоугольные для десктопа
-  background: active ? (isMobile ? colors.background : 'rgba(163, 41, 41, 0.2)') : 'rgba(255, 255, 255, 0.05)',
-  transition: theme.transitions.create(['background', 'transform', 'box-shadow'], {
+  padding: isMobile ? 12 : '12px 20px',
+  borderRadius: 10,
+  color: active ? colors.textPrimary : colors.textSecondary,
+  background: active ? colors.activeBg : 'transparent',
+  transition: theme.transitions.create(['background', 'color', 'transform'], {
     duration: theme.transitions.duration.short,
-    easing: theme.transitions.easing.easeInOut,
   }),
   cursor: 'pointer',
   '&:hover': {
-    background: 'rgba(255, 255, 255, 0.1)',
-    transform: isMobile ? 'scale(1.1)' : 'translateY(-2px)',
-    boxShadow: `0 5px 15px ${colors.subtleGlow}`,
+    background: colors.hoverBg,
+    color: colors.textPrimary,
+    transform: isMobile ? 'scale(1.05)' : 'translateX(5px)',
   },
-  '& svg': {
-    filter: active ? 'drop-shadow(0 0 5px rgba(255, 255, 255, 0.3))' : 'none',
-  },
-  ...(active && !isMobile && {
-    transform: 'translateX(4px)',
-    background: `linear-gradient(90deg, rgba(163, 41, 41, 0.2), rgba(168, 161, 78, 0.2))`,
-  }),
 }));
 
 const Navbar = ({ sidebarOpen, setSidebarOpen, isMobile }) => {
   const location = useLocation();
-  const [language, setLanguage] = useState('uz'); // По умолчанию узбекский
+  const [language, setLanguage] = useState('uz');
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -174,28 +141,27 @@ const Navbar = ({ sidebarOpen, setSidebarOpen, isMobile }) => {
     };
   }, [isMobile, sidebarOpen, setSidebarOpen]);
 
-  const isAuthenticated = !!localStorage.getItem('userData');
+  const isAuthenticated = !!localStorage.getItem('token'); // Проверяем наличие токена
 
-  // Локализация ссылок
   const linkTranslations = {
     uz: {
       authenticated: [
         { to: '/', label: 'Asosiy', icon: HomeFilledIcon, active: location.pathname === '/' },
-        { to: '/register', label: ' Royhatdan otish', icon: AccountBoxIcon, active: location.pathname === '/test' },
+        { to: '/cabinet', label: 'Shaxsiy Kabinet', icon: AccountBoxIcon, active: location.pathname === '/cabinet' }, // Изменили на "Личный кабинет"
       ],
       unauthenticated: [
         { to: '/', label: 'Asosiy', icon: HomeFilledIcon, active: location.pathname === '/' },
-        { to: '/register', label: ' Royhatdan otish', icon: AccountBoxIcon, active: location.pathname === '/test' },
+        { to: '/register', label: 'Ro‘yxatdan o‘tish', icon: AccountBoxIcon, active: location.pathname === '/register' },
       ],
     },
     ru: {
       authenticated: [
         { to: '/', label: 'Главная', icon: HomeFilledIcon, active: location.pathname === '/' },
-        { to: '/register', label: 'Регистрация', icon: AccountBoxIcon, active: location.pathname === '/test' },
+        { to: '/cabinet', label: 'Кабинет', icon: AccountBoxIcon, active: location.pathname === '/cabinet' }, // Изменили на "Кабинет"
       ],
       unauthenticated: [
         { to: '/', label: 'Главная', icon: HomeFilledIcon, active: location.pathname === '/' },
-        { to: '/register', label: 'Регистрация', icon: AccountBoxIcon, active: location.pathname === '/test' },
+        { to: '/register', label: 'Регистрация', icon: AccountBoxIcon, active: location.pathname === '/register' },
       ],
     },
   };
@@ -210,17 +176,9 @@ const Navbar = ({ sidebarOpen, setSidebarOpen, isMobile }) => {
 
   const renderLink = ({ to, label, icon: Icon, active }) => (
     <NavItem to={to} active={active} isMobile={isMobile} key={to}>
-      <Icon sx={{ fontSize: isMobile ? 24 : 30, color: '#fff' }} />
+      <Icon sx={{ fontSize: isMobile ? 24 : 28, color: 'inherit' }} />
       {!isMobile && (
-        <Typography
-          sx={{
-            background: active ? colors.background : 'none',
-            WebkitBackgroundClip: active ? 'text' : 'none',
-            WebkitTextFillColor: active ? 'transparent' : '#fff',
-            fontSize: 17,
-            fontWeight: active ? 600 : 500,
-          }}
-        >
+        <Typography sx={{ fontSize: 16, fontWeight: active ? 600 : 500 }}>
           {label}
         </Typography>
       )}
@@ -233,7 +191,7 @@ const Navbar = ({ sidebarOpen, setSidebarOpen, isMobile }) => {
         <NavItems isMobile={true}>
           {links.map(renderLink)}
           <LanguageToggle active={language === 'ru'} onClick={handleLanguageToggle} isMobile={true}>
-            <LanguageIcon sx={{ fontSize: 24, color: '#fff' }} />
+            <LanguageIcon sx={{ fontSize: 24, color: 'inherit' }} />
           </LanguageToggle>
         </NavItems>
       </FooterContainer>
@@ -244,25 +202,16 @@ const Navbar = ({ sidebarOpen, setSidebarOpen, isMobile }) => {
     <NavbarContainer variant="permanent" open={true}>
       <Box>
         <LogoContainer>
-          <LogoText>doctoral-studies</LogoText>
+          <LogoText>Doctoral Studies</LogoText>
         </LogoContainer>
         <NavItems>
           {links.map(renderLink)}
         </NavItems>
       </Box>
-      <Box sx={{ padding: '15px 20px', display: 'flex', justifyContent: 'center' }}>
+      <Box sx={{ padding: '20px', display: 'flex', justifyContent: 'center' }}>
         <LanguageToggle active={language === 'ru'} onClick={handleLanguageToggle} isMobile={false}>
-          <LanguageIcon sx={{ fontSize: 30, color: '#fff' }} />
-          <Typography
-            sx={{
-              background: language === 'ru' ? colors.background : 'none',
-              WebkitBackgroundClip: language === 'ru' ? 'text' : 'none',
-              WebkitTextFillColor: language === 'ru' ? 'transparent' : '#fff',
-              fontSize: 17,
-              fontWeight: language === 'ru' ? 600 : 500,
-              marginLeft: 1,
-            }}
-          >
+          <LanguageIcon sx={{ fontSize: 28, color: 'inherit' }} />
+          <Typography sx={{ fontSize: 16, fontWeight: language === 'ru' ? 600 : 500, ml: 1 }}>
             {language === 'uz' ? "O‘zbek" : 'Русский'}
           </Typography>
         </LanguageToggle>
