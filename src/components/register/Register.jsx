@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { styled } from '@mui/material/styles';
-import { Box, TextField, Button, Typography, CircularProgress } from '@mui/material';
-import { useNavigate } from 'react-router-dom'; // Импортируем для перенаправления
+import { Box, TextField, Button, Typography, CircularProgress, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 import PersonIcon from '@mui/icons-material/Person';
 import EmailIcon from '@mui/icons-material/Email';
 import LockIcon from '@mui/icons-material/Lock';
@@ -48,12 +48,29 @@ const StyledTextField = styled(TextField)({
   '& .MuiInputLabel-root': {
     color: colors.textPrimary,
     fontSize: 14,
-    fontFamily: "'Inter', sans-serif",
     '&.Mui-focused': {
       color: colors.primary,
     },
   },
   marginBottom: 14,
+});
+
+const StyledSelect = styled(Select)({
+  borderRadius: 6,
+  background: '#F9FAFB',
+  color: colors.textPrimary,
+  fontSize: 14,
+  height: 46,
+  '& .MuiOutlinedInput-notchedOutline': {
+    borderColor: colors.primary,
+  },
+  '&:hover .MuiOutlinedInput-notchedOutline': {
+    borderColor: colors.hover,
+  },
+  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+    borderColor: colors.primary,
+    borderWidth: 2,
+  },
 });
 
 const SubmitButton = styled(Button)({
@@ -63,7 +80,6 @@ const SubmitButton = styled(Button)({
   borderRadius: 6,
   fontSize: 14,
   fontWeight: 500,
-  fontFamily: "'Inter', sans-serif",
   transition: 'all 0.3s ease',
   '&:hover': {
     background: colors.hover,
@@ -77,30 +93,100 @@ const SubmitButton = styled(Button)({
 
 const Register = () => {
   const [isLoginMode, setIsLoginMode] = useState(false);
-  const [formData, setFormData] = useState({ name: '', email: '', password: '' });
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    login: '',
+    password: '',
+    role: 'teacher', // По умолчанию учитель
+  });
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate(); // Для перенаправления
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => {
+    setError('');
+
+    // Базовая валидация на стороне клиента
+    if (!formData.login || !formData.password) {
       setLoading(false);
-      if (isLoginMode) {
-        // Сохраняем токен и данные пользователя после авторизации
-        const token = 'mock-token-12345'; // Замените на реальный токен с бэкенда
-        localStorage.setItem('token', token);
-        localStorage.setItem('userData', JSON.stringify({ name: formData.name, email: formData.email }));
-        navigate('/cabinet'); // Перенаправляем на личный кабинет
-      } else {
-        console.log('Регистрация', formData);
+      setError('Логин и пароль обязательны');
+      return;
+    }
+
+    if (!isLoginMode && (!formData.firstName || !formData.lastName)) {
+      setLoading(false);
+      setError('Имя и фамилия обязательны для регистрации');
+      return;
+    }
+
+    if (isLoginMode) {
+      // Авторизация
+      try {
+        const response = await fetch('https://doctoral-studies-server.vercel.app/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            login: formData.login,
+            password: formData.password,
+            role: formData.role,
+          }),
+        });
+
+        const result = await response.json();
+        setLoading(false);
+
+        if (response.ok) {
+          localStorage.setItem('token', result.token);
+          localStorage.setItem('userData', JSON.stringify(result.user));
+          navigate('/doctoral-register');
+        } else {
+          setError(result.error || 'Ошибка авторизации');
+        }
+      } catch (err) {
+        setLoading(false);
+        setError('Произошла ошибка: ' + err.message);
       }
-    }, 1000);
+    } else {
+      // Регистрация (только для учителей)
+      try {
+        const response = await fetch('https://doctoral-studies-server.vercel.app/register-teacher', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            login: formData.login,
+            password: formData.password,
+          }),
+        });
+
+        const result = await response.json();
+        setLoading(false);
+
+        if (response.ok) {
+          alert('Учитель успешно зарегистрирован! Теперь войдите.');
+          setIsLoginMode(true);
+          setFormData({ firstName: '', lastName: '', login: '', password: '', role: 'teacher' });
+        } else {
+          setError(result.error || 'Ошибка регистрации');
+        }
+      } catch (err) {
+        setLoading(false);
+        setError('Произошла ошибка: ' + err.message);
+      }
+    }
   };
 
   return (
@@ -116,32 +202,54 @@ const Register = () => {
           {isLoginMode ? 'Авторизация' : 'Регистрация'}
         </Typography>
 
+        {error && (
+          <Typography
+            align="center"
+            color={colors.error}
+            sx={{ mb: 2, fontSize: 13 }}
+          >
+            {error}
+          </Typography>
+        )}
+
         <form onSubmit={handleSubmit}>
           {!isLoginMode && (
-            <Box display="flex" alignItems="center" mb={1.5}>
-              <PersonIcon sx={{ color: colors.textPrimary, mr: 1, fontSize: 26 }} />
-              <StyledTextField
-                fullWidth
-                label="Имя и фамилия"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-              />
-            </Box>
+            <>
+              <Box display="flex" alignItems="center" mb={1.5}>
+                <PersonIcon sx={{ color: colors.textPrimary, mr: 1, fontSize: 26 }} />
+                <StyledTextField
+                  fullWidth
+                  label="Имя"
+                  name="firstName"
+                  value={formData.firstName}
+                  onChange={handleChange}
+                />
+              </Box>
+              <Box display="flex" alignItems="center" mb={1.5}>
+                <PersonIcon sx={{ color: colors.textPrimary, mr: 1, fontSize: 26 }} />
+                <StyledTextField
+                  fullWidth
+                  label="Фамилия"
+                  name="lastName"
+                  value={formData.lastName}
+                  onChange={handleChange}
+                />
+              </Box>
+            </>
           )}
 
           <Box display="flex" alignItems="center" mb={1.5}>
             <EmailIcon sx={{ color: colors.textPrimary, mr: 1, fontSize: 26 }} />
             <StyledTextField
               fullWidth
-              label="Email"
-              name="email"
-              value={formData.email}
+              label="Логин"
+              name="login"
+              value={formData.login}
               onChange={handleChange}
             />
           </Box>
 
-          <Box display="flex" alignItems="center" mb={2}>
+          <Box display="flex" alignItems="center" mb={1.5}>
             <LockIcon sx={{ color: colors.textPrimary, mr: 1, fontSize: 26 }} />
             <StyledTextField
               fullWidth
@@ -152,6 +260,23 @@ const Register = () => {
               onChange={handleChange}
             />
           </Box>
+
+          {isLoginMode && (
+            <Box display="flex" alignItems="center" mb={1.5}>
+              <FormControl fullWidth>
+                <InputLabel sx={{ color: colors.textPrimary, fontSize: 14 }}>Роль</InputLabel>
+                <StyledSelect
+                  name="role"
+                  value={formData.role}
+                  onChange={handleChange}
+                  label="Роль"
+                >
+                  <MenuItem value="teacher">Учитель</MenuItem>
+                  <MenuItem value="student">Ученик</MenuItem>
+                </StyledSelect>
+              </FormControl>
+            </Box>
+          )}
 
           <SubmitButton fullWidth type="submit" disabled={loading}>
             {loading ? <CircularProgress size={20} color="inherit" /> : isLoginMode ? 'Войти' : 'Зарегистрироваться'}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Route, Routes, useLocation } from 'react-router-dom';
+import { Route, Routes, useLocation, Navigate } from 'react-router-dom';
 import { Navbar, Main, Register, Cabinet } from '../components/';
 import Box from '@mui/material/Box';
 
@@ -30,7 +30,7 @@ const AppRoutes = () => {
 
   useEffect(() => {
     checkAuthentication();
-  }, []);
+  }, [location]); // Обновляем проверку при изменении маршрута
 
   useEffect(() => {
     const handleResize = () => {
@@ -39,6 +39,10 @@ const AppRoutes = () => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  if (isAuthenticated === null) {
+    return null; // Можно показать индикатор загрузки, пока проверяется авторизация
+  }
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh' }}>
@@ -49,14 +53,22 @@ const AppRoutes = () => {
         sx={{
           flexGrow: 1,
           padding: location.pathname === '/cabinet' ? '0px' : '0px',
-          marginLeft: isMobile ? 0 : '230px', // Apply margin-left dynamically
+          marginLeft: isMobile ? 0 : '230px',
         }}
       >
         <Routes>
           <Route path="/" element={<Main />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/cabinet" element={<Cabinet />} />
-          
+          <Route path="/doctoral-register" element={<Register />} />
+          <Route
+            path="/cabinet"
+            element={
+              isAuthenticated ? (
+                <Cabinet />
+              ) : (
+                <Navigate to="/doctoral-register" replace />
+              )
+            }
+          />
         </Routes>
       </Box>
     </Box>

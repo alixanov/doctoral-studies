@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { styled } from '@mui/material/styles';
-import { Box, Typography, TextField, Button, Input, Select, MenuItem } from '@mui/material';
+import { Box, Typography, TextField, Button, Input, Select, MenuItem, CircularProgress } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 // Цветовая схема
 const colors = {
@@ -15,7 +16,6 @@ const colors = {
 // Styled components
 const CabinetContainer = styled(Box)({
   minHeight: '100vh',
-  // background: colors.secondary,
   padding: '24px',
   display: 'flex',
   justifyContent: 'center',
@@ -68,7 +68,6 @@ const StyledTextField = styled(TextField)({
   '& .MuiInputLabel-root': {
     color: colors.textPrimary,
     fontSize: 14,
-    fontFamily: "'Inter', sans-serif",
     '&.Mui-focused': {
       color: colors.primary,
     },
@@ -96,7 +95,6 @@ const StyledSelect = styled(Select)({
 const StyledInput = styled(Input)({
   padding: '8px 0',
   fontSize: 14,
-  fontFamily: "'Inter', sans-serif",
   color: colors.textPrimary,
   '&:before': {
     borderBottom: `1px solid ${colors.border}`,
@@ -116,22 +114,39 @@ const SubmitButton = styled(Button)({
   borderRadius: 6,
   fontSize: 14,
   fontWeight: 500,
-  fontFamily: "'Inter', sans-serif",
   transition: 'all 0.3s ease',
   '&:hover': {
     background: colors.hover,
     transform: 'translateY(-1px)',
   },
+  '&:disabled': {
+    background: '#6B7280',
+    color: colors.white,
+  },
+});
+
+const LogoutButton = styled(Button)({
+  background: colors.error,
+  color: colors.white,
+  padding: '8px 16px',
+  borderRadius: 6,
+  fontSize: 14,
+  fontWeight: 500,
+  transition: 'all 0.3s ease',
+  '&:hover': {
+    background: '#D32F2F',
+    transform: 'translateY(-1px)',
+  },
 });
 
 const Cabinet = () => {
-  // Получаем данные пользователя из localStorage
   const user = JSON.parse(localStorage.getItem('userData')) || {
-    name: 'Иван Петров',
-    email: 'ivan.petrov@example.com',
+    firstName: 'Иван',
+    lastName: 'Петров',
+    login: 'ivan.petrov',
   };
+  const navigate = useNavigate();
 
-  // Состояние для формы отправки
   const [formData, setFormData] = useState({
     subject: '',
     recipient: '',
@@ -154,6 +169,8 @@ const Cabinet = () => {
     yutuqlar: null,
     boshqa: null,
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -163,10 +180,81 @@ const Cabinet = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Отправка данных:', formData);
-    // Здесь можно добавить логику отправки данных
+    setLoading(true);
+    setError('');
+
+    // Валидация
+    if (!formData.subject || !formData.recipient || !formData.content) {
+      setLoading(false);
+      setError('Все текстовые поля обязательны');
+      return;
+    }
+
+    // Подготовка FormData для отправки файлов
+    const formDataToSend = new FormData();
+    formDataToSend.append('subject', formData.subject);
+    formDataToSend.append('recipient', formData.recipient);
+    formDataToSend.append('content', formData.content);
+
+    // Добавляем файлы в FormData
+    Object.keys(formData).forEach((key) => {
+      if (formData[key] instanceof File) {
+        formDataToSend.append(key, formData[key]);
+      }
+    });
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('https://doctoral-studies-server.vercel.app/submit-documents', {
+        method: 'POST',
+        headers: {
+          'Authorization': token,
+        },
+        body: formDataToSend,
+      });
+
+      const result = await response.json();
+      setLoading(false);
+
+      if (response.ok) {
+        alert('Документы успешно отправлены!');
+        setFormData({
+          subject: '',
+          recipient: '',
+          content: '',
+          file: null,
+          malumotnoma: null,
+          photo: null,
+          passport: null,
+          kengashBayyonomma: null,
+          dekanatTaqdimnoma: null,
+          sinovNatijalari: null,
+          ilmiyIshlar: null,
+          annotatsiya: null,
+          maqolalar: null,
+          xulosa: null,
+          testBallari: null,
+          tarjimaiXol: null,
+          reytingDaftarcha: null,
+          guvohnoma: null,
+          yutuqlar: null,
+          boshqa: null,
+        });
+      } else {
+        setError(result.error || 'Ошибка при отправке документов');
+      }
+    } catch (err) {
+      setLoading(false);
+      setError('Произошла ошибка: ' + err.message);
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('userData');
+    navigate('/doctoral-register');
   };
 
   const fileFields = [
@@ -198,27 +286,47 @@ const Cabinet = () => {
           </Typography>
           <Box mb={2}>
             <Typography variant="body2" color={colors.textPrimary} fontWeight={500}>
-              Имя и фамилия
+              Имя
             </Typography>
             <Typography variant="body1" color={colors.textPrimary}>
-              {user.name}
+              {user.firstName}
             </Typography>
           </Box>
           <Box mb={2}>
             <Typography variant="body2" color={colors.textPrimary} fontWeight={500}>
-              Email
+              Фамилия
             </Typography>
             <Typography variant="body1" color={colors.textPrimary}>
-              {user.email}
+              {user.lastName}
             </Typography>
           </Box>
+          <Box mb={2}>
+            <Typography variant="body2" color={colors.textPrimary} fontWeight={500}>
+              Логин
+            </Typography>
+            <Typography variant="body1" color={colors.textPrimary}>
+              {user.login}
+            </Typography>
+          </Box>
+          <LogoutButton fullWidth onClick={handleLogout}>
+            Выйти
+          </LogoutButton>
         </LeftColumn>
 
         {/* Правый столбец: Форма отправки */}
         <RightColumn>
           <Typography variant="h6" fontWeight={600} color={colors.textPrimary} mb={2}>
-            Отправить письмо
+            Отправить документы
           </Typography>
+          {error && (
+            <Typography
+              align="center"
+              color={colors.error}
+              sx={{ mb: 2, fontSize: 13 }}
+            >
+              {error}
+            </Typography>
+          )}
           <form onSubmit={handleSubmit}>
             <StyledTextField
               fullWidth
@@ -268,7 +376,6 @@ const Cabinet = () => {
               </Typography>
             </Box>
 
-            {/* Новые поля для загрузки файлов */}
             {fileFields.map((field) => (
               <Box key={field.name} mt={2} mb={2}>
                 <Typography variant="body2" color={colors.textPrimary} fontWeight={500} mb={1}>
@@ -286,8 +393,8 @@ const Cabinet = () => {
               </Box>
             ))}
 
-            <SubmitButton fullWidth type="submit">
-              Отправить
+            <SubmitButton fullWidth type="submit" disabled={loading}>
+              {loading ? <CircularProgress size={20} color="inherit" /> : 'Отправить'}
             </SubmitButton>
           </form>
         </RightColumn>
