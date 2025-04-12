@@ -24,27 +24,30 @@ import TagIcon from '@mui/icons-material/Tag';
 
 // Цветовая схема
 const colors = {
-  TableGradient: 'linear-gradient(135deg, #0E3150 0%, #1A3C59 100%)', // Глубокий синий градиент
-  darkBlue: '#1A3C5A', // Темно-синий для заголовков
-  rowBackground: 'linear-gradient(90deg, #F9FAFB 0%, #F1F5F9 100%)', // Легкий градиент для строк
-  lightGray: '#F5F6F5', // Светлый фон для карточек
-  accentBlue: '#2A6EBB', // Акцентный синий
-  white: '#FFFFFF', // Белый для текста
-  hoverBackground: 'rgba(42, 110, 187, 0.15)', // Hover эффект
-  borderColor: '#D3DCE6', // Границы
-  titleColor:"#1a3c59"
+  TableGradient: 'linear-gradient(135deg, #0E3150 0%, #1A3C59 100%)',
+  darkBlue: '#1A3C5A',
+  rowBackground: 'linear-gradient(90deg, #F9FAFB 0%, #F1F5F9 100%)',
+  lightGray: '#F5F6F5',
+  accentBlue: '#2A6EBB',
+  white: '#FFFFFF',
+  hoverBackground: 'rgba(42, 110, 187, 0.15)',
+  borderColor: '#D3DCE6',
+  titleColor: '#1a3c59',
 };
 
 // Styled components
 const MainContainer = styled('div')(({ theme }) => ({
   width: '100%',
-  minHeight: '100vh',
+  minHeight: '100vh', // Минимальная высота 100vh
+  maxHeight: '100vh', // Ограничиваем максимальную высоту
   padding: '24px',
-  // background: colors.rowBackground,
   borderRadius: 12,
   [theme.breakpoints.down('sm')]: {
     padding: '16px',
   },
+  // Полностью убираем скролл
+  overflow: 'hidden',
+  boxSizing: 'border-box',
 }));
 
 const StyledTableContainer = styled(TableContainer)({
@@ -52,6 +55,9 @@ const StyledTableContainer = styled(TableContainer)({
   borderRadius: 8,
   border: `1px solid ${colors.borderColor}`,
   boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
+  maxWidth: '100%',
+  // Убираем скролл
+  overflow: 'hidden',
 });
 
 const StyledTable = styled(Table)({
@@ -59,7 +65,11 @@ const StyledTable = styled(Table)({
     borderBottom: `1px solid ${colors.borderColor}`,
     padding: '14px',
     fontFamily: "'Roboto', sans-serif",
+    whiteSpace: 'normal',
+    wordWrap: 'break-word',
   },
+  minWidth: 'auto',
+  width: '100%',
 });
 
 const StyledTableHeadCell = styled(TableCell)(({ theme }) => ({
@@ -78,6 +88,8 @@ const StyledTableHeadCell = styled(TableCell)(({ theme }) => ({
     fontSize: 13,
     padding: '10px',
   },
+  whiteSpace: 'normal',
+  wordWrap: 'break-word',
 }));
 
 const StyledTableBodyCell = styled(TableCell)(({ theme }) => ({
@@ -92,6 +104,8 @@ const StyledTableBodyCell = styled(TableCell)(({ theme }) => ({
     fontSize: 12,
     padding: '10px',
   },
+  whiteSpace: 'normal',
+  wordWrap: 'break-word',
 }));
 
 // Mobile card styles
@@ -107,6 +121,8 @@ const CandidateCard = styled(Card)(({ theme }) => ({
     backgroundColor: colors.hoverBackground,
     boxShadow: '0 6px 16px rgba(0, 0, 0, 0.1)',
   },
+  // Убираем скролл внутри карточки
+  overflow: 'hidden',
 }));
 
 const CardHeader = styled(Box)({
@@ -163,6 +179,31 @@ const DoctoralApplications = () => {
       { id: 'DCT-001', name: 'Иван Петров', submissionDate: '2025-03-15', program: 'Физика' },
       { id: 'DCT-002', name: 'Анна Смирнова', submissionDate: '2025-03-20', program: 'Биология' },
       { id: 'DCT-003', name: 'Сергей Иванов', submissionDate: '2025-04-01', program: 'Математика' },
+      { id: 'DCT-004', name: 'Мария Кузнецова', submissionDate: '2025-04-05', program: 'Химия' },
+      { id: 'DCT-005', name: 'Алексей Сидоров', submissionDate: '2025-04-10', program: 'Информатика' },
+      { id: 'DCT-006', name: 'Елена Попова', submissionDate: '2025-04-15', program: 'История' },
+      { id: 'DCT-007', name: 'Дмитрий Морозов', submissionDate: '2025-04-20', program: 'Экономика' },
+      { id: 'DCT-001', name: 'Иван Петров', submissionDate: '2025-03-15', program: 'Физика' },
+      { id: 'DCT-002', name: 'Анна Смирнова', submissionDate: '2025-03-20', program: 'Биология' },
+      { id: 'DCT-003', name: 'Сергей Иванов', submissionDate: '2025-04-01', program: 'Математика' },
+      { id: 'DCT-004', name: 'Мария Кузнецова', submissionDate: '2025-04-05', program: 'Химия' },
+      { id: 'DCT-005', name: 'Алексей Сидоров', submissionDate: '2025-04-10', program: 'Информатика' },
+      { id: 'DCT-006', name: 'Елена Попова', submissionDate: '2025-04-15', program: 'История' },
+      { id: 'DCT-007', name: 'Дмитрий Морозов', submissionDate: '2025-04-20', program: 'Экономика' },
+      { id: 'DCT-001', name: 'Иван Петров', submissionDate: '2025-03-15', program: 'Физика' },
+      { id: 'DCT-002', name: 'Анна Смирнова', submissionDate: '2025-03-20', program: 'Биология' },
+      { id: 'DCT-003', name: 'Сергей Иванов', submissionDate: '2025-04-01', program: 'Математика' },
+      { id: 'DCT-004', name: 'Мария Кузнецова', submissionDate: '2025-04-05', program: 'Химия' },
+      { id: 'DCT-005', name: 'Алексей Сидоров', submissionDate: '2025-04-10', program: 'Информатика' },
+      { id: 'DCT-006', name: 'Елена Попова', submissionDate: '2025-04-15', program: 'История' },
+      { id: 'DCT-007', name: 'Дмитрий Морозов', submissionDate: '2025-04-20', program: 'Экономика' },
+      { id: 'DCT-001', name: 'Иван Петров', submissionDate: '2025-03-15', program: 'Физика' },
+      { id: 'DCT-002', name: 'Анна Смирнова', submissionDate: '2025-03-20', program: 'Биология' },
+      { id: 'DCT-003', name: 'Сергей Иванов', submissionDate: '2025-04-01', program: 'Математика' },
+      { id: 'DCT-004', name: 'Мария Кузнецова', submissionDate: '2025-04-05', program: 'Химия' },
+      { id: 'DCT-005', name: 'Алексей Сидоров', submissionDate: '2025-04-10', program: 'Информатика' },
+      { id: 'DCT-006', name: 'Елена Попова', submissionDate: '2025-04-15', program: 'История' },
+      { id: 'DCT-007', name: 'Дмитрий Морозов', submissionDate: '2025-04-20', program: 'Экономика' },
     ];
     setCandidates(tempData);
   }, []);
@@ -170,7 +211,7 @@ const DoctoralApplications = () => {
   // Обработка пустого списка
   const EmptyState = () => (
     <Box sx={{ textAlign: 'center', py: 8 }}>
-      <Typography variant="h6" color={colors.white} sx={{ opacity: 0.8 }}>
+      <Typography variant="h6" color={colors.darkBlue} sx={{ opacity: 0.8 }}>
         Нет данных о заявках
       </Typography>
     </Box>
@@ -178,7 +219,7 @@ const DoctoralApplications = () => {
 
   // Мобильная версия с карточками
   const MobileCandidateList = () => (
-    <Box sx={{ mt: 3 }}>
+    <Box sx={{ mt: 3, overflow: 'hidden' }}>
       {candidates.length === 0 ? (
         <EmptyState />
       ) : (
@@ -243,11 +284,11 @@ const DoctoralApplications = () => {
       <StyledTable>
         <TableHead>
           <TableRow>
-            <StyledTableHeadCell sx={{ width: '15%' }}>№</StyledTableHeadCell>
-            <StyledTableHeadCell sx={{ width: '20%' }}>ID</StyledTableHeadCell>
-            <StyledTableHeadCell sx={{ width: '25%' }}>Имя</StyledTableHeadCell>
-            <StyledTableHeadCell sx={{ width: '20%' }}>Дата подачи</StyledTableHeadCell>
-            <StyledTableHeadCell sx={{ width: '20%' }}>Программа</StyledTableHeadCell>
+            <StyledTableHeadCell>№</StyledTableHeadCell>
+            <StyledTableHeadCell>ID</StyledTableHeadCell>
+            <StyledTableHeadCell>Имя</StyledTableHeadCell>
+            <StyledTableHeadCell>Дата подачи</StyledTableHeadCell>
+            <StyledTableHeadCell>Программа</StyledTableHeadCell>
           </TableRow>
         </TableHead>
         <TableBody>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { styled } from '@mui/material/styles';
 import { Box, TextField, Button, Typography, CircularProgress, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
@@ -92,7 +92,7 @@ const SubmitButton = styled(Button)({
 });
 
 const Register = () => {
-  const [isLoginMode, setIsLoginMode] = useState(false);
+  const [isLoginMode, setIsLoginMode] = useState(true); // По умолчанию режим авторизации
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -103,6 +103,14 @@ const Register = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+
+  // Проверка авторизации при загрузке страницы
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      navigate('/cabinet'); // Если пользователь авторизован, перенаправляем в личный кабинет
+    }
+  }, [navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -148,7 +156,7 @@ const Register = () => {
         if (response.ok) {
           localStorage.setItem('token', result.token);
           localStorage.setItem('userData', JSON.stringify(result.user));
-          navigate('/doctoral-register');
+          navigate('/cabinet'); // Перенаправляем в личный кабинет после авторизации
         } else {
           setError(result.error || 'Ошибка авторизации');
         }

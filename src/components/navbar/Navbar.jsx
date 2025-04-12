@@ -202,12 +202,12 @@ const Navbar = ({ isMobile }) => {
         </NavItems>
       </Box>
       <Box sx={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-        <ActionButton isMobile={false} onClick={handleLanguageToggle}>
+        {/* <ActionButton isMobile={false} onClick={handleLanguageToggle}>
           <LanguageIcon sx={{ fontSize: 28, color: 'inherit' }} />
           <Typography sx={{ fontSize: 16, fontWeight: 500, ml: 1 }}>
             {language === 'uz' ? "O‘zbek" : 'Русский'}
           </Typography>
-        </ActionButton>
+        </ActionButton> */}
         {isAuthenticated && (
           <ActionButton isMobile={false} isLogout={true} onClick={handleLogout}>
             <LogoutIcon sx={{ fontSize: 28, color: 'inherit' }} />
