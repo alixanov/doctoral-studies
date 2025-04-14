@@ -78,8 +78,6 @@ const HeroSection = styled(Box)(({ theme }) => ({
 }));
 
 
-
-
 const FeatureCard = styled(Paper)(({ theme }) => ({
   width:320,
   padding: theme.spacing(4),
