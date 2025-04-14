@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { styled } from '@mui/material/styles';
 import { Box, Typography, TextField, Button, Input, Select, MenuItem, CircularProgress } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
@@ -11,6 +11,8 @@ const colors = {
   white: '#FFFFFF',
   hover: '#2A4A6B',
   border: '#E5E7EB',
+  error: '#D32F2F',
+  success: '#2ECC71', // Новый цвет для успешной отправки
 };
 
 // Styled components
@@ -90,6 +92,7 @@ const StyledSelect = styled(Select)({
     borderColor: colors.primary,
     borderWidth: 2,
   },
+  marginBottom: 16,
 });
 
 const StyledInput = styled(Input)({
@@ -107,8 +110,8 @@ const StyledInput = styled(Input)({
   },
 });
 
-const SubmitButton = styled(Button)({
-  background: colors.primary,
+const SubmitButton = styled(Button)(({ success }) => ({
+  background: success ? colors.success : colors.primary,
   color: colors.white,
   padding: '10px 0',
   borderRadius: 6,
@@ -116,14 +119,19 @@ const SubmitButton = styled(Button)({
   fontWeight: 500,
   transition: 'all 0.3s ease',
   '&:hover': {
-    background: colors.hover,
+    background: success ? '#27AE60' : colors.hover,
     transform: 'translateY(-1px)',
   },
   '&:disabled': {
     background: '#6B7280',
     color: colors.white,
   },
-});
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: 8,
+  textTransform: 'none', // Чтобы текст выглядел естественно
+}));
 
 const LogoutButton = styled(Button)({
   background: colors.error,
@@ -134,7 +142,7 @@ const LogoutButton = styled(Button)({
   fontWeight: 500,
   transition: 'all 0.3s ease',
   '&:hover': {
-    background: '#D32F2F',
+    background: '#ae2525',
     transform: 'translateY(-1px)',
   },
 });
@@ -171,6 +179,55 @@ const Cabinet = () => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [reviewers, setReviewers] = useState([]);
+  const [fetchingReviewers, setFetchingReviewers] = useState(false);
+  const [success, setSuccess] = useState(false); // Новое состояние для успешной отправки
+
+  // Получение списка проверяющих
+  useEffect(() => {
+    const fetchReviewers = async () => {
+      setFetchingReviewers(true);
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch('http://localhost:5000/reviewers', {
+          headers: {
+            Authorization: token,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setReviewers(data);
+        } else {
+          // Дефолтные значения
+          setReviewers([
+            { id: '1', firstName: 'Администратор', lastName: 'Системы', email: 'admin@example.com' },
+            { id: '2', firstName: 'Сотрудник', lastName: 'Поддержки', email: 'support@example.com' },
+          ]);
+        }
+      } catch (err) {
+        console.error('Ошибка при получении списка проверяющих:', err);
+        setReviewers([
+          { id: '1', firstName: 'Администратор', lastName: 'Системы', email: 'admin@example.com' },
+          { id: '2', firstName: 'Сотрудник', lastName: 'Поддержки', email: 'support@example.com' },
+        ]);
+      } finally {
+        setFetchingReviewers(false);
+      }
+    };
+
+    fetchReviewers();
+  }, []);
+
+  // Сброс состояния успеха через 3 секунды
+  useEffect(() => {
+    if (success) {
+      const timer = setTimeout(() => {
+        setSuccess(false);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [success]);
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -180,12 +237,11 @@ const Cabinet = () => {
     }));
   };
 
-  
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
+    setSuccess(false);
 
     // Валидация
     if (!formData.subject || !formData.recipient || !formData.content) {
@@ -194,13 +250,12 @@ const Cabinet = () => {
       return;
     }
 
-    // Подготовка FormData для отправки файлов
+    // Подготовка FormData
     const formDataToSend = new FormData();
     formDataToSend.append('subject', formData.subject);
     formDataToSend.append('recipient', formData.recipient);
     formDataToSend.append('content', formData.content);
 
-    // Добавляем файлы в FormData
     Object.keys(formData).forEach((key) => {
       if (formData[key] instanceof File) {
         formDataToSend.append(key, formData[key]);
@@ -209,10 +264,10 @@ const Cabinet = () => {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('https://doctoral-studies-server.vercel.app/submit-documents', {
+      const response = await fetch('http://localhost:5000/submit-documents', {
         method: 'POST',
         headers: {
-          'Authorization': token,
+          Authorization: token,
         },
         body: formDataToSend,
       });
@@ -221,7 +276,7 @@ const Cabinet = () => {
       setLoading(false);
 
       if (response.ok) {
-        alert('Документы успешно отправлены!');
+        setSuccess(true);
         setFormData({
           subject: '',
           recipient: '',
@@ -260,22 +315,22 @@ const Cabinet = () => {
   };
 
   const fileFields = [
-    { name: 'malumotnoma', label: "Ma'lumotnoma" },
-    { name: 'photo', label: "Nomzodning elektron shakldagi foto-surati" },
-    { name: 'passport', label: "Passport nusxasi" },
-    { name: 'kengashBayyonomma', label: "Institut Ilmiy Kengashi yigilishi bayyonommasidan ko'chirma" },
-    { name: 'dekanatTaqdimnoma', label: "Dekanat va Kafedra taqdimnomasi" },
-    { name: 'sinovNatijalari', label: "Birinchi bosqichda Tarix, Chet tili va Informatika fanlaridan erishgan sinov natijalari qaydnomasi(elektron)" },
-    { name: 'ilmiyIshlar', label: "Ilmiy ishlar Ro'yhati" },
-    { name: 'annotatsiya', label: "Ilmiy (ijodiy) ishlarning annotatsiyasi" },
-    { name: 'maqolalar', label: "Ilmiy maqolalar nusxasi" },
-    { name: 'xulosa', label: "Talabaning ilmiy izlasnishi tog'risida kafedra mudiri va ilmiy rahbar xulosasi" },
-    { name: 'testBallari', label: "Talabaning kirish test sinovlarida to'plagan ballari" },
-    { name: 'tarjimaiXol', label: "Talabaning tarjimai xoli" },
-    { name: 'reytingDaftarcha', label: "Reyting daftarcha" },
-    { name: 'guvohnoma', label: "Muallif guvohnomasi" },
-    { name: 'yutuqlar', label: "Yutuqlar" },
-    { name: 'boshqa', label: "Boshqa" },
+    { name: 'malumotnoma', label: 'Справка' },
+    { name: 'photo', label: 'Электронная фотография кандидата' },
+    { name: 'passport', label: 'Копия паспорта' },
+    { name: 'kengashBayyonomma', label: 'Выписка из протокола заседания ученого совета института' },
+    { name: 'dekanatTaqdimnoma', label: 'Рекомендация деканата и кафедры' },
+    { name: 'sinovNatijalari', label: 'Электронная ведомость результатов испытаний по истории, иностранному языку и информатике на первом этапе' },
+    { name: 'ilmiyIshlar', label: 'Список научных работ' },
+    { name: 'annotatsiya', label: 'Аннотация научных (творческих) работ' },
+    { name: 'maqolalar', label: 'Копии научных статей' },
+    { name: 'xulosa', label: 'Заключение заведующего кафедрой и научного руководителя о научной деятельности аспиранта' },
+    { name: 'testBallari', label: 'Баллы, набранные на вступительных тестах' },
+    { name: 'tarjimaiXol', label: 'Автобиография аспиранта' },
+    { name: 'reytingDaftarcha', label: 'Рейтинговая книжка' },
+    { name: 'guvohnoma', label: 'Свидетельство автора' },
+    { name: 'yutuqlar', label: 'Достижения' },
+    { name: 'boshqa', label: 'Прочее' },
   ];
 
   return (
@@ -321,11 +376,7 @@ const Cabinet = () => {
             Отправить документы
           </Typography>
           {error && (
-            <Typography
-              align="center"
-              color={colors.error}
-              sx={{ mb: 2, fontSize: 13 }}
-            >
+            <Typography align="center" color={colors.error} sx={{ mb: 2, fontSize: 13 }}>
               {error}
             </Typography>
           )}
@@ -344,13 +395,28 @@ const Cabinet = () => {
               value={formData.recipient}
               onChange={handleChange}
               displayEmpty
-              renderValue={(selected) => (selected ? selected : 'Кому отправить')}
+              renderValue={(selected) => {
+                if (!selected) return 'Кому отправить';
+                const selectedReviewer = reviewers.find((rev) => rev.email === selected);
+                return selectedReviewer ? `${selectedReviewer.firstName} ${selectedReviewer.lastName}` : selected;
+              }}
+              disabled={fetchingReviewers}
             >
               <MenuItem value="" disabled>
                 Кому отправить
               </MenuItem>
-              <MenuItem value="admin@example.com">Администратору</MenuItem>
-              <MenuItem value="support@example.com">Поддержке</MenuItem>
+              {fetchingReviewers ? (
+                <MenuItem disabled>
+                  <CircularProgress size={20} />
+                  Загрузка...
+                </MenuItem>
+              ) : (
+                reviewers.map((reviewer) => (
+                  <MenuItem key={reviewer.id || reviewer.email} value={reviewer.email}>
+                    {reviewer.firstName} {reviewer.lastName}
+                  </MenuItem>
+                ))
+              )}
             </StyledSelect>
             <StyledTextField
               fullWidth
@@ -361,18 +427,12 @@ const Cabinet = () => {
               variant="outlined"
               multiline
               rows={4}
-              sx={{ mt: 2 }}
             />
             <Box mt={2} mb={2}>
               <Typography variant="body2" color={colors.textPrimary} fontWeight={500} mb={1}>
                 Файл
               </Typography>
-              <StyledInput
-                type="file"
-                name="file"
-                onChange={handleChange}
-                fullWidth
-              />
+              <StyledInput type="file" name="file" onChange={handleChange} fullWidth />
               <Typography variant="caption" color={colors.textPrimary} mt={1}>
                 {formData.file ? formData.file.name : 'Файл не выбран'}
               </Typography>
@@ -383,20 +443,24 @@ const Cabinet = () => {
                 <Typography variant="body2" color={colors.textPrimary} fontWeight={500} mb={1}>
                   {field.label}
                 </Typography>
-                <StyledInput
-                  type="file"
-                  name={field.name}
-                  onChange={handleChange}
-                  fullWidth
-                />
+                <StyledInput type="file" name={field.name} onChange={handleChange} fullWidth />
                 <Typography variant="caption" color={colors.textPrimary} mt={1}>
                   {formData[field.name] ? formData[field.name].name : 'Файл не выбран'}
                 </Typography>
               </Box>
             ))}
 
-            <SubmitButton fullWidth type="submit" disabled={loading}>
-              {loading ? <CircularProgress size={20} color="inherit" /> : 'Отправить'}
+            <SubmitButton fullWidth type="submit" disabled={loading || success} success={success ? 1 : 0}>
+              {loading ? (
+                <>
+                  <CircularProgress size={20} color="inherit" />
+                  Отправка идет, подождите до 1 минуты
+                </>
+              ) : success ? (
+                'Успешно отправлено'
+              ) : (
+                'Отправить'
+              )}
             </SubmitButton>
           </form>
         </RightColumn>

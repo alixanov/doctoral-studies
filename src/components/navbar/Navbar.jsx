@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
@@ -6,11 +6,11 @@ import Drawer from '@mui/material/Drawer';
 import Typography from '@mui/material/Typography';
 import HomeFilledIcon from '@mui/icons-material/HomeFilled';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
-import LanguageIcon from '@mui/icons-material/Language';
 import LogoutIcon from '@mui/icons-material/Logout';
 import FileOpenIcon from '@mui/icons-material/FileOpen';
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 
+// Цветовая палитра
 const colors = {
   primaryGradient: 'linear-gradient(135deg, rgb(14, 49, 80) 0%, #1a3c59 100%)',
   secondaryGradient: 'linear-gradient(135deg, #9333EA 0%, #D8B4FE 100%)',
@@ -24,7 +24,7 @@ const colors = {
 // Стили
 const NavbarContainer = styled(Drawer)(({ theme }) => ({
   '& .MuiDrawer-paper': {
-    width: 240,
+    width: 270,
     height: '100vh',
     background: colors.primaryGradient,
     borderRight: 'none',
@@ -33,6 +33,7 @@ const NavbarContainer = styled(Drawer)(({ theme }) => ({
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
+    alignItems:"start"
   },
 }));
 
@@ -89,6 +90,11 @@ const NavItem = styled(Link)(({ theme, active, ismobile }) => ({
     color: colors.textPrimary,
     transform: ismobile ? 'scale(1.05)' : 'translateX(5px)',
   },
+  // Добавляем визуальный акцент для активного пункта в мобильной версии
+  ...(ismobile && active && {
+    borderBottom: `2px solid ${colors.textPrimary}`,
+    paddingBottom: 10,
+  }),
 }));
 
 const ActionButton = styled(Box)(({ theme, ismobile, islogout }) => ({
@@ -107,80 +113,73 @@ const ActionButton = styled(Box)(({ theme, ismobile, islogout }) => ({
     color: islogout ? '#D32F2F' : colors.textPrimary,
     transform: ismobile ? 'scale(1.05)' : 'translateX(5px)',
   },
+  // Для кнопки выхода в мобильной версии
+  ...(ismobile && islogout && {
+    borderBottom: '2px solid transparent',
+  }),
 }));
 
 const Navbar = ({ isMobile = false, sidebarOpen = false, setSidebarOpen = () => { } }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [language, setLanguage] = useState('uz');
+  const [activePath, setActivePath] = useState(location.pathname);
 
   // Получаем данные пользователя из localStorage
   const userData = JSON.parse(localStorage.getItem('userData')) || {};
   const isAuthenticated = !!localStorage.getItem('token');
   const userRole = userData?.role || '';
 
-  // Локализация
-  const translations = {
-    uz: {
-      links: [
-        { to: '/', label: 'Asosiy', icon: HomeFilledIcon },
-        isAuthenticated && userRole === 'doctoral' &&
-        { to: '/documents', label: 'Arizalarim', icon: FileOpenIcon },
-        isAuthenticated && userRole === 'reviewer' &&
-        { to: '/review-applications', label: 'Arizalarni tekshirish', icon: AssignmentTurnedInIcon },
-        isAuthenticated
-          ? {
-            to: userRole === 'reviewer' ? '/reviewer-cabinet' : '/cabinet',
-            label: userRole === 'reviewer' ? 'Tekshiruvchi kabineti' : 'Shaxsiy Kabinet',
-            icon: AccountBoxIcon
-          }
-          : { to: '/doctoral-register', label: "Ro‘yxatdan o‘tish", icon: AccountBoxIcon },
-      ].filter(Boolean), // Удаляем null/undefined элементы
-      logout: 'Chiqish',
-      language: "O‘zbek",
-    },
-    ru: {
-      links: [
-        { to: '/', label: 'Главная', icon: HomeFilledIcon },
-        isAuthenticated && userRole === 'doctoral' &&
-        { to: '/documents', label: 'Мои заявки', icon: FileOpenIcon },
-        isAuthenticated && userRole === 'reviewer' &&
-        { to: '/review-applications', label: 'Проверка заявок', icon: AssignmentTurnedInIcon },
-        isAuthenticated
-          ? {
-            to: userRole === 'reviewer' ? '/reviewer-cabinet' : '/cabinet',
-            label: userRole === 'reviewer' ? 'Кабинет проверяющего' : 'Личный кабинет',
-            icon: AccountBoxIcon
-          }
-          : { to: '/doctoral-register', label: 'Регистрация', icon: AccountBoxIcon },
-      ].filter(Boolean),
-      logout: 'Выйти',
-      language: 'Русский',
-    },
-  };
+  // Синхронизируем активный путь при изменении маршрута
+  useEffect(() => {
+    setActivePath(location.pathname);
+  }, [location.pathname]);
 
-  const links = translations[language].links;
-
-  const handleLanguageToggle = () => {
-    setLanguage((prev) => (prev === 'uz' ? 'ru' : 'uz'));
-  };
+  // Навигационные ссылки (только на русском)
+  const links = [
+    { to: '/', label: 'Главная', icon: HomeFilledIcon },
+    isAuthenticated &&
+    userRole === 'doctoral' && {
+      to: '/documents',
+      label: 'Мои заявки',
+      icon: FileOpenIcon,
+    },
+    isAuthenticated &&
+    userRole === 'reviewer' && {
+      to: '/review-news',
+      label: 'Новости',
+      icon: AssignmentTurnedInIcon,
+    },
+    isAuthenticated
+      ? {
+        to: userRole === 'reviewer' ? '/reviewer-cabinet' : '/cabinet',
+        label: userRole === 'reviewer' ? 'Кабинет' : 'Личный кабинет',
+        icon: AccountBoxIcon,
+      }
+      : { to: '/doctoral-register', label: 'Регистрация', icon: AccountBoxIcon },
+  ].filter(Boolean); // Удаляем null/undefined элементы
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('userData');
     navigate('/doctoral-register');
+    setActivePath('/doctoral-register');
+  };
+
+  const handleNavClick = (path) => {
+    setActivePath(path);
   };
 
   const renderLink = ({ to, label, icon: Icon }) => (
     <NavItem
       to={to}
-      active={location.pathname === to ? 1 : 0}
+      active={activePath === to ? 1 : 0}
       ismobile={isMobile ? 1 : 0}
       key={to}
+      onClick={() => handleNavClick(to)}
     >
       <Icon sx={{ fontSize: isMobile ? 24 : 28, color: 'inherit' }} />
       {!isMobile && (
-        <Typography sx={{ fontSize: 16, fontWeight: location.pathname === to ? 600 : 500 }}>
+        <Typography sx={{ fontSize: 16, fontWeight: activePath === to ? 600 : 500 }}>
           {label}
         </Typography>
       )}
@@ -192,9 +191,6 @@ const Navbar = ({ isMobile = false, sidebarOpen = false, setSidebarOpen = () => 
       <FooterContainer>
         <NavItems ismobile={1}>
           {links.map(renderLink)}
-          <ActionButton ismobile={1} onClick={handleLanguageToggle}>
-            <LanguageIcon sx={{ fontSize: 24, color: 'inherit' }} />
-          </ActionButton>
           {isAuthenticated && (
             <ActionButton ismobile={1} islogout={1} onClick={handleLogout}>
               <LogoutIcon sx={{ fontSize: 24, color: 'inherit' }} />
@@ -214,12 +210,11 @@ const Navbar = ({ isMobile = false, sidebarOpen = false, setSidebarOpen = () => 
         <NavItems>{links.map(renderLink)}</NavItems>
       </Box>
       <Box sx={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-   
         {isAuthenticated && (
           <ActionButton ismobile={0} islogout={1} onClick={handleLogout}>
             <LogoutIcon sx={{ fontSize: 28, color: 'inherit' }} />
             <Typography sx={{ fontSize: 16, fontWeight: 500, ml: 1 }}>
-              {translations[language].logout}
+              Выйти
             </Typography>
           </ActionButton>
         )}

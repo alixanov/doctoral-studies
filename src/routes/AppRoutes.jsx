@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Route, Routes, useLocation, Navigate } from 'react-router-dom';
-import { Navbar, Main, Register, Cabinet, ReviewerCabinet, DocumentsList } from '../components/';
+import { Navbar, Main, Register, Cabinet, ReviewerCabinet, DocumentsList, ReviewerNews } from '../components/';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 
@@ -56,7 +56,7 @@ const AppRoutes = () => {
         sx={{
           flexGrow: 1,
           padding: location.pathname === '/cabinet' ? 0 : 2,
-          marginLeft: isMobile ? 0 : '240px',
+          marginLeft: isMobile ? 0 : '270px',
           transition: 'margin-left 0.3s ease-in-out',
         }}
       >
@@ -65,6 +65,7 @@ const AppRoutes = () => {
           <Route path="/doctoral-register" element={<Register />} />
           <Route path="/reviewer-cabinet" element={<ReviewerCabinet />} />
           <Route path="/documents" element={<DocumentsList />} />
+          <Route path='/review-news' element={<ReviewerNews/>}/>
 
           <Route
             path="/cabinet"

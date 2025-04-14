@@ -17,7 +17,7 @@ import HowToRegIcon from '@mui/icons-material/HowToReg';
 import PeopleIcon from '@mui/icons-material/People';
 import { keyframes } from '@emotion/react';
 
-// Анимация для баннера
+// Анимации
 const slideIn = keyframes`
   from {
     opacity: 0;
@@ -29,11 +29,20 @@ const slideIn = keyframes`
   }
 `;
 
+const fadeIn = keyframes`
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+`;
+
 // Цветовая палитра
 const colors = {
-  primaryGradient: 'linear-gradient(135deg, rgb(14, 49, 80) 0%, #1a3c59 100%)',
+  primaryGradient: 'linear-gradient(135deg, #143654 0%, #1a3c59 100%)',
   secondaryGradient: 'linear-gradient(135deg, #9333EA 0%, #D8B4FE 100%)',
-  textPrimary: '#1A3C59',
+  textPrimary: '#143654',
   textSecondary: '#4B5E6F',
   background: '#F8FAFC',
   cardBg: '#FFFFFF',
@@ -42,7 +51,7 @@ const colors = {
   accent: '#9333EA',
 };
 
-// Стили для герой-секции
+// Стили
 const HeroSection = styled(Box)(({ theme }) => ({
   background: colors.primaryGradient,
   color: '#FFFFFF',
@@ -68,8 +77,11 @@ const HeroSection = styled(Box)(({ theme }) => ({
   },
 }));
 
-// Стили для карточек функций
+
+
+
 const FeatureCard = styled(Paper)(({ theme }) => ({
+  width:320,
   padding: theme.spacing(4),
   background: colors.cardBg,
   borderRadius: 10,
@@ -86,7 +98,6 @@ const FeatureCard = styled(Paper)(({ theme }) => ({
   },
 }));
 
-// Стили для иконок функций
 const FeatureIcon = styled(Box)(({ theme }) => ({
   width: 56,
   height: 56,
@@ -103,7 +114,26 @@ const FeatureIcon = styled(Box)(({ theme }) => ({
   },
 }));
 
-// Стили для кнопок
+const NewsCard = styled(Paper)(({ theme, index }) => ({
+  // width:500,
+  padding: theme.spacing(3),
+  background: colors.cardBg,
+  borderRadius: 12,
+  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+  borderLeft: `4px solid ${colors.accent}`,
+  transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+  animation: `${fadeIn} 0.5s ease forwards`,
+  animationDelay: `${index * 0.2}s`,
+  opacity: 0,
+  '&:hover': {
+    transform: 'scale(1.02)',
+    boxShadow: '0 6px 24px rgba(0, 0, 0, 0.15)',
+  },
+  [theme.breakpoints.down('sm')]: {
+    padding: theme.spacing(2),
+  },
+}));
+
 const StyledButton = styled(Button)(({ theme }) => ({
   background: colors.buttonBg,
   color: '#FFFFFF',
@@ -126,7 +156,50 @@ const StyledButton = styled(Button)(({ theme }) => ({
       transform: 'translateY(-2px)',
     },
   },
+  '&.newsButton': {
+    background: colors.textPrimary,
+    padding: theme.spacing(1, 3),
+    fontSize: '0.9rem',
+    '&:hover': {
+      background: colors.buttonHover,
+    },
+  },
 }));
+
+// Функция форматирования даты
+const formatDate = (date) => {
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+  return `${day}.${month}.${year}`;
+};
+
+// Генерация новостей с динамическими датами
+const generateNewsData = () => {
+  const today = new Date();
+  return [
+    {
+      id: 1,
+      title: 'Новые требования к диссертациям в 2025 году',
+      date: formatDate(today),
+      description: 'Минобрнауки обновило требования к оформлению докторских диссертаций...',
+    },
+    {
+      id: 2,
+      title: 'Гранты для докторантов',
+      date: formatDate(new Date(today.setDate(today.getDate() - 2))),
+      description: 'Объявлен конкурс на получение грантов для исследований...',
+    },
+    {
+      id: 3,
+      title: 'Конференция по научным исследованиям',
+      date: formatDate(new Date(today.setDate(today.getDate() - 2))),
+      description: 'Приглашаем докторантов на международную конференцию...',
+    },
+  ];
+};
+
+const newsData = generateNewsData();
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -191,38 +264,7 @@ const HomePage = () => {
           >
             Современное решение для подачи и проверки документов в докторантуру
           </Typography>
-          <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap' }}>
-            {!isAuthenticated ? (
-              <>
-                <StyledButton
-                  variant="contained"
-                  size="large"
-                  onClick={() => handleNavigate('/doctoral-register')}
-                >
-                  Начать
-                </StyledButton>
-                <StyledButton
-                  variant="outlined"
-                  size="large"
-                  className="outlined"
-                  onClick={() => handleNavigate('/login')}
-                >
-                  Войти
-                </StyledButton>
-              </>
-            ) : (
-              <StyledButton
-                variant="contained"
-                size="large"
-                onClick={() => {
-                  const userData = JSON.parse(localStorage.getItem('userData'));
-                  handleNavigate(userData.role === 'reviewer' ? '/reviewer-cabinet' : '/cabinet');
-                }}
-              >
-                В кабинет
-              </StyledButton>
-            )}
-          </Box>
+ 
         </Container>
       </HeroSection>
 
@@ -299,6 +341,71 @@ const HomePage = () => {
           </Grid>
         </Box>
 
+        {/* Новости */}
+        <Box sx={{ mb: 5 }}>
+          <Typography
+            variant="h6"
+            component="h3"
+            gutterBottom
+            sx={{
+              textAlign: 'center',
+              mb: 4,
+              fontFamily: "'Inter', sans-serif",
+              fontWeight: 600,
+              color: colors.textPrimary,
+            }}
+          >
+            Новости об образовании
+          </Typography>
+          <Grid container spacing={3}>
+            {newsData.map((news, index) => (
+              <Grid item xs={12} sm={6} md={4} key={news.id}>
+                <NewsCard elevation={0} index={index}>
+                  <Typography
+                    variant="subtitle1"
+                    component="h4"
+                    gutterBottom
+                    sx={{
+                      fontFamily: "'Inter', sans-serif",
+                      fontWeight: 600,
+                      color: colors.textPrimary,
+                    }}
+                  >
+                    {news.title}
+                  </Typography>
+                  <Typography
+                    variant="caption"
+                    color={colors.textSecondary}
+                    sx={{ fontFamily: "'Inter', sans-serif", fontSize: 12 }}
+                  >
+                    {news.date}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    color={colors.textSecondary}
+                    sx={{
+                      fontFamily: "'Inter', sans-serif",
+                      fontSize: 14,
+                      mt: 1,
+                      mb: 2,
+                    }}
+                  >
+                    {news.description}
+                  </Typography>
+                  <StyledButton
+                    variant="contained"
+                    size="small"
+                    className="newsButton"
+                    onClick={() => handleNavigate(`/news/${news.id}`)}
+                  >
+                    Подробнее
+                  </StyledButton>
+                </NewsCard>
+              </Grid>
+            ))}
+          </Grid>
+        </Box>
+
         {/* Как это работает */}
         <Box sx={{ mb: 5, textAlign: 'center' }}>
           <Typography
@@ -313,7 +420,7 @@ const HomePage = () => {
           >
             Как это работает?
           </Typography>
-          <Grid container spacing={3} sx={{ mt: 2 }}>
+          <Grid container spacing={3} sx={{ mt: 2,display:"flex",justifyContent:"center"}}>
             <Grid item xs={12} md={4}>
               <Typography
                 variant="subtitle1"

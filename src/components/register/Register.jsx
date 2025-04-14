@@ -156,7 +156,7 @@ const Register = () => {
     }
 
     // Base API URL
-    const baseUrl = 'https://doctoral-studies-server.vercel.app';
+    const baseUrl = 'http://localhost:5000';
 
     if (isLoginMode) {
       try {
