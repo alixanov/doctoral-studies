@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Route, Routes, useLocation, Navigate } from 'react-router-dom';
-import { Navbar, Main, Register, Cabinet } from '../components/';
+import { Navbar, Main, Register, Cabinet, ReviewerCabinet, DocumentsList } from '../components/';
 import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
 
 const AppRoutes = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -10,55 +11,61 @@ const AppRoutes = () => {
   const location = useLocation();
   const routeRef = useRef(null);
 
+  // Проверка аутентификации
   const checkAuthentication = () => {
-    const storedData = localStorage.getItem('userData');
-    if (storedData) {
-      try {
-        const parsedData = JSON.parse(storedData);
-        if (parsedData && parsedData.id) {
-          setIsAuthenticated(true);
-        } else {
-          setIsAuthenticated(false);
-        }
-      } catch {
-        setIsAuthenticated(false);
-      }
-    } else {
+    try {
+      const storedData = localStorage.getItem('userData');
+      const isValid = storedData && JSON.parse(storedData)?.id;
+      setIsAuthenticated(!!isValid);
+    } catch (error) {
+      console.error('Authentication check failed:', error);
       setIsAuthenticated(false);
     }
   };
 
   useEffect(() => {
     checkAuthentication();
-  }, [location]); // Обновляем проверку при изменении маршрута
+  }, [location]);
 
+  // Обработка изменения размера окна
   useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // Показ индикатора загрузки, пока проверяется аутентификация
   if (isAuthenticated === null) {
-    return null; // Можно показать индикатор загрузки, пока проверяется авторизация
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <CircularProgress />
+      </Box>
+    );
   }
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh' }}>
-      <Navbar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} isMobile={isMobile} />
+      <Navbar
+        sidebarOpen={sidebarOpen}
+        setSidebarOpen={setSidebarOpen}
+        isMobile={isMobile}
+      />
       <Box
         ref={routeRef}
         className="routes__container"
         sx={{
           flexGrow: 1,
-          padding: location.pathname === '/cabinet' ? '0px' : '0px',
-          marginLeft: isMobile ? 0 : '230px',
+          padding: location.pathname === '/cabinet' ? 0 : 2,
+          marginLeft: isMobile ? 0 : '240px',
+          transition: 'margin-left 0.3s ease-in-out',
         }}
       >
         <Routes>
           <Route path="/" element={<Main />} />
           <Route path="/doctoral-register" element={<Register />} />
+          <Route path="/reviewer-cabinet" element={<ReviewerCabinet />} />
+          <Route path="/documents" element={<DocumentsList />} />
+
           <Route
             path="/cabinet"
             element={

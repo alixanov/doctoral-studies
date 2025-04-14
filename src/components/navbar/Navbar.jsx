@@ -8,6 +8,8 @@ import HomeFilledIcon from '@mui/icons-material/HomeFilled';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import LanguageIcon from '@mui/icons-material/Language';
 import LogoutIcon from '@mui/icons-material/Logout';
+import FileOpenIcon from '@mui/icons-material/FileOpen';
+import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 
 const colors = {
   primaryGradient: 'linear-gradient(135deg, rgb(14, 49, 80) 0%, #1a3c59 100%)',
@@ -19,7 +21,7 @@ const colors = {
   error: '#EF4444',
 };
 
-// Стили для боковой панели (десктоп)
+// Стили
 const NavbarContainer = styled(Drawer)(({ theme }) => ({
   '& .MuiDrawer-paper': {
     width: 240,
@@ -27,16 +29,14 @@ const NavbarContainer = styled(Drawer)(({ theme }) => ({
     background: colors.primaryGradient,
     borderRight: 'none',
     boxShadow: '4px 0 20px rgba(0, 0, 0, 0.1)',
-    transition: theme.transitions.create(['box-shadow'], {
-      duration: theme.transitions.duration.standard,
-    }),
+    transition: theme.transitions.create(['box-shadow']),
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
   },
 }));
 
-const FooterContainer = styled(Box)(({ theme }) => ({
+const FooterContainer = styled(Box)({
   position: 'fixed',
   bottom: 0,
   left: 0,
@@ -47,7 +47,7 @@ const FooterContainer = styled(Box)(({ theme }) => ({
   zIndex: 1300,
   display: 'flex',
   justifyContent: 'center',
-}));
+});
 
 const LogoContainer = styled(Box)({
   padding: '30px 20px',
@@ -59,98 +59,107 @@ const LogoText = styled(Typography)({
   color: colors.textPrimary,
   fontSize: 24,
   fontWeight: 700,
-  letterSpacing: '0.5px',
 });
 
-const NavItems = styled(Box)(({ isMobile }) => ({
+const NavItems = styled(Box)(({ ismobile }) => ({
   display: 'flex',
-  flexDirection: isMobile ? 'row' : 'column',
-  gap: isMobile ? 30 : 10,
-  padding: isMobile ? '0 20px' : '20px 15px',
-  justifyContent: isMobile ? 'center' : 'flex-start',
+  flexDirection: ismobile ? 'row' : 'column',
+  gap: ismobile ? 30 : 10,
+  padding: ismobile ? '0 20px' : '20px 15px',
+  justifyContent: ismobile ? 'center' : 'flex-start',
   alignItems: 'center',
   width: '100%',
 }));
 
-const NavItem = styled(Link)(({ theme, active, isMobile }) => ({
+const NavItem = styled(Link)(({ theme, active, ismobile }) => ({
   display: 'flex',
   alignItems: 'center',
-  justifyContent: isMobile ? 'center' : 'flex-start',
+  justifyContent: ismobile ? 'center' : 'flex-start',
   gap: 10,
   textDecoration: 'none',
   color: active ? colors.textPrimary : colors.textSecondary,
-  padding: isMobile ? 12 : '12px 20px',
+  padding: ismobile ? 12 : '12px 20px',
   borderRadius: 10,
-  fontSize: isMobile ? 14 : 16,
+  fontSize: ismobile ? 14 : 16,
   fontWeight: active ? 600 : 500,
   background: active ? colors.activeBg : 'transparent',
-  transition: theme.transitions.create(['background', 'color', 'transform'], {
-    duration: theme.transitions.duration.short,
-  }),
+  transition: theme.transitions.create(['background', 'color', 'transform']),
   '&:hover': {
     background: colors.hoverBg,
     color: colors.textPrimary,
-    transform: isMobile ? 'scale(1.05)' : 'translateX(5px)',
+    transform: ismobile ? 'scale(1.05)' : 'translateX(5px)',
   },
 }));
 
-const ActionButton = styled(Box)(({ theme, isMobile, isLogout }) => ({
+const ActionButton = styled(Box)(({ theme, ismobile, islogout }) => ({
   display: 'flex',
   alignItems: 'center',
-  justifyContent: isMobile ? 'center' : 'flex-start',
+  justifyContent: ismobile ? 'center' : 'flex-start',
   gap: 10,
-  padding: isMobile ? 12 : '12px 20px',
+  padding: ismobile ? 12 : '12px 20px',
   borderRadius: 10,
-  color: isLogout ? colors.error : colors.textSecondary,
+  color: islogout ? colors.error : colors.textSecondary,
   background: 'transparent',
-  transition: theme.transitions.create(['background', 'color', 'transform'], {
-    duration: theme.transitions.duration.short,
-  }),
+  transition: theme.transitions.create(['background', 'color', 'transform']),
   cursor: 'pointer',
   '&:hover': {
     background: colors.hoverBg,
-    color: isLogout ? '#D32F2F' : colors.textPrimary,
-    transform: isMobile ? 'scale(1.05)' : 'translateX(5px)',
+    color: islogout ? '#D32F2F' : colors.textPrimary,
+    transform: ismobile ? 'scale(1.05)' : 'translateX(5px)',
   },
 }));
 
-const Navbar = ({ isMobile }) => {
+const Navbar = ({ isMobile = false, sidebarOpen = false, setSidebarOpen = () => { } }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const [language, setLanguage] = useState('uz');
 
+  // Получаем данные пользователя из localStorage
+  const userData = JSON.parse(localStorage.getItem('userData')) || {};
   const isAuthenticated = !!localStorage.getItem('token');
+  const userRole = userData?.role || '';
 
-  const linkTranslations = {
+  // Локализация
+  const translations = {
     uz: {
-      authenticated: [
-        { to: '/', label: 'Asosiy', icon: HomeFilledIcon, active: location.pathname === '/' },
-        { to: '/cabinet', label: 'Shaxsiy Kabinet', icon: AccountBoxIcon, active: location.pathname === '/cabinet' },
-      ],
-      unauthenticated: [
-        { to: '/', label: 'Asosiy', icon: HomeFilledIcon, active: location.pathname === '/' },
-        { to: '/doctoral-register', label: "Ro‘yxatdan o‘tish", icon: AccountBoxIcon, active: location.pathname === '/doctoral-register' },
-      ],
+      links: [
+        { to: '/', label: 'Asosiy', icon: HomeFilledIcon },
+        isAuthenticated && userRole === 'doctoral' &&
+        { to: '/documents', label: 'Arizalarim', icon: FileOpenIcon },
+        isAuthenticated && userRole === 'reviewer' &&
+        { to: '/review-applications', label: 'Arizalarni tekshirish', icon: AssignmentTurnedInIcon },
+        isAuthenticated
+          ? {
+            to: userRole === 'reviewer' ? '/reviewer-cabinet' : '/cabinet',
+            label: userRole === 'reviewer' ? 'Tekshiruvchi kabineti' : 'Shaxsiy Kabinet',
+            icon: AccountBoxIcon
+          }
+          : { to: '/doctoral-register', label: "Ro‘yxatdan o‘tish", icon: AccountBoxIcon },
+      ].filter(Boolean), // Удаляем null/undefined элементы
       logout: 'Chiqish',
       language: "O‘zbek",
     },
     ru: {
-      authenticated: [
-        { to: '/', label: 'Главная', icon: HomeFilledIcon, active: location.pathname === '/' },
-        { to: '/cabinet', label: 'Кабинет', icon: AccountBoxIcon, active: location.pathname === '/cabinet' },
-      ],
-      unauthenticated: [
-        { to: '/', label: 'Главная', icon: HomeFilledIcon, active: location.pathname === '/' },
-        { to: '/doctoral-register', label: 'Регистрация', icon: AccountBoxIcon, active: location.pathname === '/doctoral-register' },
-      ],
+      links: [
+        { to: '/', label: 'Главная', icon: HomeFilledIcon },
+        isAuthenticated && userRole === 'doctoral' &&
+        { to: '/documents', label: 'Мои заявки', icon: FileOpenIcon },
+        isAuthenticated && userRole === 'reviewer' &&
+        { to: '/review-applications', label: 'Проверка заявок', icon: AssignmentTurnedInIcon },
+        isAuthenticated
+          ? {
+            to: userRole === 'reviewer' ? '/reviewer-cabinet' : '/cabinet',
+            label: userRole === 'reviewer' ? 'Кабинет проверяющего' : 'Личный кабинет',
+            icon: AccountBoxIcon
+          }
+          : { to: '/doctoral-register', label: 'Регистрация', icon: AccountBoxIcon },
+      ].filter(Boolean),
       logout: 'Выйти',
       language: 'Русский',
     },
   };
 
-  const links = isAuthenticated
-    ? linkTranslations[language].authenticated
-    : linkTranslations[language].unauthenticated;
+  const links = translations[language].links;
 
   const handleLanguageToggle = () => {
     setLanguage((prev) => (prev === 'uz' ? 'ru' : 'uz'));
@@ -162,11 +171,16 @@ const Navbar = ({ isMobile }) => {
     navigate('/doctoral-register');
   };
 
-  const renderLink = ({ to, label, icon: Icon, active }) => (
-    <NavItem to={to} active={active} isMobile={isMobile} key={to}>
+  const renderLink = ({ to, label, icon: Icon }) => (
+    <NavItem
+      to={to}
+      active={location.pathname === to ? 1 : 0}
+      ismobile={isMobile ? 1 : 0}
+      key={to}
+    >
       <Icon sx={{ fontSize: isMobile ? 24 : 28, color: 'inherit' }} />
       {!isMobile && (
-        <Typography sx={{ fontSize: 16, fontWeight: active ? 600 : 500 }}>
+        <Typography sx={{ fontSize: 16, fontWeight: location.pathname === to ? 600 : 500 }}>
           {label}
         </Typography>
       )}
@@ -176,13 +190,13 @@ const Navbar = ({ isMobile }) => {
   if (isMobile) {
     return (
       <FooterContainer>
-        <NavItems isMobile={true}>
+        <NavItems ismobile={1}>
           {links.map(renderLink)}
-          <ActionButton isMobile={true} onClick={handleLanguageToggle}>
+          <ActionButton ismobile={1} onClick={handleLanguageToggle}>
             <LanguageIcon sx={{ fontSize: 24, color: 'inherit' }} />
           </ActionButton>
           {isAuthenticated && (
-            <ActionButton isMobile={true} isLogout={true} onClick={handleLogout}>
+            <ActionButton ismobile={1} islogout={1} onClick={handleLogout}>
               <LogoutIcon sx={{ fontSize: 24, color: 'inherit' }} />
             </ActionButton>
           )}
@@ -192,27 +206,20 @@ const Navbar = ({ isMobile }) => {
   }
 
   return (
-    <NavbarContainer variant="permanent" open={true}>
+    <NavbarContainer variant="permanent" open>
       <Box>
         <LogoContainer>
           <LogoText>Doctoral Studies</LogoText>
         </LogoContainer>
-        <NavItems>
-          {links.map(renderLink)}
-        </NavItems>
+        <NavItems>{links.map(renderLink)}</NavItems>
       </Box>
       <Box sx={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-        {/* <ActionButton isMobile={false} onClick={handleLanguageToggle}>
-          <LanguageIcon sx={{ fontSize: 28, color: 'inherit' }} />
-          <Typography sx={{ fontSize: 16, fontWeight: 500, ml: 1 }}>
-            {language === 'uz' ? "O‘zbek" : 'Русский'}
-          </Typography>
-        </ActionButton> */}
+   
         {isAuthenticated && (
-          <ActionButton isMobile={false} isLogout={true} onClick={handleLogout}>
+          <ActionButton ismobile={0} islogout={1} onClick={handleLogout}>
             <LogoutIcon sx={{ fontSize: 28, color: 'inherit' }} />
             <Typography sx={{ fontSize: 16, fontWeight: 500, ml: 1 }}>
-              {linkTranslations[language].logout}
+              {translations[language].logout}
             </Typography>
           </ActionButton>
         )}

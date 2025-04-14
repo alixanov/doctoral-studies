@@ -1,4 +1,4 @@
-/* Сброс */
+/* Сброс базовых стилей */
 * {
   margin: 0;
   padding: 0;
@@ -7,38 +7,34 @@
 }
 
 body {
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   justify-content: center;
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-position: center;
-  background-attachment: fixed;
-  background-color: white;
-
+  background-color: #f5f5f5;
 }
 
+/* Контейнер приложения */
 #root {
   max-width: 1920px;
   width: 100%;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
-
 }
 
 /* Контейнер маршрутов */
 .routes__container {
   padding: 10px;
   transition: margin-left 0.3s ease-in-out;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  height: auto;
+  min-height: calc(100vh - 60px);
+  /* Учитываем высоту футера */
 }
 
-/* Дополнительные стили для .routes__container */
-.routes__container {
-  margin: 0 0 0 0;
-  border-radius: 0px;
-  margin-bottom: 100px;
+/* Адаптивность */
+@media (max-width: 768px) {
+  .routes__container {
+    padding: 5px;
+    margin-bottom: 60px;
+    /* Учитываем высоту мобильного футера */
+  }
 }

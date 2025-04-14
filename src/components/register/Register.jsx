@@ -71,6 +71,26 @@ const StyledSelect = styled(Select)({
     borderColor: colors.primary,
     borderWidth: 2,
   },
+  '& .MuiSelect-select': {
+    padding: '12px 14px',
+    display: 'flex',
+    alignItems: 'center',
+    fontWeight: 500,
+    color: colors.primary,
+  },
+});
+
+const RoleBadge = styled(Box)({
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  borderRadius: 4,
+  padding: '2px 8px',
+  marginLeft: 8,
+  fontSize: 12,
+  fontWeight: 600,
+  backgroundColor: colors.primary + '20',
+  color: colors.primary,
 });
 
 const SubmitButton = styled(Button)({
@@ -92,23 +112,22 @@ const SubmitButton = styled(Button)({
 });
 
 const Register = () => {
-  const [isLoginMode, setIsLoginMode] = useState(true); // По умолчанию режим авторизации
+  const [isLoginMode, setIsLoginMode] = useState(true);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     login: '',
     password: '',
-    role: 'teacher', // По умолчанию учитель
+    role: 'doctoral',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  // Проверка авторизации при загрузке страницы
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      navigate('/cabinet'); // Если пользователь авторизован, перенаправляем в личный кабинет
+      navigate('/cabinet');
     }
   }, [navigate]);
 
@@ -122,7 +141,6 @@ const Register = () => {
     setLoading(true);
     setError('');
 
-    // Базовая валидация на стороне клиента
     if (!formData.login || !formData.password) {
       setLoading(false);
       setError('Логин и пароль обязательны');
@@ -136,7 +154,6 @@ const Register = () => {
     }
 
     if (isLoginMode) {
-      // Авторизация
       try {
         const response = await fetch('https://doctoral-studies-server.vercel.app/login', {
           method: 'POST',
@@ -156,7 +173,12 @@ const Register = () => {
         if (response.ok) {
           localStorage.setItem('token', result.token);
           localStorage.setItem('userData', JSON.stringify(result.user));
-          navigate('/cabinet'); // Перенаправляем в личный кабинет после авторизации
+
+          if (formData.role === 'reviewer') {
+            navigate('/reviewer-cabinet');
+          } else {
+            navigate('/cabinet');
+          }
         } else {
           setError(result.error || 'Ошибка авторизации');
         }
@@ -165,9 +187,10 @@ const Register = () => {
         setError('Произошла ошибка: ' + err.message);
       }
     } else {
-      // Регистрация (только для учителей)
       try {
-        const response = await fetch('https://doctoral-studies-server.vercel.app/register-teacher', {
+        let endpoint = formData.role === 'doctoral' ? '/register-doctoral' : '/register-reviewer';
+
+        const response = await fetch(`https://doctoral-studies-server.vercel.app${endpoint}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -184,9 +207,9 @@ const Register = () => {
         setLoading(false);
 
         if (response.ok) {
-          alert('Учитель успешно зарегистрирован! Теперь войдите.');
+          alert(`Пользователь успешно зарегистрирован! Теперь войдите.`);
           setIsLoginMode(true);
-          setFormData({ firstName: '', lastName: '', login: '', password: '', role: 'teacher' });
+          setFormData({ firstName: '', lastName: '', login: '', password: '', role: formData.role });
         } else {
           setError(result.error || 'Ошибка регистрации');
         }
@@ -194,6 +217,14 @@ const Register = () => {
         setLoading(false);
         setError('Произошла ошибка: ' + err.message);
       }
+    }
+  };
+
+  const getRoleLabel = (role) => {
+    switch (role) {
+      case 'doctoral': return 'Докторант';
+      case 'reviewer': return 'Проверяющий';
+      default: return role;
     }
   };
 
@@ -269,22 +300,36 @@ const Register = () => {
             />
           </Box>
 
-          {isLoginMode && (
-            <Box display="flex" alignItems="center" mb={1.5}>
-              <FormControl fullWidth>
-                <InputLabel sx={{ color: colors.textPrimary, fontSize: 14 }}>Роль</InputLabel>
-                <StyledSelect
-                  name="role"
-                  value={formData.role}
-                  onChange={handleChange}
-                  label="Роль"
-                >
-                  <MenuItem value="teacher">Учитель</MenuItem>
-                  <MenuItem value="student">Ученик</MenuItem>
-                </StyledSelect>
-              </FormControl>
-            </Box>
-          )}
+          <Box display="flex" alignItems="center" mb={1.5}>
+            <FormControl fullWidth>
+              <InputLabel sx={{ color: colors.textPrimary, fontSize: 14 }}>Роль</InputLabel>
+              <StyledSelect
+                name="role"
+                value={formData.role}
+                onChange={handleChange}
+                label="Роль"
+                renderValue={(selected) => (
+                  <Box display="flex" alignItems="center">
+                    {getRoleLabel(selected)}
+                    <RoleBadge>{selected}</RoleBadge>
+                  </Box>
+                )}
+              >
+                <MenuItem value="doctoral">
+                  <Box display="flex" alignItems="center">
+                    Докторант
+                    <RoleBadge sx={{ ml: 1 }}>doctoral</RoleBadge>
+                  </Box>
+                </MenuItem>
+                <MenuItem value="reviewer">
+                  <Box display="flex" alignItems="center">
+                    Проверяющий
+                    <RoleBadge sx={{ ml: 1 }}>reviewer</RoleBadge>
+                  </Box>
+                </MenuItem>
+              </StyledSelect>
+            </FormControl>
+          </Box>
 
           <SubmitButton fullWidth type="submit" disabled={loading}>
             {loading ? <CircularProgress size={20} color="inherit" /> : isLoginMode ? 'Войти' : 'Зарегистрироваться'}
