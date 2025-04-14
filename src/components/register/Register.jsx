@@ -6,7 +6,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import EmailIcon from '@mui/icons-material/Email';
 import LockIcon from '@mui/icons-material/Lock';
 
-// Цветовая схема
+// Color scheme
 const colors = {
   primary: '#1A3C59',
   secondary: '#F5F6F5',
@@ -124,6 +124,7 @@ const Register = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
+  // Check for existing token on mount
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
@@ -141,6 +142,7 @@ const Register = () => {
     setLoading(true);
     setError('');
 
+    // Basic form validation
     if (!formData.login || !formData.password) {
       setLoading(false);
       setError('Логин и пароль обязательны');
@@ -153,9 +155,12 @@ const Register = () => {
       return;
     }
 
+    // Base API URL
+    const baseUrl = 'https://doctoral-studies-server.vercel.app';
+
     if (isLoginMode) {
       try {
-        const response = await fetch('https://doctoral-studies-server.vercel.app/login', {
+        const response = await fetch(`${baseUrl}/login`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -184,13 +189,14 @@ const Register = () => {
         }
       } catch (err) {
         setLoading(false);
-        setError('Произошла ошибка: ' + err.message);
+        setError('Ошибка сети. Проверьте подключение или попробуйте позже.');
+        console.error('Login error:', err);
       }
     } else {
       try {
-        let endpoint = formData.role === 'doctoral' ? '/register-doctoral' : '/register-reviewer';
+        const endpoint = formData.role === 'doctoral' ? '/register-doctoral' : '/register-reviewer';
 
-        const response = await fetch(`https://doctoral-studies-server.vercel.app${endpoint}`, {
+        const response = await fetch(`${baseUrl}${endpoint}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -207,7 +213,7 @@ const Register = () => {
         setLoading(false);
 
         if (response.ok) {
-          alert(`Пользователь успешно зарегистрирован! Теперь войдите.`);
+          alert('Пользователь успешно зарегистрирован! Теперь войдите.');
           setIsLoginMode(true);
           setFormData({ firstName: '', lastName: '', login: '', password: '', role: formData.role });
         } else {
@@ -215,16 +221,20 @@ const Register = () => {
         }
       } catch (err) {
         setLoading(false);
-        setError('Произошла ошибка: ' + err.message);
+        setError('Ошибка сети. Проверьте подключение или попробуйте позже.');
+        console.error('Registration error:', err);
       }
     }
   };
 
   const getRoleLabel = (role) => {
     switch (role) {
-      case 'doctoral': return 'Докторант';
-      case 'reviewer': return 'Проверяющий';
-      default: return role;
+      case 'doctoral':
+        return 'Докторант';
+      case 'reviewer':
+        return 'Проверяющий';
+      default:
+        return role;
     }
   };
 
@@ -242,11 +252,7 @@ const Register = () => {
         </Typography>
 
         {error && (
-          <Typography
-            align="center"
-            color={colors.error}
-            sx={{ mb: 2, fontSize: 13 }}
-          >
+          <Typography align="center" color={colors.error} sx={{ mb: 2, fontSize: 13 }}>
             {error}
           </Typography>
         )}
@@ -336,12 +342,7 @@ const Register = () => {
           </SubmitButton>
         </form>
 
-        <Typography
-          align="center"
-          mt={2}
-          color={colors.textPrimary}
-          sx={{ fontSize: 13 }}
-        >
+        <Typography align="center" mt={2} color={colors.textPrimary} sx={{ fontSize: 13 }}>
           {isLoginMode ? 'Нет аккаунта?' : 'Уже есть аккаунт?'}{' '}
           <Typography
             component="span"
