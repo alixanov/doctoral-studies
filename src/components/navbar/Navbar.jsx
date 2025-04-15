@@ -9,6 +9,7 @@ import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import LogoutIcon from '@mui/icons-material/Logout';
 import FileOpenIcon from '@mui/icons-material/FileOpen';
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
+import AssessmentIcon from '@mui/icons-material/Assessment';
 
 // Цветовая палитра
 const colors = {
@@ -134,6 +135,7 @@ const Navbar = ({ isMobile = false, sidebarOpen = false, setSidebarOpen = () => 
     setActivePath(location.pathname);
   }, [location.pathname]);
 
+
   // Навигационные ссылки (только на русском)
   const links = [
     { to: '/', label: 'Главная', icon: HomeFilledIcon },
@@ -142,6 +144,12 @@ const Navbar = ({ isMobile = false, sidebarOpen = false, setSidebarOpen = () => 
       to: '/documents',
       label: 'Мои заявки',
       icon: FileOpenIcon,
+    },
+    isAuthenticated &&
+    userRole === 'doctoral' && {
+      to: '/assessments-doctorant',
+      label: 'Заяка к оценку',
+      icon: AssessmentIcon,
     },
     isAuthenticated &&
     userRole === 'reviewer' && {

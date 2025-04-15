@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { styled } from '@mui/material/styles';
-import { Box, Typography, TextField, Button, Input, Select, MenuItem, CircularProgress } from '@mui/material';
+import { Box, Typography, TextField, Button, Input, Select, MenuItem, CircularProgress, Avatar } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import PhotoCamera from '@mui/icons-material/PhotoCamera';
+import IconButton from '@mui/material/IconButton';
 
-// Цветовая схема
+// Color scheme
 const colors = {
   primary: '#1A3C59',
   secondary: '#F5F6F5',
@@ -12,7 +14,7 @@ const colors = {
   hover: '#2A4A6B',
   border: '#E5E7EB',
   error: '#D32F2F',
-  success: '#2ECC71', // Новый цвет для успешной отправки
+  success: '#2ECC71',
 };
 
 // Styled components
@@ -39,6 +41,9 @@ const LeftColumn = styled(Box)({
   padding: '24px',
   boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
   border: `1px solid ${colors.border}`,
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
 });
 
 const RightColumn = styled(Box)({
@@ -130,7 +135,7 @@ const SubmitButton = styled(Button)(({ success }) => ({
   alignItems: 'center',
   justifyContent: 'center',
   gap: 8,
-  textTransform: 'none', // Чтобы текст выглядел естественно
+  textTransform: 'none',
 }));
 
 const LogoutButton = styled(Button)({
@@ -145,6 +150,29 @@ const LogoutButton = styled(Button)({
     background: '#ae2525',
     transform: 'translateY(-1px)',
   },
+});
+
+const ProfileAvatar = styled(Avatar)({
+  width: 120,
+  height: 120,
+  marginBottom: 16,
+  border: `3px solid ${colors.primary}`,
+});
+
+const AvatarUploadButton = styled(IconButton)({
+  position: 'absolute',
+  bottom: 0,
+  right: 0,
+  backgroundColor: colors.primary,
+  '&:hover': {
+    backgroundColor: colors.hover,
+  },
+});
+
+const AvatarContainer = styled(Box)({
+  position: 'relative',
+  display: 'inline-block',
+  marginBottom: 16,
 });
 
 const Cabinet = () => {
@@ -181,9 +209,36 @@ const Cabinet = () => {
   const [error, setError] = useState('');
   const [reviewers, setReviewers] = useState([]);
   const [fetchingReviewers, setFetchingReviewers] = useState(false);
-  const [success, setSuccess] = useState(false); // Новое состояние для успешной отправки
+  const [success, setSuccess] = useState(false);
+  const [profilePhoto, setProfilePhoto] = useState(null);
+  const [photoPreview, setPhotoPreview] = useState(null);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
-  // Получение списка проверяющих
+  useEffect(() => {
+    // Load user data including profile photo
+    const fetchUserData = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch('https://doctoral-studies-server.vercel.app/me', {
+          headers: {
+            Authorization: token,
+          },
+        });
+
+        if (response.ok) {
+          const userData = await response.json();
+          if (userData.profilePhoto) {
+            setPhotoPreview(userData.profilePhoto);
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching user data:', err);
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
   useEffect(() => {
     const fetchReviewers = async () => {
       setFetchingReviewers(true);
@@ -199,7 +254,6 @@ const Cabinet = () => {
           const data = await response.json();
           setReviewers(data);
         } else {
-          // Дефолтные значения
           setReviewers([
             { id: '1', firstName: 'Администратор', lastName: 'Системы', email: 'admin@example.com' },
             { id: '2', firstName: 'Сотрудник', lastName: 'Поддержки', email: 'support@example.com' },
@@ -219,7 +273,6 @@ const Cabinet = () => {
     fetchReviewers();
   }, []);
 
-  // Сброс состояния успеха через 3 секунды
   useEffect(() => {
     if (success) {
       const timer = setTimeout(() => {
@@ -237,20 +290,59 @@ const Cabinet = () => {
     }));
   };
 
+  const handlePhotoChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setUploadingPhoto(true);
+    setProfilePhoto(file);
+
+    try {
+      const formData = new FormData();
+      formData.append('profilePhoto', file);
+
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:5000/upload-profile-photo', {
+        method: 'POST',
+        headers: {
+          'Authorization': token,
+        },
+        body: formData,
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        setPhotoPreview(result.profilePhotoUrl);
+
+        // Update user data in localStorage
+        const userData = JSON.parse(localStorage.getItem('userData'));
+        localStorage.setItem('userData', JSON.stringify({
+          ...userData,
+          profilePhoto: result.profilePhotoUrl
+        }));
+      } else {
+        throw new Error('Failed to upload photo');
+      }
+    } catch (err) {
+      console.error('Error uploading profile photo:', err);
+      setError('Failed to upload profile photo');
+    } finally {
+      setUploadingPhoto(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
     setSuccess(false);
 
-    // Валидация
     if (!formData.subject || !formData.recipient || !formData.content) {
       setLoading(false);
       setError('Все текстовые поля обязательны');
       return;
     }
 
-    // Подготовка FormData
     const formDataToSend = new FormData();
     formDataToSend.append('subject', formData.subject);
     formDataToSend.append('recipient', formData.recipient);
@@ -272,39 +364,39 @@ const Cabinet = () => {
         body: formDataToSend,
       });
 
-      const result = await response.json();
-      setLoading(false);
-
-      if (response.ok) {
-        setSuccess(true);
-        setFormData({
-          subject: '',
-          recipient: '',
-          content: '',
-          file: null,
-          malumotnoma: null,
-          photo: null,
-          passport: null,
-          kengashBayyonomma: null,
-          dekanatTaqdimnoma: null,
-          sinovNatijalari: null,
-          ilmiyIshlar: null,
-          annotatsiya: null,
-          maqolalar: null,
-          xulosa: null,
-          testBallari: null,
-          tarjimaiXol: null,
-          reytingDaftarcha: null,
-          guvohnoma: null,
-          yutuqlar: null,
-          boshqa: null,
-        });
-      } else {
-        setError(result.error || 'Ошибка при отправке документов');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Ошибка при отправке документов');
       }
+
+      const result = await response.json();
+      setSuccess(true);
+      setFormData({
+        subject: '',
+        recipient: '',
+        content: '',
+        file: null,
+        malumotnoma: null,
+        photo: null,
+        passport: null,
+        kengashBayyonomma: null,
+        dekanatTaqdimnoma: null,
+        sinovNatijalari: null,
+        ilmiyIshlar: null,
+        annotatsiya: null,
+        maqolalar: null,
+        xulosa: null,
+        testBallari: null,
+        tarjimaiXol: null,
+        reytingDaftarcha: null,
+        guvohnoma: null,
+        yutuqlar: null,
+        boshqa: null,
+      });
     } catch (err) {
+      setError(err.message || 'Произошла ошибка при отправке');
+    } finally {
       setLoading(false);
-      setError('Произошла ошибка: ' + err.message);
     }
   };
 
@@ -336,12 +428,39 @@ const Cabinet = () => {
   return (
     <CabinetContainer>
       <ContentWrapper>
-        {/* Левый столбец: Информация о пользователе */}
         <LeftColumn>
           <Typography variant="h6" fontWeight={600} color={colors.textPrimary} mb={2}>
             Личная информация
           </Typography>
-          <Box mb={2}>
+
+          <AvatarContainer>
+            {uploadingPhoto ? (
+              <CircularProgress size={120} />
+            ) : (
+              <ProfileAvatar
+                src={photoPreview || `https://ui-avatars.com/api/?name=${user.firstName}+${user.lastName}&background=${colors.primary.replace('#', '')}&color=fff`}
+                alt={`${user.firstName} ${user.lastName}`}
+              />
+            )}
+            <input
+              accept="image/*"
+              style={{ display: 'none' }}
+              id="profile-photo-upload"
+              type="file"
+              onChange={handlePhotoChange}
+            />
+            <label htmlFor="profile-photo-upload">
+              <AvatarUploadButton
+                color="primary"
+                aria-label="upload picture"
+                component="span"
+              >
+                <PhotoCamera />
+              </AvatarUploadButton>
+            </label>
+          </AvatarContainer>
+
+          <Box mb={2} width="100%">
             <Typography variant="body2" color={colors.textPrimary} fontWeight={500}>
               Имя
             </Typography>
@@ -349,7 +468,7 @@ const Cabinet = () => {
               {user.firstName}
             </Typography>
           </Box>
-          <Box mb={2}>
+          <Box mb={2} width="100%">
             <Typography variant="body2" color={colors.textPrimary} fontWeight={500}>
               Фамилия
             </Typography>
@@ -357,7 +476,7 @@ const Cabinet = () => {
               {user.lastName}
             </Typography>
           </Box>
-          <Box mb={2}>
+          <Box mb={2} width="100%">
             <Typography variant="body2" color={colors.textPrimary} fontWeight={500}>
               Логин
             </Typography>
@@ -370,7 +489,6 @@ const Cabinet = () => {
           </LogoutButton>
         </LeftColumn>
 
-        {/* Правый столбец: Форма отправки */}
         <RightColumn>
           <Typography variant="h6" fontWeight={600} color={colors.textPrimary} mb={2}>
             Отправить документы

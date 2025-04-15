@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Route, Routes, useLocation, Navigate } from 'react-router-dom';
-import { Navbar, Main, Register, Cabinet, ReviewerCabinet, DocumentsList, ReviewerNews } from '../components/';
+import { Navbar, Main, Register, Cabinet, ReviewerCabinet, DocumentsList, ReviewerNews, AssessmentsDoctorant } from '../components/';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 
@@ -66,6 +66,7 @@ const AppRoutes = () => {
           <Route path="/reviewer-cabinet" element={<ReviewerCabinet />} />
           <Route path="/documents" element={<DocumentsList />} />
           <Route path='/review-news' element={<ReviewerNews/>}/>
+          <Route path='/assessments-doctorant' element={<AssessmentsDoctorant/>} />
 
           <Route
             path="/cabinet"
