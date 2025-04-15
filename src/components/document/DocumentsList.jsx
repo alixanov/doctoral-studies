@@ -111,7 +111,7 @@ const DocumentsList = () => {
   const navigate = useNavigate();
 
   // API базовый URL - измените на URL вашего API при развертывании
-  const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+  const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://doctoral-studies-server.vercel.app';
 
   useEffect(() => {
     const fetchDocuments = async () => {

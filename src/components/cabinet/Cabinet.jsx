@@ -189,7 +189,7 @@ const Cabinet = () => {
       setFetchingReviewers(true);
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch('http://localhost:5000/reviewers', {
+        const response = await fetch('https://doctoral-studies-server.vercel.app/reviewers', {
           headers: {
             Authorization: token,
           },
@@ -264,7 +264,7 @@ const Cabinet = () => {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/submit-documents', {
+      const response = await fetch('https://doctoral-studies-server.vercel.app/submit-documents', {
         method: 'POST',
         headers: {
           Authorization: token,

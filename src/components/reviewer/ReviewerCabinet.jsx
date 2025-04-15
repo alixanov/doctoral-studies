@@ -248,7 +248,7 @@ const ReviewerCabinet = () => {
 
     const fetchApplications = async () => {
       try {
-        const response = await fetch('http://localhost:5000/applications', {
+        const response = await fetch('https://doctoral-studies-server.vercel.app/applications', {
           headers: {
             Authorization: token,
           },
@@ -292,7 +292,7 @@ const ReviewerCabinet = () => {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/applications/${selectedApp._id}/decision`, {
+      const response = await fetch(`https://doctoral-studies-server.vercel.app/applications/${selectedApp._id}/decision`, {
         method: 'PUT',
         headers: {
           Authorization: token,
@@ -324,7 +324,7 @@ const ReviewerCabinet = () => {
   const handleDownloadFile = async (fileId, fileName) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/download-file/${selectedApp._id}/${fileId}`, {
+      const response = await fetch(`https://doctoral-studies-server.vercel.app/download-file/${selectedApp._id}/${fileId}`, {
         headers: {
           Authorization: token,
         },
@@ -349,7 +349,7 @@ const ReviewerCabinet = () => {
   const handlePreviewImage = async (fileId) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/download-file/${selectedApp._id}/${fileId}`, {
+      const response = await fetch(`https://doctoral-studies-server.vercel.app/download-file/${selectedApp._id}/${fileId}`, {
         headers: {
           Authorization: token,
         },
