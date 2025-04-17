@@ -10,6 +10,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import FileOpenIcon from '@mui/icons-material/FileOpen';
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 import AssessmentIcon from '@mui/icons-material/Assessment';
+import SchoolIcon from '@mui/icons-material/School';
 
 // Цветовая палитра
 const colors = {
@@ -54,6 +55,10 @@ const FooterContainer = styled(Box)({
 const LogoContainer = styled(Box)({
   padding: '30px 20px',
   textAlign: 'center',
+  display:"flex",
+  alignItems:"center",
+  justifyContent:"center",
+  gap:"10px",
   borderBottom: `1px solid ${colors.hoverBg}`,
 });
 
@@ -215,7 +220,8 @@ const Navbar = ({ isMobile = false, sidebarOpen = false, setSidebarOpen = () => 
     <NavbarContainer variant="permanent" open>
       <Box>
         <LogoContainer>
-          <LogoText>Doctoral Studies</LogoText>
+          <SchoolIcon sx={{color:"white"}} />
+          <LogoText>PHD</LogoText>
         </LogoContainer>
         <NavItems>{links.map(renderLink)}</NavItems>
       </Box>
