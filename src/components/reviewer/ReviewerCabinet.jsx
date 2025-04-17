@@ -618,44 +618,7 @@ const ReviewerCabinet = () => {
                 </Box>
               )}
 
-              {/* Секция с файлами */}
-              <Box>
-                {selectedApp.files.length > 0 ? (
-                  <Grid container spacing={isMobile ? 1 : 2}>
-                    {selectedApp.files.map((file) => {
-                      const field = fileFields.find((f) => f.name === file.fieldName) || {
-                        label: file.fieldName,
-                      };
-                      return (
-                        <Grid item xs={12} sm={6} key={file._id}>
-                          <FileContainer>
-                            <FileLabel>{field.label}</FileLabel>
-                            <Box display="flex" alignItems="center" gap={isMobile ? 1 : 2}>
-                              <FileName>{file.originalName}</FileName>
-                              <DownloadButton
-                                variant="contained"
-                                size="small"
-                                startIcon={<DownloadIcon />}
-                                onClick={() => handleDownloadFile(file._id, file.originalName)}
-                              >
-                                Скачать
-                              </DownloadButton>
-                            </Box>
-                          </FileContainer>
-                        </Grid>
-                      );
-                    })}
-                  </Grid>
-                ) : (
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ fontSize: isMobile ? '0.8rem' : '0.875rem' }}
-                  >
-                    Файлы отсутствуют
-                  </Typography>
-                )}
-              </Box>
+    
 
               <Divider sx={{ my: isMobile ? 1 : 2 }} />
 

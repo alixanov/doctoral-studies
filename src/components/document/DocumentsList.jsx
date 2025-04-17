@@ -22,81 +22,105 @@ import {
   ListItemText,
   Divider,
   Card,
-  CardMedia
+  CardMedia,
+  useMediaQuery,
+  useTheme,
+  Grid,
+  IconButton,
+  Avatar,
+  Stack
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import DownloadIcon from '@mui/icons-material/Download';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import ImageIcon from '@mui/icons-material/Image';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import PersonIcon from '@mui/icons-material/Person';
+import DescriptionIcon from '@mui/icons-material/Description';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
-// Цветовая схема
+// Цветовая схема с улучшенной палитрой
 const colors = {
   primary: '#1A3C59',
   secondary: '#F5F6F5',
   textPrimary: '#1A3C5A',
   white: '#FFFFFF',
   error: '#EF4444',
-  success: '#4CAF50',
-  warning: '#FF9800',
+  success: '#10B981',
+  warning: '#F59E0B',
   hover: '#2A4A6B',
+  background: '#F8FAFC',
+  border: '#E2E8F0',
 };
 
-// Styled components
-const DocumentsContainer = styled(Box)({
+// Стилизованные компоненты с улучшенной анимацией и отступами
+const DocumentsContainer = styled(Box)(({ theme }) => ({
   minHeight: '100vh',
-  padding: '24px',
-  display: 'flex',
-  justifyContent: 'center',
-});
+  padding: theme.spacing(2),
+  [theme.breakpoints.up('sm')]: {
+    padding: theme.spacing(4),
+  },
+}));
 
-const ContentWrapper = styled(Box)({
+const ContentWrapper = styled(Box)(({ theme }) => ({
   width: '100%',
   maxWidth: '1200px',
-});
+  backgroundColor: colors.white,
+  borderRadius: theme.shape.borderRadius * 2,
+  padding: theme.spacing(3),
+  boxShadow: theme.shadows[1],
+  [theme.breakpoints.down('sm')]: {
+    padding: theme.spacing(2),
+    boxShadow: 'none',
+  },
+}));
 
-const StyledTable = styled(Table)({
+const StyledTable = styled(Table)(({ theme }) => ({
   minWidth: 650,
   '& .MuiTableCell-root': {
-    padding: '12px 16px',
+    padding: theme.spacing(1.5, 2),
+    borderColor: colors.border,
   },
-});
+  '& .MuiTableHead-root': {
+    backgroundColor: colors.primary + '08',
+  },
+}));
 
-const StatusChip = styled(Chip)({
+const StatusChip = styled(Chip)(({ theme }) => ({
   fontWeight: 600,
   fontSize: '0.75rem',
-});
+  borderRadius: theme.shape.borderRadius,
+}));
 
-const DownloadButton = styled(Button)({
-  color: colors.primary,
-  borderColor: colors.primary,
+const DocumentCard = styled(Paper)(({ theme }) => ({
+  padding: theme.spacing(2),
+  marginBottom: theme.spacing(2),
+  borderRadius: theme.shape.borderRadius * 2,
+  transition: 'all 0.3s ease',
+  border: `1px solid ${colors.border}`,
   '&:hover': {
-    backgroundColor: colors.primary + '10',
-    borderColor: colors.hover,
+    transform: 'translateY(-2px)',
+    boxShadow: theme.shadows[2],
+    borderColor: colors.primary,
   },
-});
+}));
 
-const ViewButton = styled(Button)({
-  color: colors.primary,
-  borderColor: colors.primary,
+const ImageCard = styled(Card)(({ theme }) => ({
+  maxWidth: '100%',
+  overflow: 'hidden',
+  marginBottom: theme.spacing(1.5),
+  transition: 'all 0.3s ease',
+  border: `1px solid ${colors.border}`,
   '&:hover': {
-    backgroundColor: colors.primary + '10',
-    borderColor: colors.hover,
+    transform: 'scale(1.02)',
+    boxShadow: theme.shadows[3],
   },
-});
+}));
 
 const ImagePreviewDialog = styled(Dialog)({
   '& .MuiDialogContent-root': {
     padding: 0,
-  },
-});
-
-const ImageCard = styled(Card)({
-  maxWidth: '100%',
-  overflow: 'hidden',
-  marginBottom: '12px',
-  transition: 'transform 0.3s ease',
-  '&:hover': {
-    transform: 'scale(1.02)',
   },
 });
 
@@ -109,8 +133,9 @@ const DocumentsList = () => {
   const [imagePreview, setImagePreview] = useState(null);
   const [openImageDialog, setOpenImageDialog] = useState(false);
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-  // API базовый URL - измените на URL вашего API при развертывании
   const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://doctoral-studies-server.vercel.app';
 
   useEffect(() => {
@@ -154,10 +179,7 @@ const DocumentsList = () => {
       });
 
       if (response.ok) {
-        // Получаем URL из Cloudinary
         const data = await response.json();
-
-        // Создаем ссылку для скачивания
         const link = document.createElement('a');
         link.href = data.url;
         link.setAttribute('download', data.name);
@@ -217,22 +239,166 @@ const DocumentsList = () => {
   const getStatusColor = (status) => {
     switch (status) {
       case 'approved':
-        return { color: colors.success, label: 'Одобрено' };
+        return { color: colors.success, label: 'Одобрено', icon: '✅' };
       case 'rejected':
-        return { color: colors.error, label: 'Отклонено' };
+        return { color: colors.error, label: 'Отклонено', icon: '❌' };
       case 'reviewed':
-        return { color: colors.warning, label: 'Рассмотрено' };
+        return { color: colors.warning, label: 'Рассмотрено', icon: '🔍' };
       default:
-        return { color: colors.primary, label: 'В обработке' };
+        return { color: colors.primary, label: 'В обработке', icon: '⏳' };
     }
   };
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('ru-RU', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  // Улучшенный мобильный список документов
+  const MobileDocumentsList = () => (
+    <Stack spacing={2} alignItems="center">
+      {documents.map((doc) => {
+        const status = getStatusColor(doc.status);
+        return (
+          <DocumentCard
+            key={doc._id}
+            sx={{
+              width: '100%',
+              maxWidth: '300px'
+            }}
+          >
+            <Stack direction="row" spacing={2} alignItems="flex-start">
+              <Avatar sx={{ bgcolor: colors.primary + '20', color: colors.primary }}>
+                <DescriptionIcon />
+              </Avatar>
+              <Box sx={{ flex: 1, minWidth: 0 }}> {/* Добавляем minWidth: 0 для правильного обрезания текста */}
+                <Typography variant="subtitle1" fontWeight={600} noWrap>
+                  {doc.subject}
+                </Typography>
+
+                <Stack direction="row" spacing={1} alignItems="center" mt={0.5}>
+                  <StatusChip
+                    label={status.label}
+                    size="small"
+                    style={{
+                      backgroundColor: status.color + '10',
+                      color: status.color,
+                      border: `1px solid ${status.color}`
+                    }}
+                  />
+                  <Typography variant="caption" color="text.secondary">
+                    {status.icon}
+                  </Typography>
+                </Stack>
+
+                <Stack direction="row" spacing={1} alignItems="center" mt={1}>
+                  <PersonIcon fontSize="small" color="action" />
+                  <Typography variant="body2" color="text.secondary" noWrap>
+                    {doc.recipient}
+                  </Typography>
+                </Stack>
+
+                <Stack direction="row" spacing={1} alignItems="center" mt={0.5}>
+                  <AccessTimeIcon fontSize="small" color="action" />
+                  <Typography variant="body2" color="text.secondary">
+                    {formatDate(doc.createdAt)}
+                  </Typography>
+                </Stack>
+              </Box>
+
+              <IconButton
+                size="small"
+                onClick={() => handleOpenDialog(doc)}
+                sx={{ alignSelf: 'center' }}
+              >
+                <MoreVertIcon />
+              </IconButton>
+            </Stack>
+          </DocumentCard>
+        );
+      })}
+    </Stack>
+  );
+
+  // Улучшенный десктопный список документов
+  const DesktopDocumentsList = () => (
+    <TableContainer component={Paper} elevation={0} sx={{ border: `1px solid ${colors.border}` }}>
+      <StyledTable>
+        <TableHead>
+          <TableRow>
+            <TableCell sx={{ fontWeight: 600 }}>Тема</TableCell>
+            <TableCell sx={{ fontWeight: 600 }}>Получатель</TableCell>
+            <TableCell sx={{ fontWeight: 600 }}>Дата отправки</TableCell>
+            <TableCell sx={{ fontWeight: 600 }}>Статус</TableCell>
+            <TableCell sx={{ fontWeight: 600 }}>Действия</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {documents.map((doc) => {
+            const status = getStatusColor(doc.status);
+            return (
+              <TableRow
+                key={doc._id}
+                hover
+                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+              >
+                <TableCell>
+                  <Typography variant="body2" fontWeight={500}>
+                    {doc.subject}
+                  </Typography>
+                </TableCell>
+                <TableCell>{doc.recipient}</TableCell>
+                <TableCell>{formatDate(doc.createdAt)}</TableCell>
+                <TableCell>
+                  <StatusChip
+                    label={status.label}
+                    size="small"
+                    style={{
+                      backgroundColor: status.color + '10',
+                      color: status.color,
+                      border: `1px solid ${status.color}`
+                    }}
+                  />
+                </TableCell>
+                <TableCell>
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    startIcon={<VisibilityIcon />}
+                    onClick={() => handleOpenDialog(doc)}
+                    sx={{
+                      borderColor: colors.border,
+                      '&:hover': {
+                        borderColor: colors.primary,
+                        backgroundColor: colors.primary + '08',
+                      }
+                    }}
+                  >
+                    Просмотр
+                  </Button>
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </StyledTable>
+    </TableContainer>
+  );
 
   if (loading) {
     return (
       <DocumentsContainer>
         <ContentWrapper>
-          <Box display="flex" justifyContent="center" py={4}>
-            <CircularProgress color="primary" />
+          <Box display="flex" flexDirection="column" alignItems="center" py={4}>
+            <CircularProgress color="primary" size={60} thickness={4} />
+            <Typography variant="body1" mt={2} color="text.secondary">
+              Загрузка ваших документов...
+            </Typography>
           </Box>
         </ContentWrapper>
       </DocumentsContainer>
@@ -243,9 +409,28 @@ const DocumentsList = () => {
     return (
       <DocumentsContainer>
         <ContentWrapper>
-          <Typography color="error" align="center" py={4}>
-            {error}
-          </Typography>
+          <Box
+            display="flex"
+            flexDirection="column"
+            alignItems="center"
+            py={4}
+            textAlign="center"
+          >
+            <Typography color="error" variant="h6" gutterBottom>
+              Ошибка загрузки
+            </Typography>
+            <Typography color="text.secondary" paragraph>
+              {error}
+            </Typography>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => window.location.reload()}
+              sx={{ mt: 2 }}
+            >
+              Попробовать снова
+            </Button>
+          </Box>
         </ContentWrapper>
       </DocumentsContainer>
     );
@@ -254,67 +439,43 @@ const DocumentsList = () => {
   return (
     <DocumentsContainer>
       <ContentWrapper>
-        <Typography variant="h4" gutterBottom fontWeight={600} color={colors.textPrimary}>
+        <Typography
+          variant={isMobile ? "h5" : "h4"}
+          gutterBottom
+          fontWeight={700}
+          color={colors.textPrimary}
+          sx={{ mb: 3 }}
+        >
           Мои документы
         </Typography>
 
         {documents.length === 0 ? (
-          <Typography variant="body1" color={colors.textPrimary} py={4}>
-            Вы еще не отправляли документы
-          </Typography>
+          <Box
+            display="flex"
+            flexDirection="column"
+            alignItems="center"
+            py={6}
+            textAlign="center"
+          >
+            <DescriptionIcon sx={{ fontSize: 60, color: colors.border, mb: 2 }} />
+            <Typography variant="h6" color="text.secondary" gutterBottom>
+              Документы не найдены
+            </Typography>
+            <Typography variant="body1" color={colors.textPrimary}>
+              Вы еще не отправляли документы или они не загружены
+            </Typography>
+            <Button
+              variant="outlined"
+              color="primary"
+              sx={{ mt: 3 }}
+              onClick={() => navigate('/create-document')}
+            >
+              Создать документ
+            </Button>
+          </Box>
         ) : (
           <>
-            <TableContainer component={Paper} elevation={3}>
-              <StyledTable>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Тема</TableCell>
-                    <TableCell>Получатель</TableCell>
-                    <TableCell>Дата отправки</TableCell>
-                    <TableCell>Статус</TableCell>
-                    <TableCell>Действия</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {documents.map((doc) => {
-                    const status = getStatusColor(doc.status);
-                    return (
-                      <TableRow key={doc._id}>
-                        <TableCell>{doc.subject}</TableCell>
-                        <TableCell>{doc.recipient}</TableCell>
-                        <TableCell>
-                          {new Date(doc.createdAt).toLocaleDateString('ru-RU', {
-                            day: '2-digit',
-                            month: '2-digit',
-                            year: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })}
-                        </TableCell>
-                        <TableCell>
-                          <StatusChip
-                            label={status.label}
-                            style={{ backgroundColor: status.color + '20', color: status.color }}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <Box display="flex" gap={1}>
-                            <Button
-                              variant="outlined"
-                              size="small"
-                              startIcon={<VisibilityIcon />}
-                              onClick={() => handleOpenDialog(doc)}
-                            >
-                              Просмотр
-                            </Button>
-                          </Box>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </StyledTable>
-            </TableContainer>
+            {isMobile ? <MobileDocumentsList /> : <DesktopDocumentsList />}
 
             {/* Диалог просмотра документа */}
             <Dialog
@@ -322,111 +483,237 @@ const DocumentsList = () => {
               onClose={handleCloseDialog}
               maxWidth="md"
               fullWidth
+              fullScreen={isMobile}
+              PaperProps={{
+                sx: {
+                  borderRadius: isMobile ? 0 : theme.shape.borderRadius * 2
+                }
+              }}
             >
-              <DialogTitle>Детали документа</DialogTitle>
-              <DialogContent dividers>
+              {isMobile && (
+                <DialogTitle sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  borderBottom: `1px solid ${colors.border}`
+                }}>
+                  <IconButton
+                    edge="start"
+                    color="inherit"
+                    onClick={handleCloseDialog}
+                    aria-label="close"
+                    sx={{ mr: 1 }}
+                  >
+                    <ArrowBackIcon />
+                  </IconButton>
+                  Детали документа
+                </DialogTitle>
+              )}
+
+              {!isMobile && (
+                <DialogTitle sx={{
+                  borderBottom: `1px solid ${colors.border}`,
+                  fontWeight: 600
+                }}>
+                  Детали документа
+                </DialogTitle>
+              )}
+
+              <DialogContent dividers sx={{ pt: isMobile ? 2 : 3 }}>
                 {selectedDocument && (
-                  <Box>
-                    <Typography variant="subtitle1" gutterBottom>
-                      <strong>Тема:</strong> {selectedDocument.subject}
-                    </Typography>
-                    <Typography variant="subtitle1" gutterBottom>
-                      <strong>Получатель:</strong> {selectedDocument.recipient}
-                    </Typography>
-                    <Typography variant="subtitle1" gutterBottom>
-                      <strong>Дата отправки:</strong> {new Date(selectedDocument.createdAt).toLocaleString('ru-RU')}
-                    </Typography>
-                    <Box mt={2} mb={2}>
-                      <Typography variant="subtitle1" gutterBottom>
-                        <strong>Содержание:</strong>
+                  <Stack spacing={3}>
+                    <Stack spacing={1}>
+                      <Typography variant="subtitle2" color="text.secondary">
+                        Тема
                       </Typography>
-                      <Typography variant="body1" paragraph>
+                      <Typography variant="body1" fontWeight={500}>
+                        {selectedDocument.subject}
+                      </Typography>
+                    </Stack>
+
+                    <Stack direction="row" spacing={4}>
+                      <Stack spacing={1} flex={1}>
+                        <Typography variant="subtitle2" color="text.secondary">
+                          Получатель
+                        </Typography>
+                        <Typography variant="body1">
+                          {selectedDocument.recipient}
+                        </Typography>
+                      </Stack>
+
+                      <Stack spacing={1} flex={1}>
+                        <Typography variant="subtitle2" color="text.secondary">
+                          Дата отправки
+                        </Typography>
+                        <Typography variant="body1">
+                          {formatDate(selectedDocument.createdAt)}
+                        </Typography>
+                      </Stack>
+                    </Stack>
+
+                    <Stack spacing={1}>
+                      <Typography variant="subtitle2" color="text.secondary">
+                        Статус
+                      </Typography>
+                      <StatusChip
+                        label={getStatusColor(selectedDocument.status).label}
+                        style={{
+                          backgroundColor: getStatusColor(selectedDocument.status).color + '10',
+                          color: getStatusColor(selectedDocument.status).color,
+                          border: `1px solid ${getStatusColor(selectedDocument.status).color}`,
+                          alignSelf: 'flex-start'
+                        }}
+                      />
+                    </Stack>
+
+                    <Divider />
+
+                    <Stack spacing={1}>
+                      <Typography variant="subtitle2" color="text.secondary">
+                        Содержание
+                      </Typography>
+                      <Typography variant="body1" paragraph sx={{ whiteSpace: 'pre-line' }}>
                         {selectedDocument.content}
                       </Typography>
-                    </Box>
+                    </Stack>
 
-                    <Divider sx={{ my: 2 }} />
+                    {selectedDocument.files && selectedDocument.files.length > 0 && (
+                      <>
+                        <Divider />
 
-                    <Typography variant="subtitle1" gutterBottom>
-                      <strong>Прикрепленные файлы:</strong>
-                    </Typography>
+                        <Stack spacing={2}>
+                          <Typography variant="subtitle2" color="text.secondary">
+                            Прикрепленные файлы ({selectedDocument.files.length})
+                          </Typography>
 
-                    {/* Секция с изображениями */}
-                    {selectedDocument.files.some(file => isImageFile(file)) && (
-                      <Box mt={2} mb={3}>
-                        <Typography variant="subtitle1" mb={1}>
-                          <strong>Изображения:</strong>
-                        </Typography>
-                        <Box
-                          display="flex"
-                          flexWrap="wrap"
-                          gap={2}
-                        >
-                          {selectedDocument.files
-                            .filter(file => isImageFile(file))
-                            .map((file) => (
-                              <ImageCard
-                                key={file._id}
-                                onClick={() => handlePreviewImage(selectedDocument._id, file._id)}
-                                sx={{ width: '150px', cursor: 'pointer' }}
-                              >
-                                <CardMedia
-                                  component="img"
-                                  height="120"
-                                  image={file.cloudinaryUrl}
-                                  alt={file.originalName}
-                                />
-                                <Box p={1}>
-                                  <Typography variant="caption" noWrap>
-                                    {file.originalName}
-                                  </Typography>
-                                </Box>
-                              </ImageCard>
-                            ))}
-                        </Box>
-                      </Box>
+                          {/* Изображения */}
+                          {selectedDocument.files.some(file => isImageFile(file)) && (
+                            <Stack spacing={1}>
+                              <Typography variant="subtitle2">
+                                Изображения
+                              </Typography>
+                              <Grid container spacing={2}>
+                                {selectedDocument.files
+                                  .filter(file => isImageFile(file))
+                                  .map((file) => (
+                                    <Grid item xs={6} sm={4} md={3} key={file._id}>
+                                      <ImageCard
+                                        onClick={() => handlePreviewImage(selectedDocument._id, file._id)}
+                                        sx={{ cursor: 'pointer' }}
+                                      >
+                                        <CardMedia
+                                          component="img"
+                                          height="140"
+                                          image={file.cloudinaryUrl}
+                                          alt={file.originalName}
+                                          sx={{
+                                            objectFit: 'cover',
+                                            aspectRatio: '4/3'
+                                          }}
+                                        />
+                                        <Box p={1.5}>
+                                          <Typography
+                                            variant="caption"
+                                            noWrap
+                                            sx={{
+                                              display: 'block',
+                                              textOverflow: 'ellipsis',
+                                              overflow: 'hidden'
+                                            }}
+                                          >
+                                            {file.originalName}
+                                          </Typography>
+                                        </Box>
+                                      </ImageCard>
+                                    </Grid>
+                                  ))}
+                              </Grid>
+                            </Stack>
+                          )}
+
+                          {/* Другие файлы */}
+                          {selectedDocument.files.some(file => !isImageFile(file)) && (
+                            <Stack spacing={1}>
+                              <Typography variant="subtitle2">
+                                Документы
+                              </Typography>
+                              <List dense sx={{
+                                backgroundColor: colors.background,
+                                borderRadius: theme.shape.borderRadius
+                              }}>
+                                {selectedDocument.files
+                                  .filter(file => !isImageFile(file))
+                                  .map((file) => (
+                                    <ListItem
+                                      key={file._id}
+                                      secondaryAction={
+                                        <IconButton
+                                          edge="end"
+                                          aria-label="download"
+                                          onClick={() => handleDownload(selectedDocument._id, file._id, file.originalName)}
+                                        >
+                                          <DownloadIcon />
+                                        </IconButton>
+                                      }
+                                      sx={{
+                                        borderBottom: `1px solid ${colors.border}`,
+                                        '&:last-child': {
+                                          borderBottom: 'none'
+                                        }
+                                      }}
+                                    >
+                                      <ListItemText
+                                        primary={file.originalName}
+                                        primaryTypographyProps={{
+                                          variant: 'body2',
+                                          noWrap: true
+                                        }}
+                                      />
+                                    </ListItem>
+                                  ))}
+                              </List>
+                            </Stack>
+                          )}
+                        </Stack>
+                      </>
                     )}
-
-                    {/* Список всех файлов */}
-                    {/* <List>
-                      {selectedDocument.files.map((file) => (
-                        <ListItem
-                          key={file._id}
-                          secondaryAction={
-                            <Box display="flex" gap={1}>
-                              {isImageFile(file) && (
-                                <ViewButton
-                                  variant="outlined"
-                                  size="small"
-                                  startIcon={<ImageIcon />}
-                                  onClick={() => handlePreviewImage(selectedDocument._id, file._id)}
-                                >
-                                  Просмотр
-                                </ViewButton>
-                              )}
-                              <DownloadButton
-                                variant="outlined"
-                                size="small"
-                                startIcon={<DownloadIcon />}
-                                onClick={() => handleDownload(selectedDocument._id, file._id, file.originalName)}
-                              >
-                                Скачать
-                              </DownloadButton>
-                            </Box>
-                          }
-                        >
-                          <ListItemText
-                            primary={file.fieldName}
-                            secondary={file.originalName}
-                          />
-                        </ListItem>
-                      ))}
-                    </List> */}
-                  </Box>
+                  </Stack>
                 )}
               </DialogContent>
-              <DialogActions>
-                <Button onClick={handleCloseDialog}>Закрыть</Button>
+
+              <DialogActions sx={{
+                borderTop: `1px solid ${colors.border}`,
+                padding: theme.spacing(2)
+              }}>
+                <Button
+                  onClick={handleCloseDialog}
+                  sx={{
+                    color: colors.textPrimary,
+                    '&:hover': {
+                      backgroundColor: colors.primary + '08'
+                    }
+                  }}
+                >
+                  Закрыть
+                </Button>
+                {selectedDocument?.files?.some(file => isImageFile(file)) && (
+                  <Button
+                    startIcon={<ImageIcon />}
+                    onClick={() => {
+                      const firstImage = selectedDocument.files.find(file => isImageFile(file));
+                      if (firstImage) {
+                        handlePreviewImage(selectedDocument._id, firstImage._id);
+                      }
+                    }}
+                    sx={{
+                      color: colors.primary,
+                      '&:hover': {
+                        backgroundColor: colors.primary + '08'
+                      }
+                    }}
+                  >
+                    Просмотр изображений
+                  </Button>
+                )}
               </DialogActions>
             </Dialog>
 
@@ -436,7 +723,42 @@ const DocumentsList = () => {
               onClose={closeImageDialog}
               maxWidth="lg"
               fullWidth
+              fullScreen={isMobile}
+              PaperProps={{
+                sx: {
+                  borderRadius: isMobile ? 0 : theme.shape.borderRadius * 2,
+                  maxHeight: '90vh'
+                }
+              }}
             >
+              {isMobile && (
+                <DialogTitle sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  borderBottom: `1px solid ${colors.border}`
+                }}>
+                  <IconButton
+                    edge="start"
+                    color="inherit"
+                    onClick={closeImageDialog}
+                    aria-label="close"
+                    sx={{ mr: 1 }}
+                  >
+                    <ArrowBackIcon />
+                  </IconButton>
+                  Просмотр изображения
+                </DialogTitle>
+              )}
+
+              {!isMobile && (
+                <DialogTitle sx={{
+                  borderBottom: `1px solid ${colors.border}`,
+                  fontWeight: 600
+                }}>
+                  Просмотр изображения
+                </DialogTitle>
+              )}
+
               <DialogContent>
                 {imagePreview && (
                   <Box
@@ -444,8 +766,9 @@ const DocumentsList = () => {
                     justifyContent="center"
                     alignItems="center"
                     sx={{
-                      height: 'calc(100vh - 120px)',
-                      overflow: 'auto'
+                      height: isMobile ? 'calc(100vh - 136px)' : 'calc(90vh - 120px)',
+                      overflow: 'auto',
+                      backgroundColor: '#000',
                     }}
                   >
                     <img
@@ -460,9 +783,22 @@ const DocumentsList = () => {
                   </Box>
                 )}
               </DialogContent>
-              <DialogActions>
-                <Button onClick={closeImageDialog}>Закрыть</Button>
-       
+
+              <DialogActions sx={{
+                borderTop: `1px solid ${colors.border}`,
+                padding: theme.spacing(2)
+              }}>
+                <Button
+                  onClick={closeImageDialog}
+                  sx={{
+                    color: colors.textPrimary,
+                    '&:hover': {
+                      backgroundColor: colors.primary + '08'
+                    }
+                  }}
+                >
+                  Закрыть
+                </Button>
                 <Button
                   color="primary"
                   startIcon={<DownloadIcon />}
@@ -473,6 +809,11 @@ const DocumentsList = () => {
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
+                  }}
+                  sx={{
+                    '&:hover': {
+                      backgroundColor: colors.primary + '08'
+                    }
                   }}
                 >
                   Скачать

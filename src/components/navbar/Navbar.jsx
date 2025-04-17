@@ -139,23 +139,25 @@ const Navbar = ({ isMobile = false, sidebarOpen = false, setSidebarOpen = () => 
   // Навигационные ссылки (только на русском)
   const links = [
     { to: '/', label: 'Главная', icon: HomeFilledIcon },
-    isAuthenticated &&
-    userRole === 'doctoral' && {
+    isAuthenticated && userRole === 'doctoral' && {
       to: '/documents',
       label: 'Мои заявки',
       icon: FileOpenIcon,
     },
-    isAuthenticated &&
-    userRole === 'doctoral' && {
+    isAuthenticated && userRole === 'doctoral' && {
       to: '/assessments-doctorant',
       label: 'Заяка к оценку',
       icon: AssessmentIcon,
     },
-    isAuthenticated &&
-    userRole === 'reviewer' && {
+    isAuthenticated && userRole === 'reviewer' && {
       to: '/review-news',
       label: 'Новости',
       icon: AssignmentTurnedInIcon,
+    },
+    isAuthenticated && userRole === 'reviewer' && {
+      to: '/reviewer-assessments',
+      label: 'Отправка оценок',
+      icon: AssessmentIcon, // Иконку можно сменить
     },
     isAuthenticated
       ? {
@@ -164,7 +166,7 @@ const Navbar = ({ isMobile = false, sidebarOpen = false, setSidebarOpen = () => 
         icon: AccountBoxIcon,
       }
       : { to: '/doctoral-register', label: 'Регистрация', icon: AccountBoxIcon },
-  ].filter(Boolean); // Удаляем null/undefined элементы
+  ].filter(Boolean);
 
   const handleLogout = () => {
     localStorage.removeItem('token');

@@ -6,3 +6,4 @@ export {default as ReviewerCabinet } from "../components/reviewer/ReviewerCabine
 export { default as DocumentsList } from "../components/document/DocumentsList"
 export { default as ReviewerNews } from "../components/news/ReviewerNews"
 export { default as AssessmentsDoctorant} from "../components/assessments/AssessmentsDoctorant"
+export { default as ReviewerAssessments } from "../components/rewiewer-assessment/ReviewerAssessments"
