@@ -150,6 +150,7 @@ const ReviewerAssessments = () => {
 
   // Convert numeric rating to grade (1-20 to 2-5)
   const getGradeFromRating = (rating) => {
+    if (!rating) return 'Нет оценки';
     if (rating >= 17) return '5';
     if (rating >= 14) return '4';
     if (rating >= 11) return '3';
@@ -213,7 +214,9 @@ const ReviewerAssessments = () => {
         throw new Error('Server returned invalid JSON format');
       }
 
-      setAssessments(debugData.parsedJson);
+      // Ensure the response is an array
+      const assessmentsData = Array.isArray(debugData.parsedJson) ? debugData.parsedJson : [];
+      setAssessments(assessmentsData);
 
       // Fetch completed assessments
       await fetchCompletedAssessments();
@@ -221,6 +224,7 @@ const ReviewerAssessments = () => {
       setError(`Не удалось загрузить оценки: ${err.message}`);
       console.error('API Error:', err);
       console.log('Debug Info:', debugInfo);
+      setAssessments([]); // Set empty array on error
     } finally {
       setLoading(false);
     }
@@ -241,15 +245,24 @@ const ReviewerAssessments = () => {
         },
       });
 
-      const data = await response.json();
+      const debugData = await inspectResponse(response);
+      setDebugInfo(debugData);
+
       if (!response.ok) {
-        throw new Error(data.error || `HTTP error! status: ${response.status}`);
+        throw new Error(
+          debugData.parsedJson?.error ||
+          debugData.body ||
+          `HTTP error! status: ${response.status}`
+        );
       }
 
-      setCompletedAssessments(data);
+      // Ensure the response is an array
+      const completedData = Array.isArray(debugData.parsedJson) ? debugData.parsedJson : [];
+      setCompletedAssessments(completedData);
     } catch (err) {
       console.error('Failed to fetch completed assessments:', err);
       setError('Не удалось загрузить проверенные работы');
+      setCompletedAssessments([]); // Set empty array on error
     }
   };
 
@@ -261,8 +274,12 @@ const ReviewerAssessments = () => {
   const handleSelectAssessment = (assessment) => {
     setSelectedAssessment(assessment);
     setSelectedCompletedAssessment(null);
-    setRatings(Array(assessment.answers.length).fill(0));
-    setFeedback('');
+    // Initialize ratings array with zeros or existing ratings
+    const initialRatings = assessment.answers?.length ?
+      assessment.answers.map(answer => answer.rating || 0) :
+      [];
+    setRatings(initialRatings);
+    setFeedback(assessment.feedback || '');
     setError('');
     setSuccess('');
     if (isMobile) setDrawerOpen(false);
@@ -297,6 +314,8 @@ const ReviewerAssessments = () => {
   };
 
   const handleSubmitReview = async () => {
+    if (!selectedAssessment) return;
+
     if (ratings.some(rating => rating === 0)) {
       setError('Пожалуйста, оцените все ответы');
       return;
@@ -314,9 +333,9 @@ const ReviewerAssessments = () => {
 
       const reviewData = {
         assessmentId: selectedAssessment._id,
-        answers: selectedAssessment.answers.map((answerItem, index) => ({
+        answers: selectedAssessment.answers?.map((answerItem, index) => ({
           rating: ratings[index]
-        })),
+        })) || [],
         feedback: feedback
       };
 
@@ -375,13 +394,17 @@ const ReviewerAssessments = () => {
   // Format date
   const formatDate = (dateString) => {
     if (!dateString) return '';
-    return new Date(dateString).toLocaleDateString('ru-RU', {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+    try {
+      return new Date(dateString).toLocaleDateString('ru-RU', {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch (e) {
+      return dateString;
+    }
   };
 
   // Debug dialog
@@ -412,7 +435,7 @@ const ReviewerAssessments = () => {
             Проверка академических работ
           </Typography>
         </Box>
-        {isMobile && selectedAssessment && (
+        {isMobile && (selectedAssessment || selectedCompletedAssessment) && (
           <Button
             onClick={() => setDrawerOpen(true)}
             variant="outlined"
@@ -498,7 +521,7 @@ const ReviewerAssessments = () => {
               </Typography>
             </Box>
 
-            {assessments.length === 0 ? (
+            {!assessments || assessments.length === 0 ? (
               <Box bgcolor="#FFFFFF" p={3} borderRadius={2} textAlign="center" border={`1px dashed ${colors.borderColor}`}>
                 <Typography color={colors.lightText} fontSize={15}>
                   Нет работ для проверки
@@ -507,7 +530,7 @@ const ReviewerAssessments = () => {
             ) : (
               assessments.map((assessment) => (
                 <AssessmentCard
-                  key={assessment._id}
+                  key={assessment._id || Math.random()}
                   selected={selectedAssessment?._id === assessment._id}
                   onClick={() => handleSelectAssessment(assessment)}
                 >
@@ -532,7 +555,7 @@ const ReviewerAssessments = () => {
                         Дата сдачи: {formatDate(assessment.createdAt)}
                       </Typography>
                     </Box>
-                    {renderStatus(assessment.status)}
+                    {renderStatus(assessment.status || 'pending')}
                   </Box>
                 </AssessmentCard>
               ))
@@ -555,7 +578,7 @@ const ReviewerAssessments = () => {
               </Typography>
             </Box>
 
-            {completedAssessments.length === 0 ? (
+            {!completedAssessments || completedAssessments.length === 0 ? (
               <Box bgcolor="#FFFFFF" p={3} borderRadius={2} textAlign="center" border={`1px dashed ${colors.borderColor}`}>
                 <Typography color={colors.lightText} fontSize={15}>
                   Нет проверенных работ
@@ -564,7 +587,7 @@ const ReviewerAssessments = () => {
             ) : (
               completedAssessments.map((assessment) => (
                 <AssessmentCard
-                  key={assessment._id}
+                  key={assessment._id || Math.random()}
                   selected={selectedCompletedAssessment?._id === assessment._id}
                   onClick={() => handleSelectCompletedAssessment(assessment)}
                 >
@@ -624,13 +647,13 @@ const ReviewerAssessments = () => {
 
               <Divider sx={{ mb: 3 }} />
 
-              {selectedAssessment.answers.map((item, index) => (
+              {selectedAssessment.answers?.map((item, index) => (
                 <StyledAccordion key={index} defaultExpanded={!isMobile}>
                   <AccordionSummary
                     expandIcon={<ExpandMoreIcon sx={{ color: colors.primary }} />}
                   >
                     <Typography fontWeight={600} fontSize={15} color={colors.text}>
-                      Вопрос {index + 1}: {item.question}
+                      Вопрос {index + 1}: {item.question || 'Без названия'}
                     </Typography>
                   </AccordionSummary>
                   <AccordionDetails sx={{ p: 2 }}>
@@ -639,7 +662,7 @@ const ReviewerAssessments = () => {
                         Ответ студента:
                       </Typography>
                       <Typography fontSize={14} color={colors.lightText} whiteSpace="pre-wrap">
-                        {item.answer}
+                        {item.answer || 'Нет ответа'}
                       </Typography>
                     </Box>
                     <Box display="flex" alignItems="center" mt={2} sx={{ flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'flex-start', sm: 'center' } }}>
@@ -732,13 +755,13 @@ const ReviewerAssessments = () => {
 
               <Divider sx={{ mb: 3 }} />
 
-              {selectedCompletedAssessment.answers.map((item, index) => (
+              {selectedCompletedAssessment.answers?.map((item, index) => (
                 <StyledAccordion key={index} defaultExpanded={!isMobile}>
                   <AccordionSummary
                     expandIcon={<ExpandMoreIcon sx={{ color: colors.primary }} />}
                   >
                     <Typography fontWeight={600} fontSize={15} color={colors.text}>
-                      Вопрос {index + 1}: {item.question}
+                      Вопрос {index + 1}: {item.question || 'Без названия'}
                     </Typography>
                   </AccordionSummary>
                   <AccordionDetails sx={{ p: 2 }}>
@@ -747,7 +770,7 @@ const ReviewerAssessments = () => {
                         Ответ студента:
                       </Typography>
                       <Typography fontSize={14} color={colors.lightText} whiteSpace="pre-wrap">
-                        {item.answer}
+                        {item.answer || 'Нет ответа'}
                       </Typography>
                     </Box>
                     <Box mb={2}>
@@ -759,7 +782,7 @@ const ReviewerAssessments = () => {
                           Баллы: {item.rating || 'Нет оценки'}
                         </Typography>
                         <Typography fontSize={14} color={colors.text}>
-                          Оценка: {item.rating ? getGradeFromRating(item.rating) : 'Нет оценки'}
+                          Оценка: {getGradeFromRating(item.rating)}
                         </Typography>
                       </Box>
                     </Box>
@@ -840,6 +863,8 @@ const ReviewerAssessments = () => {
               )}
             </>
           )}
+
+          
         </DialogContent>
         <DialogActions sx={{ bgcolor: colors.highlight }}>
           <Button onClick={handleDebugClose} sx={{ color: colors.primary, fontSize: 14, fontWeight: 600 }}>
