@@ -36,15 +36,15 @@ import HistoryIcon from '@mui/icons-material/History';
 
 // Educational theme color palette
 const colors = {
-  primary: '#1565C0', // Deep blue for headers and buttons
-  secondary: '#F5F7FA', // Light blue-gray for backgrounds
-  accent: '#4CAF50', // Green for success and completed status
-  error: '#D32F2F', // Red for errors
-  warning: '#FF9800', // Orange for pending status
-  text: '#37474F', // Dark blue-gray for text
-  lightText: '#78909C', // Lighter text for secondary information
-  highlight: '#E3F2FD', // Very light blue for highlights
-  borderColor: '#BBDEFB', // Light blue for borders
+  primary: '#1565C0',
+  secondary: '#F5F7FA',
+  accent: '#4CAF50',
+  error: '#D32F2F',
+  warning: '#FF9800',
+  text: '#37474F',
+  lightText: '#78909C',
+  highlight: '#E3F2FD',
+  borderColor: '#BBDEFB',
 };
 
 const SubmitButton = styled(Button)(({ disabled }) => ({
@@ -108,7 +108,6 @@ const AssessmentCard = styled(Box)(({ selected }) => ({
   }
 }));
 
-// Custom TextField with education theme
 const StyledTextField = styled(TextField)({
   '& .MuiOutlinedInput-root': {
     borderRadius: 8,
@@ -130,6 +129,52 @@ const StyledTextField = styled(TextField)({
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://doctoral-studies-server.vercel.app';
 
+// Правила преобразования баллов в оценки
+const getGradeFromRating = (rating, questionIndex) => {
+  if (!rating) return 0;
+  switch (questionIndex) {
+    case 0: // Вопрос 1 (1–5)
+    case 1: // Вопрос 2 (1–5)
+    case 8: // Вопрос 9 (1–5)
+      return Math.min(5, Math.max(1, Math.round(rating)));
+    case 2: // Вопрос 3 (1–20)
+    case 4: // Вопрос 5 (1–20)
+      if (rating >= 17) return 5;
+      if (rating >= 14) return 4;
+      if (rating >= 11) return 3;
+      return 2;
+    case 3: // Вопрос 4 (1–10)
+    case 6: // Вопрос 7 (1–10)
+    case 7: // Вопрос 8 (1–10)
+    case 9: // Вопрос 10 (1–10)
+      if (rating >= 9) return 5;
+      if (rating >= 7) return 4;
+      if (rating >= 5) return 3;
+      return 2;
+    case 5: // Вопрос 6 (1–15)
+      if (rating >= 13) return 5;
+      if (rating >= 11) return 4;
+      if (rating >= 9) return 3;
+      return 2;
+    default:
+      return 0;
+  }
+};
+
+// Вычисление итогового балла и оценки
+const calculateFinalGrade = (grades) => {
+  const weight = 2.2; // Вес для преобразования оценок в баллы (5 × 2.2 = 11)
+  const total = grades.reduce((sum, grade) => sum + grade * weight, 0);
+  if (total < 60) return { grade: 0, status: 'rejected', total: Math.round(total * 10) / 10 };
+  if (total >= 90) return { grade: 5, status: 'approved', total: Math.round(total * 10) / 10 };
+  if (total >= 70) return { grade: 4, status: 'approved', total: Math.round(total * 10) / 10 };
+  if (total >= 60) return { grade: 3, status: 'approved', total: Math.round(total * 10) / 10 };
+  return { grade: 0, status: 'rejected', total: Math.round(total * 10) / 10 };
+};
+
+// Максимальные баллы для каждого вопроса
+const maxRatings = [5, 5, 20, 10, 20, 15, 10, 10, 5, 10];
+
 const ReviewerAssessments = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -147,15 +192,6 @@ const ReviewerAssessments = () => {
   const [debugOpen, setDebugOpen] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
   const [drawerOpen, setDrawerOpen] = useState(false);
-
-  // Convert numeric rating to grade (1-20 to 2-5)
-  const getGradeFromRating = (rating) => {
-    if (!rating) return 'Нет оценки';
-    if (rating >= 17) return '5';
-    if (rating >= 14) return '4';
-    if (rating >= 11) return '3';
-    return '2'; // For ratings below 11
-  };
 
   // Debug function to inspect API responses
   const inspectResponse = async (response) => {
@@ -182,15 +218,13 @@ const ReviewerAssessments = () => {
     return debugData;
   };
 
-  // Load assessments with detailed error handling
+  // Load assessments
   const fetchAssessments = async () => {
     setLoading(true);
     setError('');
     try {
       const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('Authorization token not found');
-      }
+      if (!token) throw new Error('Authorization token not found');
 
       const response = await fetch(`${API_BASE_URL}/reviewer-assessments`, {
         headers: {
@@ -210,21 +244,14 @@ const ReviewerAssessments = () => {
         );
       }
 
-      if (!debugData.parsedJson) {
-        throw new Error('Server returned invalid JSON format');
-      }
-
-      // Ensure the response is an array
       const assessmentsData = Array.isArray(debugData.parsedJson) ? debugData.parsedJson : [];
       setAssessments(assessmentsData);
-
-      // Fetch completed assessments
       await fetchCompletedAssessments();
     } catch (err) {
       setError(`Не удалось загрузить оценки: ${err.message}`);
       console.error('API Error:', err);
       console.log('Debug Info:', debugInfo);
-      setAssessments([]); // Set empty array on error
+      setAssessments([]);
     } finally {
       setLoading(false);
     }
@@ -234,9 +261,7 @@ const ReviewerAssessments = () => {
   const fetchCompletedAssessments = async () => {
     try {
       const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('Authorization token not found');
-      }
+      if (!token) throw new Error('Authorization token not found');
 
       const response = await fetch(`${API_BASE_URL}/completed-assessments-reviewer`, {
         headers: {
@@ -256,13 +281,12 @@ const ReviewerAssessments = () => {
         );
       }
 
-      // Ensure the response is an array
       const completedData = Array.isArray(debugData.parsedJson) ? debugData.parsedJson : [];
       setCompletedAssessments(completedData);
     } catch (err) {
       console.error('Failed to fetch completed assessments:', err);
       setError('Не удалось загрузить проверенные работы');
-      setCompletedAssessments([]); // Set empty array on error
+      setCompletedAssessments([]);
     }
   };
 
@@ -274,10 +298,9 @@ const ReviewerAssessments = () => {
   const handleSelectAssessment = (assessment) => {
     setSelectedAssessment(assessment);
     setSelectedCompletedAssessment(null);
-    // Initialize ratings array with zeros or existing ratings
-    const initialRatings = assessment.answers?.length ?
-      assessment.answers.map(answer => answer.rating || 0) :
-      [];
+    const initialRatings = assessment.answers?.length
+      ? assessment.answers.map(answer => answer.rating || 0)
+      : Array(10).fill(0); // Предполагаем 10 вопросов
     setRatings(initialRatings);
     setFeedback(assessment.feedback || '');
     setError('');
@@ -294,12 +317,11 @@ const ReviewerAssessments = () => {
     if (isMobile) setDrawerOpen(false);
   };
 
-  // Handle rating changes (1-20)
+  // Handle rating changes
   const handleRatingChange = (index, value) => {
-    // Convert to number and ensure it's within 1-20 range
     let numericValue = Number(value);
     if (isNaN(numericValue)) numericValue = 0;
-    numericValue = Math.min(20, Math.max(1, numericValue));
+    numericValue = Math.min(maxRatings[index], Math.max(1, numericValue));
 
     const newRatings = [...ratings];
     newRatings[index] = numericValue;
@@ -327,19 +349,15 @@ const ReviewerAssessments = () => {
 
     try {
       const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('Authorization token not found');
-      }
+      if (!token) throw new Error('Authorization token not found');
 
       const reviewData = {
         assessmentId: selectedAssessment._id,
-        answers: selectedAssessment.answers?.map((answerItem, index) => ({
+        answers: selectedAssessment.answers.map((answerItem, index) => ({
           rating: ratings[index]
-        })) || [],
-        feedback: feedback
+        })),
+        feedback
       };
-
-      console.log('Отправляемые данные:', reviewData);
 
       const response = await fetch(`${API_BASE_URL}/submit-review`, {
         method: 'POST',
@@ -366,8 +384,6 @@ const ReviewerAssessments = () => {
         assessment._id !== selectedAssessment._id
       ));
       setSelectedAssessment(null);
-
-      // Refresh assessments list after successful submission
       await fetchAssessments();
     } catch (err) {
       setError(`Не удалось отправить оценку: ${err.message}`);
@@ -410,6 +426,12 @@ const ReviewerAssessments = () => {
   // Debug dialog
   const handleDebugClose = () => setDebugOpen(false);
   const handleDebugOpen = () => setDebugOpen(true);
+
+  // Вычисление итогового результата
+  const calculateResult = () => {
+    const grades = ratings.map((rating, index) => getGradeFromRating(rating, index));
+    return calculateFinalGrade(grades);
+  };
 
   if (loading) {
     return (
@@ -667,7 +689,7 @@ const ReviewerAssessments = () => {
                     </Box>
                     <Box display="flex" alignItems="center" mt={2} sx={{ flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'flex-start', sm: 'center' } }}>
                       <Typography fontWeight={600} fontSize={14} color={colors.text} sx={{ mb: { xs: 1, sm: 0 } }}>
-                        Оценка (1-20):
+                        Баллы (1–{maxRatings[index]}):
                       </Typography>
                       <TextField
                         type="number"
@@ -675,16 +697,16 @@ const ReviewerAssessments = () => {
                         onChange={(e) => handleRatingChange(index, e.target.value)}
                         inputProps={{
                           min: 1,
-                          max: 20,
+                          max: maxRatings[index],
                           step: 1
                         }}
                         size="small"
                         sx={{ width: 100, ml: { xs: 0, sm: 2 }, mb: { xs: 1, sm: 0 } }}
-                        placeholder="1-20"
+                        placeholder={`1–${maxRatings[index]}`}
                       />
                       {ratings[index] > 0 && (
                         <Typography sx={{ ml: { xs: 0, sm: 2 }, fontSize: 14, color: colors.text }}>
-                          Итоговая оценка: {getGradeFromRating(ratings[index])}
+                          Оценка: {getGradeFromRating(ratings[index], index)} (Баллы: {(getGradeFromRating(ratings[index], index) * 2.2).toFixed(1)})
                         </Typography>
                       )}
                     </Box>
@@ -709,6 +731,29 @@ const ReviewerAssessments = () => {
                 variant="outlined"
                 sx={{ mb: 3 }}
               />
+
+              {/* Итоговый результат */}
+              {ratings.every(r => r > 0) && (
+                <Box bgcolor={colors.highlight} p={2} borderRadius={2} mb={3}>
+                  <Typography fontWeight={600} fontSize={15} color={colors.text} mb={1}>
+                    Итоговый результат:
+                  </Typography>
+                  {(() => {
+                    const result = calculateResult();
+                    return (
+                      <Typography
+                        fontSize={14}
+                        color={result.status === 'rejected' ? colors.error : colors.accent}
+                        fontWeight={600}
+                      >
+                        {result.status === 'rejected'
+                          ? `Отказ (общий балл: ${result.total})`
+                          : `Оценка: ${result.grade} (общий балл: ${result.total})`}
+                      </Typography>
+                    );
+                  })()}
+                </Box>
+              )}
 
               <SubmitButton
                 fullWidth
@@ -755,7 +800,7 @@ const ReviewerAssessments = () => {
 
               <Divider sx={{ mb: 3 }} />
 
-              {selectedCompletedAssessment.answers?.map((item, index) => (
+              {selectedCompletedAssessment.questions?.map((item, index) => (
                 <StyledAccordion key={index} defaultExpanded={!isMobile}>
                   <AccordionSummary
                     expandIcon={<ExpandMoreIcon sx={{ color: colors.primary }} />}
@@ -782,7 +827,7 @@ const ReviewerAssessments = () => {
                           Баллы: {item.rating || 'Нет оценки'}
                         </Typography>
                         <Typography fontSize={14} color={colors.text}>
-                          Оценка: {getGradeFromRating(item.rating)}
+                          Оценка: {getGradeFromRating(item.rating, index)} (Баллы: {(getGradeFromRating(item.rating, index) * 2.2).toFixed(1)})
                         </Typography>
                       </Box>
                     </Box>
@@ -815,6 +860,30 @@ const ReviewerAssessments = () => {
                   </Box>
                 </>
               )}
+
+              {/* Итоговый результат для завершенной работы */}
+              <Box bgcolor={colors.highlight} p={2} borderRadius={2} mt={3}>
+                <Typography fontWeight={600} fontSize={15} color={colors.text} mb={1}>
+                  Итоговый результат:
+                </Typography>
+                {(() => {
+                  const grades = selectedCompletedAssessment.questions.map((item, index) =>
+                    getGradeFromRating(item.rating, index)
+                  );
+                  const result = calculateFinalGrade(grades);
+                  return (
+                    <Typography
+                      fontSize={14}
+                      color={result.status === 'rejected' ? colors.error : colors.accent}
+                      fontWeight={600}
+                    >
+                      {result.status === 'rejected'
+                        ? `Отказ (общий балл: ${result.total})`
+                        : `Оценка: ${result.grade} (общий балл: ${result.total})`}
+                    </Typography>
+                  );
+                })()}
+              </Box>
             </Box>
           </Grid>
         )}
@@ -863,8 +932,6 @@ const ReviewerAssessments = () => {
               )}
             </>
           )}
-
-          
         </DialogContent>
         <DialogActions sx={{ bgcolor: colors.highlight }}>
           <Button onClick={handleDebugClose} sx={{ color: colors.primary, fontSize: 14, fontWeight: 600 }}>

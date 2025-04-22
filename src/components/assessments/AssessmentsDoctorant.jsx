@@ -25,7 +25,6 @@ import { ru } from 'date-fns/locale';
 
 const colors = {
   primaryGradient: 'linear-gradient(135deg, #143654 0%, rgb(26, 84, 136) 100%)',
-
   error: '#EF4444',
   success: '#4CAF50',
   warning: '#FFC107',
@@ -90,17 +89,60 @@ const StatusChip = ({ status, hasRatings }) => {
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://doctoral-studies-server.vercel.app';
 
+// Правила преобразования баллов в оценки
+const getGradeFromRating = (rating, questionIndex) => {
+  if (!rating) return 0;
+  switch (questionIndex) {
+    case 0: // Вопрос 1 (1–5)
+    case 1: // Вопрос 2 (1–5)
+    case 8: // Вопрос 9 (1–5)
+      return Math.min(5, Math.max(1, Math.round(rating)));
+    case 2: // Вопрос 3 (1–20)
+    case 4: // Вопрос 5 (1–20)
+      if (rating >= 17) return 5;
+      if (rating >= 14) return 4;
+      if (rating >= 11) return 3;
+      return 2;
+    case 3: // Вопрос 4 (1–10)
+    case 6: // Вопрос 7 (1–10)
+    case 7: // Вопрос 8 (1–10)
+    case 9: // Вопрос 10 (1–10)
+      if (rating >= 9) return 5;
+      if (rating >= 7) return 4;
+      if (rating >= 5) return 3;
+      return 2;
+    case 5: // Вопрос 6 (1–15)
+      if (rating >= 13) return 5;
+      if (rating >= 11) return 4;
+      if (rating >= 9) return 3;
+      return 2;
+    default:
+      return 0;
+  }
+};
+
+// Вычисление итогового балла и оценки
+const calculateFinalGrade = (grades) => {
+  const weight = 2.2; // Вес для преобразования оценок в баллы (5 × 2.2 = 11)
+  const total = grades.reduce((sum, grade) => sum + grade * weight, 0);
+  if (total < 60) return { grade: 0, status: 'rejected', total: Math.round(total * 10) / 10 };
+  if (total >= 90) return { grade: 5, status: 'approved', total: Math.round(total * 10) / 10 };
+  if (total >= 70) return { grade: 4, status: 'approved', total: Math.round(total * 10) / 10 };
+  if (total >= 60) return { grade: 3, status: 'approved', total: Math.round(total * 10) / 10 };
+  return { grade: 0, status: 'rejected', total: Math.round(total * 10) / 10 };
+};
+
 const questions = [
-  '🔹 Какую роль вы играли в проекте?',
-  '🔹 Какова ваша степень владения предметом?',
-  '🔹 Какие методы исследования вы применили?',
-  '🔹 Как вы взаимодействовали с коллегами?',
-  '🔹 Какие основные выводы вы сделали?',
-  '🔹 Какова ваша научная новизна?',
-  '🔹 Какие сложности возникли в процессе работы?',
-  '🔹 Как вы оцениваете свою подготовку?',
-  '🔹 Какой ваш вклад в развитие области?',
-  '🔹 Какой следующий шаг в вашем исследовании?',
+  '🔹 Dissertatsiyaning ko‘rsatilgan ixtisoslikka mosligi.',
+  '🔹 Dissertatsiyaning ilmiy saviyasi.',
+  '🔹 Dissertatsiyaning ilmiy va amaliy ahamiyati.',
+  '🔹 Tadqiqot natijalarining asoslanganligi.',
+  '🔹 E’lon qilingan ishlarda dissertatsiya natijalarining to‘liq bayon etilganligi.',
+  '🔹 Dissertatsiyaning ilmiy natijalarini amaliyotga joriy etilganligi.',
+  '🔹 Izlanuvchiga qo‘yilgan talablarning bajarilganligi.',
+  '🔹 Dissertatsiya va dissertatsiya avtoreferatini belgilangan talablarga mos ravishda rasmiylashtirilganligi.',
+  '🔹 Tavsiya.',
+  '🔹 Mavzu bilan grant uchun loyihalarda va tanlovlarda ishtirok etganligi.',
 ];
 
 const AssessmentsDoctorant = () => {
@@ -256,10 +298,10 @@ const AssessmentsDoctorant = () => {
 
   const renderAssessmentItem = (assessment) => {
     const hasRatings = assessment.questions.some(q => q.rating > 0);
-    const ratings = assessment.questions.map(q => q.rating).filter(r => r > 0);
-    const averageRating = ratings.length > 0
-      ? (ratings.reduce((sum, r) => sum + r, 0) / ratings.length).toFixed(1)
-      : null;
+
+    // Рассчитываем итоговую оценку
+    const grades = assessment.questions.map((q, idx) => getGradeFromRating(q.rating, idx));
+    const result = calculateFinalGrade(grades);
 
     return (
       <Paper elevation={2} sx={{ mb: 2, p: isMobile ? 1.5 : 2 }}>
@@ -276,10 +318,23 @@ const AssessmentsDoctorant = () => {
             </Typography>
           </Box>
           <Box textAlign={isMobile ? 'center' : 'right'} width={isMobile ? '100%' : 'auto'}>
-   
-            {averageRating && (
-              <Typography variant="body2" fontWeight={500} mt={1} sx={{ fontSize: isMobile ? '0.8rem' : '0.875rem' }}>
-                Итоговая оценка: {averageRating}/5
+            {/* <StatusChip status={assessment.status} hasRatings={hasRatings} />
+            <Typography variant="body2" color="text.secondary" sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem' }}>
+              {formatDate(assessment.createdAt)}
+            </Typography> */}
+            {hasRatings && (
+              <Typography
+                variant="body2"
+                fontWeight={500}
+                mt={1}
+                sx={{
+                  fontSize: isMobile ? '0.8rem' : '0.875rem',
+                  color: result.status === 'rejected' ? colors.error : colors.success
+                }}
+              >
+                {result.status === 'rejected'
+                  ? `Отказ (общий балл: ${result.total})`
+                  : `Оценка: ${result.grade} (общий балл: ${result.total})`}
               </Typography>
             )}
           </Box>
@@ -315,7 +370,7 @@ const AssessmentsDoctorant = () => {
                     secondary={
                       q.rating > 0 ? (
                         <Typography variant="body2" color="text.primary" sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem' }}>
-                          Оценка: {q.rating}/5
+                          Баллы: {q.rating}, Оценка: {getGradeFromRating(q.rating, idx)} (Баллы: {(getGradeFromRating(q.rating, idx) * 2.2).toFixed(1)})
                         </Typography>
                       ) : (
                         <Typography variant="body2" color="text.secondary" sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem' }}>
