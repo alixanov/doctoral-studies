@@ -11,6 +11,7 @@ import FileOpenIcon from '@mui/icons-material/FileOpen';
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import SchoolIcon from '@mui/icons-material/School';
+import MarkChatUnreadIcon from '@mui/icons-material/MarkChatUnread';
 
 // Цветовая палитра
 const colors = {
@@ -144,6 +145,8 @@ const Navbar = ({ isMobile = false, sidebarOpen = false, setSidebarOpen = () => 
   // Навигационные ссылки (только на русском)
   const links = [
     { to: '/', label: 'Главная', icon: HomeFilledIcon },
+    { to: '/gemini', label: 'ChatAi', icon: MarkChatUnreadIcon },
+
     isAuthenticated && userRole === 'doctoral' && {
       to: '/documents',
       label: 'Мои заявки',
