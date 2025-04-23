@@ -187,7 +187,8 @@ const ReviewerAssessments = () => {
   const [selectedAssessment, setSelectedAssessment] = useState(null);
   const [selectedCompletedAssessment, setSelectedCompletedAssessment] = useState(null);
   const [ratings, setRatings] = useState([]);
-  const [feedback, setFeedback] = useState('');
+  const [questionFeedbacks, setQuestionFeedbacks] = useState([]); // Комментарии для каждого вопроса
+  const [feedback, setFeedback] = useState(''); // Итоговый комментарий
   const [debugInfo, setDebugInfo] = useState(null);
   const [debugOpen, setDebugOpen] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
@@ -300,8 +301,12 @@ const ReviewerAssessments = () => {
     setSelectedCompletedAssessment(null);
     const initialRatings = assessment.answers?.length
       ? assessment.answers.map(answer => answer.rating || 0)
-      : Array(10).fill(0); // Предполагаем 10 вопросов
+      : Array(10).fill(0);
+    const initialFeedbacks = assessment.answers?.length
+      ? assessment.answers.map(answer => answer.feedback || '')
+      : Array(10).fill('');
     setRatings(initialRatings);
+    setQuestionFeedbacks(initialFeedbacks);
     setFeedback(assessment.feedback || '');
     setError('');
     setSuccess('');
@@ -328,6 +333,13 @@ const ReviewerAssessments = () => {
     setRatings(newRatings);
   };
 
+  // Handle question feedback changes
+  const handleQuestionFeedbackChange = (index, value) => {
+    const newFeedbacks = [...questionFeedbacks];
+    newFeedbacks[index] = value;
+    setQuestionFeedbacks(newFeedbacks);
+  };
+
   // Handle tab change
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
@@ -335,6 +347,7 @@ const ReviewerAssessments = () => {
     setSelectedCompletedAssessment(null);
   };
 
+  // Handle submit review
   const handleSubmitReview = async () => {
     if (!selectedAssessment) return;
 
@@ -354,9 +367,10 @@ const ReviewerAssessments = () => {
       const reviewData = {
         assessmentId: selectedAssessment._id,
         answers: selectedAssessment.answers.map((answerItem, index) => ({
-          rating: ratings[index]
+          rating: ratings[index],
+          feedback: questionFeedbacks[index] // Комментарий к каждому вопросу
         })),
-        feedback
+        feedback // Итоговый комментарий
       };
 
       const response = await fetch(`${API_BASE_URL}/submit-review`, {
@@ -384,6 +398,9 @@ const ReviewerAssessments = () => {
         assessment._id !== selectedAssessment._id
       ));
       setSelectedAssessment(null);
+      setRatings([]);
+      setQuestionFeedbacks([]);
+      setFeedback('');
       await fetchAssessments();
     } catch (err) {
       setError(`Не удалось отправить оценку: ${err.message}`);
@@ -710,6 +727,20 @@ const ReviewerAssessments = () => {
                         </Typography>
                       )}
                     </Box>
+                    <Box mt={2}>
+                      <Typography fontWeight={600} fontSize={14} color={colors.text} mb={1}>
+                        Комментарий:
+                      </Typography>
+                      <StyledTextField
+                        fullWidth
+                        multiline
+                        rows={2}
+                        value={questionFeedbacks[index] || ''}
+                        onChange={(e) => handleQuestionFeedbackChange(index, e.target.value)}
+                        placeholder="Напишите комментарий к ответу"
+                        variant="outlined"
+                      />
+                    </Box>
                   </AccordionDetails>
                 </StyledAccordion>
               ))}
@@ -822,25 +853,20 @@ const ReviewerAssessments = () => {
                       <Typography fontWeight={600} fontSize={14} color={colors.text} mb={1}>
                         Оценка:
                       </Typography>
-                      <Box display="flex" alignItems="center">
-                        <Typography fontSize={14} color={colors.text} mr={2}>
+                      <Box display="flex" flexDirection="column">
+                        <Typography fontSize={14} color={colors.text} mb={0.5}>
                           Баллы: {item.rating || 'Нет оценки'}
                         </Typography>
-                        <Typography fontSize={14} color={colors.text}>
+                        <Typography fontSize={14} color={colors.text} mb={0.5}>
                           Оценка: {getGradeFromRating(item.rating, index)} (Баллы: {(getGradeFromRating(item.rating, index) * 2.2).toFixed(1)})
                         </Typography>
+                        {item.feedback && (
+                          <Typography fontSize={14} color={colors.text}>
+                            Комментарий: {item.feedback}
+                          </Typography>
+                        )}
                       </Box>
                     </Box>
-                    {item.feedback && (
-                      <Box>
-                        <Typography fontWeight={600} fontSize={14} color={colors.text} mb={1}>
-                          Комментарий:
-                        </Typography>
-                        <Typography fontSize={14} color={colors.lightText} whiteSpace="pre-wrap">
-                          {item.feedback}
-                        </Typography>
-                      </Box>
-                    )}
                   </AccordionDetails>
                 </StyledAccordion>
               ))}

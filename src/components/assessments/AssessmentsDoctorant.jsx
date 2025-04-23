@@ -61,7 +61,7 @@ const StatusChip = ({ status, hasRatings }) => {
 
   switch (status) {
     case 'completed':
-      color = colors.success;
+      color = colors.success; // Исправлено: colorsadvocate -> colors
       label = 'Завершено';
       break;
     case 'pending':
@@ -318,10 +318,10 @@ const AssessmentsDoctorant = () => {
             </Typography>
           </Box>
           <Box textAlign={isMobile ? 'center' : 'right'} width={isMobile ? '100%' : 'auto'}>
-            {/* <StatusChip status={assessment.status} hasRatings={hasRatings} />
+            <StatusChip status={assessment.status} hasRatings={hasRatings} />
             <Typography variant="body2" color="text.secondary" sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem' }}>
               {formatDate(assessment.createdAt)}
-            </Typography> */}
+            </Typography>
             {hasRatings && (
               <Typography
                 variant="body2"
@@ -369,9 +369,19 @@ const AssessmentsDoctorant = () => {
                     }
                     secondary={
                       q.rating > 0 ? (
-                        <Typography variant="body2" color="text.primary" sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem' }}>
-                          Баллы: {q.rating}, Оценка: {getGradeFromRating(q.rating, idx)} (Баллы: {(getGradeFromRating(q.rating, idx) * 2.2).toFixed(1)})
-                        </Typography>
+                        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                          <Typography variant="body2" color="text.primary" sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem' }}>
+                            Баллы: {q.rating}
+                          </Typography>
+                          <Typography variant="body2" color="text.primary" sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem' }}>
+                            Оценка: {getGradeFromRating(q.rating, idx)} (Баллы: {(getGradeFromRating(q.rating, idx) * 2.2).toFixed(1)})
+                          </Typography>
+                          {q.feedback && (
+                            <Typography variant="body2" color="text.primary" sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem' }}>
+                              Комментарий: {q.feedback}
+                            </Typography>
+                          )}
+                        </Box>
                       ) : (
                         <Typography variant="body2" color="text.secondary" sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem' }}>
                           {assessment.status === 'completed' ? 'Без оценки' : 'Ожидает оценки'}
