@@ -12,6 +12,8 @@ import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import SchoolIcon from '@mui/icons-material/School';
 import MarkChatUnreadIcon from '@mui/icons-material/MarkChatUnread';
+import GradingIcon from '@mui/icons-material/Grading';
+
 
 // Цветовая палитра
 const colors = {
@@ -146,6 +148,8 @@ const Navbar = ({ isMobile = false, sidebarOpen = false, setSidebarOpen = () => 
   const links = [
     { to: '/', label: 'Главная', icon: HomeFilledIcon },
     { to: '/gemini', label: 'ChatAi', icon: MarkChatUnreadIcon },
+    { to: '/testing', label: 'Проверка', icon: GradingIcon },
+
 
     isAuthenticated && userRole === 'doctoral' && {
       to: '/documents',
