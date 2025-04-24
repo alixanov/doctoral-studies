@@ -14,7 +14,7 @@ import {
 import * as pdfjsLib from 'pdfjs-dist';
 import mammoth from 'mammoth';
 
-// Настройка pdf.js worker
+// pdf.js worker-ини инициализациялаш
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
 
 const Testing = () => {
@@ -44,16 +44,16 @@ const Testing = () => {
         const result = await mammoth.extractRawText({ arrayBuffer });
         return result.value;
       } else {
-        throw new Error('Неподдерживаемый формат файла');
+        throw new Error('Қўллаб-қувватланмаган файл формати');
       }
     } catch (err) {
-      throw new Error(`Ошибка при чтении файла: ${err.message}`);
+      throw new Error(`Файлни ўқишда хатолик: ${err.message}`);
     }
   };
 
   const handleAnalyze = async () => {
     if (!file) {
-      setError('Пожалуйста, загрузите файл!');
+      setError('Илтимос, файл юкланг!');
       return;
     }
 
@@ -61,17 +61,17 @@ const Testing = () => {
     try {
       const text = await extractTextFromFile(file);
 
-      // Анализ текста
+      // Матнни таҳлил қилиш
       const wordCount = text.split(/\s+/).filter((word) => word.length > 0).length;
       const charCount = text.length;
       const paragraphs = text.split('\n\n').filter((p) => p.trim().length > 0).length;
-      const hasIntroduction = /введение|introduction/i.test(text);
-      const hasConclusion = /заключение|conclusion/i.test(text);
-      const hasReferences = /литература|references|список литературы/i.test(text);
-      const keywords = ['исследование', 'методология', 'анализ', 'результаты', 'обсуждение'];
+      const hasIntroduction = /кириш|введение|introduction/i.test(text);
+      const hasConclusion = /якун|заключение|conclusion/i.test(text);
+      const hasReferences = /адабиётлар|литература|references|список литературы/i.test(text);
+      const keywords = ['тадқиқот', 'методология', 'таҳлил', 'натижалар', 'муҳокама'];
       const foundKeywords = keywords.filter((keyword) => text.toLowerCase().includes(keyword));
 
-      // Формирование описания
+      // Тавсифни шакллантириш
       const desc = {
         wordCount,
         charCount,
@@ -83,25 +83,25 @@ const Testing = () => {
       };
       setDescription(desc);
 
-      // Проверка недостатков
+      // Камчиликларни текшириш
       const issuesList = [];
       if (wordCount < 1000) {
-        issuesList.push('Текст слишком короткий для диссертации. Рекомендуется увеличить объем.');
+        issuesList.push('Матн диссертация учун жуда қисқа. Ҳажмини кўпайтириш тавсия этилади.');
       }
       if (!hasIntroduction) {
-        issuesList.push('Отсутствует раздел "Введение". Введение должно четко описывать цель и задачи исследования.');
+        issuesList.push('"Кириш" бўлими йўқ. Кириш қисмида тадқиқотнинг мақсади ва вазифалари аник баён этилиши керак.');
       }
       if (!hasConclusion) {
-        issuesList.push('Отсутствует раздел "Заключение". Заключение должно подводить итоги исследования.');
+        issuesList.push('"Якун" бўлими йўқ. Якун қисмида тадқиқот натижалари хулоса қилиниши керак.');
       }
       if (!hasReferences) {
-        issuesList.push('Отсутствует список литературы. Диссертация должна содержать ссылки на использованные источники.');
+        issuesList.push('Фойдаланилган адабиётлар рўйхати йўқ. Диссертацияда ишлатилган манбаларга хаволалар бўлиши керак.');
       }
       if (foundKeywords.length < 3) {
-        issuesList.push('Недостаточно ключевых слов, связанных с исследованием. Убедитесь, что текст включает термины, такие как "исследование", "методология", "анализ".');
+        issuesList.push('Тадқиқотга оид калит сўзлар етарли эмас. Матнда "тадқиқот", "методология", "таҳлил" каби терминлар бўлиши керак.');
       }
       if (paragraphs < 10) {
-        issuesList.push('Недостаточное количество параграфов. Диссертация должна быть хорошо структурирована.');
+        issuesList.push('Параграфлар сони етарли эмас. Диссертация яхши структураланган бўлиши керак.');
       }
       setIssues(issuesList);
     } catch (err) {
@@ -112,11 +112,11 @@ const Testing = () => {
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
       <Typography variant="h4" align="center" gutterBottom>
-        Проверка диссертации
+        Диссертацияни текшириш
       </Typography>
       <Box sx={{ mb: 3 }}>
         <Typography variant="body1" gutterBottom>
-          Загрузите диссертацию (.txt, .pdf, .doc, .docx):
+          Диссертация файлини юкланг (.txt, .pdf, .doc, .docx):
         </Typography>
         <Input
           type="file"
@@ -132,7 +132,7 @@ const Testing = () => {
           disabled={!file}
           sx={{ backgroundColor: '#173957', '&:hover': { backgroundColor: '#0f2a44' } }}
         >
-          Анализировать
+          Таҳлил қилиш
         </Button>
       </Box>
 
@@ -145,22 +145,22 @@ const Testing = () => {
       {description && (
         <Paper elevation={3} sx={{ p: 3 }}>
           <Typography variant="h5" gutterBottom>
-            Результаты анализа
+            Таҳлил натижалари
           </Typography>
           <Box sx={{ mb: 2 }}>
-            <Typography><strong>Объем текста:</strong> {description.wordCount} слов, {description.charCount} символов</Typography>
-            <Typography><strong>Количество параграфов:</strong> {description.paragraphs}</Typography>
+            <Typography><strong>Матн ҳажми:</strong> {description.wordCount} сўз, {description.charCount} белги</Typography>
+            <Typography><strong>Параграфлар сони:</strong> {description.paragraphs}</Typography>
             <Typography>
-              <strong>Найденные ключевые слова:</strong>{' '}
-              {description.foundKeywords.length > 0 ? description.foundKeywords.join(', ') : 'Отсутствуют'}
+              <strong>Топилган калит сўзлар:</strong>{' '}
+              {description.foundKeywords.length > 0 ? description.foundKeywords.join(', ') : 'Йўқ'}
             </Typography>
-            <Typography><strong>Наличие введения:</strong> {description.hasIntroduction ? 'Да' : 'Нет'}</Typography>
-            <Typography><strong>Наличие заключения:</strong> {description.hasConclusion ? 'Да' : 'Нет'}</Typography>
-            <Typography><strong>Наличие списка литературы:</strong> {description.hasReferences ? 'Да' : 'Нет'}</Typography>
+            <Typography><strong>Кириш бўлими мавжудлиги:</strong> {description.hasIntroduction ? 'Ҳа' : 'Йўқ'}</Typography>
+            <Typography><strong>Якун бўлими мавжудлиги:</strong> {description.hasConclusion ? 'Ҳа' : 'Йўқ'}</Typography>
+            <Typography><strong>Адабиётлар рўйхати мавжудлиги:</strong> {description.hasReferences ? 'Ҳа' : 'Йўқ'}</Typography>
           </Box>
           <Divider sx={{ mb: 2 }} />
           <Typography variant="h6" gutterBottom>
-            Недостатки
+            Камчиликлар
           </Typography>
           <List>
             {issues.length > 0 ? (
@@ -171,7 +171,7 @@ const Testing = () => {
               ))
             ) : (
               <ListItem>
-                <ListItemText primary="Недостатки не обнаружены." />
+                <ListItemText primary="Камчиликлар аникланмади." />
               </ListItem>
             )}
           </List>

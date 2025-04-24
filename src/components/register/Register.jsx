@@ -6,7 +6,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import EmailIcon from '@mui/icons-material/Email';
 import LockIcon from '@mui/icons-material/Lock';
 
-// Color scheme
+// Ранг схемаси
 const colors = {
   primary: '#1A3C59',
   secondary: '#F5F6F5',
@@ -17,7 +17,7 @@ const colors = {
   rowBackground: 'linear-gradient(90deg, #F9FAFB 0%, #F1F5F9 100%)',
 };
 
-// Styled components
+// Стилланган компонентлар
 const FormContainer = styled(Box)({
   width: '100%',
   background: colors.rowBackground,
@@ -124,7 +124,7 @@ const Register = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  // Check for existing token on mount
+  // Токенни текшириш
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
@@ -142,20 +142,20 @@ const Register = () => {
     setLoading(true);
     setError('');
 
-    // Basic form validation
+    // Формани текшириш
     if (!formData.login || !formData.password) {
       setLoading(false);
-      setError('Логин и пароль обязательны');
+      setError('Логин ва парол мажбурий');
       return;
     }
 
     if (!isLoginMode && (!formData.firstName || !formData.lastName)) {
       setLoading(false);
-      setError('Имя и фамилия обязательны для регистрации');
+      setError('Исм ва фамилия рўйхатдан ўтиш учун мажбурий');
       return;
     }
 
-    // Base API URL
+    // API манзили
     const baseUrl = 'https://doctoral-studies-server.vercel.app';
 
     if (isLoginMode) {
@@ -185,12 +185,12 @@ const Register = () => {
             navigate('/cabinet');
           }
         } else {
-          setError(result.error || 'Ошибка авторизации');
+          setError(result.error || 'Киришда хатолик');
         }
       } catch (err) {
         setLoading(false);
-        setError('Ошибка сети. Проверьте подключение или попробуйте позже.');
-        console.error('Login error:', err);
+        setError('Тармоқда хатолик. Уланишни текшириб, кайта уриниб кўринг.');
+        console.error('Киришда хатолик:', err);
       }
     } else {
       try {
@@ -213,16 +213,16 @@ const Register = () => {
         setLoading(false);
 
         if (response.ok) {
-          alert('Пользователь успешно зарегистрирован! Теперь войдите.');
+          alert('Фойдаланувчи муваффақиятли рўйхатдан ўтди! Энди киринг.');
           setIsLoginMode(true);
           setFormData({ firstName: '', lastName: '', login: '', password: '', role: formData.role });
         } else {
-          setError(result.error || 'Ошибка регистрации');
+          setError(result.error || 'Рўйхатдан ўтишда хатолик');
         }
       } catch (err) {
         setLoading(false);
-        setError('Ошибка сети. Проверьте подключение или попробуйте позже.');
-        console.error('Registration error:', err);
+        setError('Тармоқда хатолик. Уланишни текшириб, кайта уриниб кўринг.');
+        console.error('Рўйхатдан ўтишда хатолик:', err);
       }
     }
   };
@@ -232,7 +232,7 @@ const Register = () => {
       case 'doctoral':
         return 'Докторант';
       case 'reviewer':
-        return 'Проверяющий';
+        return 'Текширувчи';
       default:
         return role;
     }
@@ -248,7 +248,7 @@ const Register = () => {
           color={colors.textPrimary}
           sx={{ mb: 2.5, fontSize: 20 }}
         >
-          {isLoginMode ? 'Авторизация' : 'Регистрация'}
+          {isLoginMode ? 'Кириш' : 'Рўйхатдан ўтиш'}
         </Typography>
 
         {error && (
@@ -264,7 +264,7 @@ const Register = () => {
                 <PersonIcon sx={{ color: colors.textPrimary, mr: 1, fontSize: 26 }} />
                 <StyledTextField
                   fullWidth
-                  label="Имя"
+                  label="Исм"
                   name="firstName"
                   value={formData.firstName}
                   onChange={handleChange}
@@ -298,7 +298,7 @@ const Register = () => {
             <LockIcon sx={{ color: colors.textPrimary, mr: 1, fontSize: 26 }} />
             <StyledTextField
               fullWidth
-              label="Пароль"
+              label="Парол"
               name="password"
               type="password"
               value={formData.password}
@@ -308,12 +308,12 @@ const Register = () => {
 
           <Box display="flex" alignItems="center" mb={1.5}>
             <FormControl fullWidth>
-              <InputLabel sx={{ color: colors.textPrimary, fontSize: 14 }}>Роль</InputLabel>
+              <InputLabel sx={{ color: colors.textPrimary, fontSize: 14 }}>Рол</InputLabel>
               <StyledSelect
                 name="role"
                 value={formData.role}
                 onChange={handleChange}
-                label="Роль"
+                label="Рол"
                 renderValue={(selected) => (
                   <Box display="flex" alignItems="center">
                     {getRoleLabel(selected)}
@@ -329,7 +329,7 @@ const Register = () => {
                 </MenuItem>
                 <MenuItem value="reviewer">
                   <Box display="flex" alignItems="center">
-                    Проверяющий
+                    Текширувчи
                     <RoleBadge sx={{ ml: 1 }}>reviewer</RoleBadge>
                   </Box>
                 </MenuItem>
@@ -338,12 +338,12 @@ const Register = () => {
           </Box>
 
           <SubmitButton fullWidth type="submit" disabled={loading}>
-            {loading ? <CircularProgress size={20} color="inherit" /> : isLoginMode ? 'Войти' : 'Зарегистрироваться'}
+            {loading ? <CircularProgress size={20} color="inherit" /> : isLoginMode ? 'Кириш' : 'Рўйхатдан ўтиш'}
           </SubmitButton>
         </form>
 
         <Typography align="center" mt={2} color={colors.textPrimary} sx={{ fontSize: 13 }}>
-          {isLoginMode ? 'Нет аккаунта?' : 'Уже есть аккаунт?'}{' '}
+          {isLoginMode ? 'Аккаунтингиз йўқми?' : 'Аккаунтингиз борми?'}{' '}
           <Typography
             component="span"
             color={colors.primary}
@@ -353,7 +353,7 @@ const Register = () => {
             }}
             onClick={() => setIsLoginMode(!isLoginMode)}
           >
-            {isLoginMode ? 'Зарегистрироваться' : 'Войти'}
+            {isLoginMode ? 'Рўйхатдан ўтиш' : 'Кириш'}
           </Typography>
         </Typography>
       </FormContainer>

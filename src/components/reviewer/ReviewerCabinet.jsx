@@ -33,7 +33,7 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import DownloadIcon from '@mui/icons-material/Download';
 import { keyframes } from '@emotion/react';
 
-// Анимация появления
+// Анимация
 const fadeIn = keyframes`
   from {
     opacity: 0;
@@ -45,7 +45,7 @@ const fadeIn = keyframes`
   }
 `;
 
-// Цветовая схема
+// Ранг схемаси
 const colors = {
   primary: '#1A3C59',
   secondary: '#F5F6F5',
@@ -58,14 +58,14 @@ const colors = {
   border: '#E5E7EB',
 };
 
-// Стили
+// Стиллар
 const Header = styled(Box)(({ theme }) => ({
   padding: theme.spacing(2),
   background: colors.primary,
   color: colors.white,
   display: 'flex',
   justifyContent: 'space-between',
-  borderRadius:11,
+  borderRadius: 11,
   alignItems: 'center',
   flexWrap: 'wrap',
   [theme.breakpoints.down('sm')]: {
@@ -210,25 +210,25 @@ const ReviewerCabinet = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-  // Список меток файлов
+  // Файллар рўйхати
   const fileFields = [
-    { name: 'malumotnoma', label: 'Справка' },
-    { name: 'photo', label: 'Электронная фотография кандидата' },
-    { name: 'passport', label: 'Копия паспорта' },
-    { name: 'kengashBayyonomma', label: 'Выписка из протокола заседания ученого совета института' },
-    { name: 'dekanatTaqdimnoma', label: 'Рекомендация деканата и кафедры' },
-    { name: 'sinovNatijalari', label: 'Электронная ведомость результатов испытаний' },
-    { name: 'ilmiyIshlar', label: 'Список научных работ' },
-    { name: 'annotatsiya', label: 'Аннотация научных (творческих) работ' },
-    { name: 'maqolalar', label: 'Копии научных статей' },
-    { name: 'xulosa', label: 'Заключение заведующего кафедрой и научного руководителя' },
-    { name: 'testBallari', label: 'Баллы, набранные на вступительных тестах' },
-    { name: 'tarjimaiXol', label: 'Автобиография аспиранта' },
-    { name: 'reytingDaftarcha', label: 'Рейтинговая книжка' },
-    { name: 'guvohnoma', label: 'Свидетельство автора' },
-    { name: 'yutuqlar', label: 'Достижения' },
-    { name: 'boshqa', label: 'Прочее' },
-    { name: 'file', label: 'Общий файл' },
+    { name: 'malumotnoma', label: 'Малұмотнома' },
+    { name: 'photo', label: 'Номзоднинг электрон расми' },
+    { name: 'passport', label: 'Паспорт нусхаси' },
+    { name: 'kengashBayyonomma', label: 'Институт илмий кенгашининг баённомаси' },
+    { name: 'dekanatTaqdimnoma', label: 'Деканат ва кафедранинг такдимномаси' },
+    { name: 'sinovNatijalari', label: 'Синнав натижалари ведомости' },
+    { name: 'ilmiyIshlar', label: 'Илмий ишлар рўйхати' },
+    { name: 'annotatsiya', label: 'Илмий (ижодий) ишлар аннотацияси' },
+    { name: 'maqolalar', label: 'Илмий мақолалар нусхаси' },
+    { name: 'xulosa', label: 'Кафедра мудири ва илмий раҳбарнинг хулосаси' },
+    { name: 'testBallari', label: 'Кириш тестларида тўпланган баллар' },
+    { name: 'tarjimaiXol', label: 'Номзоднинг автобиографияси' },
+    { name: 'reytingDaftarcha', label: 'Рейтинг дафтарчаси' },
+    { name: 'guvohnoma', label: 'Муаллифлик гувоҳномаси' },
+    { name: 'yutuqlar', label: 'Ютуқлар' },
+    { name: 'boshqa', label: 'Бошқалар' },
+    { name: 'file', label: 'Умумий файл' },
   ];
 
   useEffect(() => {
@@ -258,10 +258,10 @@ const ReviewerCabinet = () => {
           const data = await response.json();
           setApplications(data);
         } else {
-          console.error('Ошибка загрузки заявок');
+          console.error('Аризаларни юклашда хатолик');
         }
       } catch (error) {
-        console.error('Ошибка:', error);
+        console.error('Хатолик:', error);
       } finally {
         setLoading(false);
       }
@@ -309,10 +309,10 @@ const ReviewerCabinet = () => {
         setApplications(applications.map((app) => (app._id === updatedApp._id ? updatedApp : app)));
         handleCloseDialog();
       } else {
-        console.error('Ошибка при обновлении статуса');
+        console.error('Ҳолатни янгилашда хатолик');
       }
     } catch (error) {
-      console.error('Ошибка:', error);
+      console.error('Хатолик:', error);
     }
   };
 
@@ -339,10 +339,10 @@ const ReviewerCabinet = () => {
         link.click();
         link.remove();
       } else {
-        console.error('Ошибка при скачивании файла');
+        console.error('Файлни юклаб олишда хатолик');
       }
     } catch (error) {
-      console.error('Ошибка:', error);
+      console.error('Хатолик:', error);
     }
   };
 
@@ -360,10 +360,10 @@ const ReviewerCabinet = () => {
         setImagePreview(data.url);
         setOpenImageDialog(true);
       } else {
-        console.error('Ошибка при получении изображения');
+        console.error('Расмни олишда хатолик');
       }
     } catch (error) {
-      console.error('Ошибка:', error);
+      console.error('Хатолик:', error);
     }
   };
 
@@ -375,13 +375,13 @@ const ReviewerCabinet = () => {
   const getStatusColor = (status) => {
     switch (status) {
       case 'approved':
-        return { color: colors.success, label: 'Одобрено' };
+        return { color: colors.success, label: 'Қабул қилинди' };
       case 'rejected':
-        return { color: colors.error, label: 'Отклонено' };
+        return { color: colors.error, label: 'Рад этилди' };
       case 'reviewed':
-        return { color: '#FF9800', label: 'Рассмотрено' };
+        return { color: '#FF9800', label: 'Кўриб чиқилди' };
       default:
-        return { color: colors.primary, label: 'В обработке' };
+        return { color: colors.primary, label: 'Жараёнда' };
     }
   };
 
@@ -395,7 +395,7 @@ const ReviewerCabinet = () => {
 
   const userInitials = userData.firstName && userData.lastName
     ? `${userData.firstName.charAt(0)}${userData.lastName.charAt(0)}`
-    : 'ПЗ';
+    : 'ТК';
 
   return (
     <Box>
@@ -405,7 +405,7 @@ const ReviewerCabinet = () => {
           fontWeight={600}
           sx={{ textAlign: isMobile ? 'center' : 'left' }}
         >
-          Кабинет проверяющего
+          Текширувчи кабинети
         </Typography>
 
       </Header>
@@ -422,7 +422,7 @@ const ReviewerCabinet = () => {
             {userData.firstName} {userData.lastName}
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            Проверяющий
+            Текширувчи
           </Typography>
         </Box>
 
@@ -433,7 +433,7 @@ const ReviewerCabinet = () => {
             color={colors.textPrimary}
             mb={2}
           >
-            Заявки на проверку
+            Текшириш учун аризалар
           </Typography>
           <Divider sx={{ mb: 2 }} />
 
@@ -475,7 +475,7 @@ const ReviewerCabinet = () => {
                             variant={isMobile ? 'body2' : 'body1'}
                             fontWeight={500}
                           >
-                            {application.subject || 'Заявка на рассмотрение'}
+                            {application.subject || 'Кўриб чиқиш учун ариза'}
                           </Typography>
                           <StatusChip
                             label={status.label}
@@ -503,7 +503,7 @@ const ReviewerCabinet = () => {
                             color="text.secondary"
                             sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem' }}
                           >
-                            Дата подачи: {new Date(application.createdAt).toLocaleDateString()}
+                            Топширилган сана: {new Date(application.createdAt).toLocaleDateString()}
                           </Typography>
                         </>
                       }
@@ -515,14 +515,14 @@ const ReviewerCabinet = () => {
           ) : (
             <Box textAlign="center" py={4}>
               <Typography variant="body1" color="text.secondary">
-                Нет активных заявок на проверку
+                Текшириш учун аризалар мавжуд эмас
               </Typography>
             </Box>
           )}
         </MainContent>
       </ContentWrapper>
 
-      {/* Диалог просмотра заявки */}
+      {/* Ариза тафсилотлари диалоги */}
       <Dialog
         open={openDialog}
         onClose={handleCloseDialog}
@@ -532,7 +532,7 @@ const ReviewerCabinet = () => {
         sx={{ '& .MuiDialog-paper': { borderRadius: isMobile ? 0 : '12px' } }}
       >
         <DialogTitle sx={{ fontSize: isMobile ? '1rem' : '1.25rem' }}>
-          Детали заявки
+          Ариза тафсилотлари
         </DialogTitle>
         <DialogContent dividers sx={{ padding: isMobile ? theme.spacing(2) : theme.spacing(3) }}>
           {selectedApp && (
@@ -540,22 +540,22 @@ const ReviewerCabinet = () => {
               <Grid container spacing={isMobile ? 1 : 2}>
                 <Grid item xs={12}>
                   <Typography variant="subtitle1" gutterBottom sx={{ fontSize: isMobile ? '0.9rem' : '1rem' }}>
-                    <strong>Тема:</strong> {selectedApp.subject}
+                    <strong>Мавзу:</strong> {selectedApp.subject}
                   </Typography>
                 </Grid>
                 <Grid item xs={12}>
                   <Typography variant="subtitle1" gutterBottom sx={{ fontSize: isMobile ? '0.9rem' : '1rem' }}>
-                    <strong>Отправитель:</strong> {selectedApp.applicantName}
+                    <strong>Жўнатувчи:</strong> {selectedApp.applicantName}
                   </Typography>
                 </Grid>
                 <Grid item xs={12}>
                   <Typography variant="subtitle1" gutterBottom sx={{ fontSize: isMobile ? '0.9rem' : '1rem' }}>
-                    <strong>Дата подачи:</strong> {new Date(selectedApp.createdAt).toLocaleString()}
+                    <strong>Топширилган сана:</strong> {new Date(selectedApp.createdAt).toLocaleString()}
                   </Typography>
                 </Grid>
                 <Grid item xs={12}>
                   <Typography variant="subtitle1" gutterBottom sx={{ fontSize: isMobile ? '0.9rem' : '1rem' }}>
-                    <strong>Содержание:</strong>
+                    <strong>Мазмуни:</strong>
                   </Typography>
                   <Typography
                     variant="body1"
@@ -574,10 +574,10 @@ const ReviewerCabinet = () => {
                 gutterBottom
                 sx={{ fontSize: isMobile ? '0.9rem' : '1rem' }}
               >
-                <strong>Прикрепленные файлы:</strong>
+                <strong>Илова қилинган файллар:</strong>
               </Typography>
 
-              {/* Секция с изображениями */}
+              {/* Расмлар секцияси */}
               {selectedApp.files.some(file => isImageFile(file)) && (
                 <Box mt={isMobile ? 1 : 2} mb={isMobile ? 2 : 3}>
                   <Typography
@@ -585,7 +585,7 @@ const ReviewerCabinet = () => {
                     mb={1}
                     sx={{ fontSize: isMobile ? '0.9rem' : '1rem' }}
                   >
-                    <strong>Изображения:</strong>
+                    <strong>Расмлар:</strong>
                   </Typography>
                   <Grid container spacing={isMobile ? 1 : 2}>
                     {selectedApp.files
@@ -618,8 +618,6 @@ const ReviewerCabinet = () => {
                 </Box>
               )}
 
-    
-
               <Divider sx={{ my: isMobile ? 1 : 2 }} />
 
               <Box mt={isMobile ? 2 : 3}>
@@ -628,7 +626,7 @@ const ReviewerCabinet = () => {
                   gutterBottom
                   sx={{ fontSize: isMobile ? '0.9rem' : '1rem' }}
                 >
-                  <strong>Решение по заявке:</strong>
+                  <strong>Ариза бўйича қарор:</strong>
                 </Typography>
                 <Box display="flex" gap={isMobile ? 1 : 2} mb={isMobile ? 1 : 2} flexWrap={isMobile ? 'wrap' : 'nowrap'}>
                   <Button
@@ -638,7 +636,7 @@ const ReviewerCabinet = () => {
                     onClick={() => setDecision('approved')}
                     size={isMobile ? 'small' : 'medium'}
                   >
-                    Одобрить
+                    Қабул қилиш
                   </Button>
                   <Button
                     variant={decision === 'rejected' ? 'contained' : 'outlined'}
@@ -647,12 +645,12 @@ const ReviewerCabinet = () => {
                     onClick={() => setDecision('rejected')}
                     size={isMobile ? 'small' : 'medium'}
                   >
-                    Отклонить
+                    Рад этиш
                   </Button>
                 </Box>
                 <TextField
                   fullWidth
-                  label="Комментарий"
+                  label="Изох"
                   multiline
                   rows={isMobile ? 3 : 4}
                   variant="outlined"
@@ -666,7 +664,7 @@ const ReviewerCabinet = () => {
         </DialogContent>
         <DialogActions sx={{ padding: isMobile ? theme.spacing(1) : theme.spacing(2) }}>
           <Button onClick={handleCloseDialog} size={isMobile ? 'small' : 'medium'}>
-            Отмена
+            Бекор қилиш
           </Button>
           <Button
             onClick={handleDecisionSubmit}
@@ -675,12 +673,12 @@ const ReviewerCabinet = () => {
             color="primary"
             size={isMobile ? 'small' : 'medium'}
           >
-            Сохранить решение
+            Қарорни сақлаш
           </Button>
         </DialogActions>
       </Dialog>
 
-      {/* Диалог предпросмотра изображения */}
+      {/* Расмни кўриш диалоги */}
       <ImagePreviewDialog
         open={openImageDialog}
         onClose={closeImageDialog}
@@ -713,7 +711,7 @@ const ReviewerCabinet = () => {
         </DialogContent>
         <DialogActions sx={{ padding: isMobile ? theme.spacing(1) : theme.spacing(2) }}>
           <Button onClick={closeImageDialog} size={isMobile ? 'small' : 'medium'}>
-            Закрыть
+            Ёпиш
           </Button>
           <Button
             color="primary"
@@ -728,7 +726,7 @@ const ReviewerCabinet = () => {
               document.body.removeChild(link);
             }}
           >
-            Скачать
+            Юклаб олиш
           </Button>
         </DialogActions>
       </ImagePreviewDialog>

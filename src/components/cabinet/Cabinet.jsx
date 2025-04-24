@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import PhotoCamera from '@mui/icons-material/PhotoCamera';
 import IconButton from '@mui/material/IconButton';
 
-// Color scheme
+// Ранг схемаси
 const colors = {
   primary: '#1A3C59',
   secondary: '#F5F6F5',
@@ -17,7 +17,7 @@ const colors = {
   success: '#2ECC71',
 };
 
-// Styled components
+// Стилланган компонентлар
 const CabinetContainer = styled(Box)({
   minHeight: '100vh',
   padding: '24px',
@@ -177,9 +177,9 @@ const AvatarContainer = styled(Box)({
 
 const Cabinet = () => {
   const user = JSON.parse(localStorage.getItem('userData')) || {
-    firstName: 'Иван',
-    lastName: 'Петров',
-    login: 'ivan.petrov',
+    firstName: 'Исмоил',
+    lastName: 'Хасанов',
+    login: 'ismail.hasanov',
   };
   const navigate = useNavigate();
 
@@ -215,7 +215,7 @@ const Cabinet = () => {
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
   useEffect(() => {
-    // Load user data including profile photo
+    // Фойдаланувчи маълумотларини юклаш
     const fetchUserData = async () => {
       try {
         const token = localStorage.getItem('token');
@@ -232,7 +232,7 @@ const Cabinet = () => {
           }
         }
       } catch (err) {
-        console.error('Error fetching user data:', err);
+        console.error('Фойдаланувчи маълумотларини юклашда хатолик:', err);
       }
     };
 
@@ -255,15 +255,15 @@ const Cabinet = () => {
           setReviewers(data);
         } else {
           setReviewers([
-            { id: '1', firstName: 'Администратор', lastName: 'Системы', email: 'admin@example.com' },
-            { id: '2', firstName: 'Сотрудник', lastName: 'Поддержки', email: 'support@example.com' },
+            { id: '1', firstName: 'Админ', lastName: 'Тизим', email: 'admin@example.com' },
+            { id: '2', firstName: 'Қўлланма', lastName: 'Ходими', email: 'support@example.com' },
           ]);
         }
       } catch (err) {
-        console.error('Ошибка при получении списка проверяющих:', err);
+        console.error('Текширувчилар рўйхатини олишда хатолик:', err);
         setReviewers([
-          { id: '1', firstName: 'Администратор', lastName: 'Системы', email: 'admin@example.com' },
-          { id: '2', firstName: 'Сотрудник', lastName: 'Поддержки', email: 'support@example.com' },
+          { id: '1', firstName: 'Админ', lastName: 'Тизим', email: 'admin@example.com' },
+          { id: '2', firstName: 'Қўлланма', lastName: 'Ходими', email: 'support@example.com' },
         ]);
       } finally {
         setFetchingReviewers(false);
@@ -314,18 +314,18 @@ const Cabinet = () => {
         const result = await response.json();
         setPhotoPreview(result.profilePhotoUrl);
 
-        // Update user data in localStorage
+        // localStorage-да фойдаланувчи маълумотларини янгилаш
         const userData = JSON.parse(localStorage.getItem('userData'));
         localStorage.setItem('userData', JSON.stringify({
           ...userData,
           profilePhoto: result.profilePhotoUrl
         }));
       } else {
-        throw new Error('Failed to upload photo');
+        throw new Error('Расмни юклаб бўлмади');
       }
     } catch (err) {
-      console.error('Error uploading profile photo:', err);
-      setError('Failed to upload profile photo');
+      console.error('Профил расмини юклашда хатолик:', err);
+      setError('Профил расмини юклаб бўлмади');
     } finally {
       setUploadingPhoto(false);
     }
@@ -339,7 +339,7 @@ const Cabinet = () => {
 
     if (!formData.subject || !formData.recipient || !formData.content) {
       setLoading(false);
-      setError('Все текстовые поля обязательны');
+      setError('Барча матн майдонлари тўлдирилиши шарт');
       return;
     }
 
@@ -366,7 +366,7 @@ const Cabinet = () => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Ошибка при отправке документов');
+        throw new Error(errorData.error || 'Ҳужжатларни жўнатишда хатолик');
       }
 
       const result = await response.json();
@@ -394,7 +394,7 @@ const Cabinet = () => {
         boshqa: null,
       });
     } catch (err) {
-      setError(err.message || 'Произошла ошибка при отправке');
+      setError(err.message || 'Жўнатишда хатолик юз берди');
     } finally {
       setLoading(false);
     }
@@ -407,22 +407,22 @@ const Cabinet = () => {
   };
 
   const fileFields = [
-    { name: 'malumotnoma', label: 'Справка' },
-    { name: 'photo', label: 'Электронная фотография кандидата' },
-    { name: 'passport', label: 'Копия паспорта' },
-    { name: 'kengashBayyonomma', label: 'Выписка из протокола заседания ученого совета института' },
-    { name: 'dekanatTaqdimnoma', label: 'Рекомендация деканата и кафедры' },
-    { name: 'sinovNatijalari', label: 'Электронная ведомость результатов испытаний по истории, иностранному языку и информатике на первом этапе' },
-    { name: 'ilmiyIshlar', label: 'Список научных работ' },
-    { name: 'annotatsiya', label: 'Аннотация научных (творческих) работ' },
-    { name: 'maqolalar', label: 'Копии научных статей' },
-    { name: 'xulosa', label: 'Заключение заведующего кафедрой и научного руководителя о научной деятельности аспиранта' },
-    { name: 'testBallari', label: 'Баллы, набранные на вступительных тестах' },
-    { name: 'tarjimaiXol', label: 'Автобиография аспиранта' },
-    { name: 'reytingDaftarcha', label: 'Рейтинговая книжка' },
-    { name: 'guvohnoma', label: 'Свидетельство автора' },
-    { name: 'yutuqlar', label: 'Достижения' },
-    { name: 'boshqa', label: 'Прочее' },
+    { name: 'malumotnoma', label: 'Малұмотнома' },
+    { name: 'photo', label: 'Номзоднинг электрон расми' },
+    { name: 'passport', label: 'Паспорт нусхаси' },
+    { name: 'kengashBayyonomma', label: 'Институт илмий кенгашининг баённомаси' },
+    { name: 'dekanatTaqdimnoma', label: 'Деканат ва кафедранинг такдимномаси' },
+    { name: 'sinovNatijalari', label: 'Тарих, чет тили ва информатикадан биринчи босқичдаги синов натижалари' },
+    { name: 'ilmiyIshlar', label: 'Илмий ишлар рўйхати' },
+    { name: 'annotatsiya', label: 'Илмий (ижодий) ишлар аннотацияси' },
+    { name: 'maqolalar', label: 'Илмий мақолалар нусхаси' },
+    { name: 'xulosa', label: 'Кафедра мудири ва илмий раҳбарнинг номзод илмий фаолияти ҳақида хулосаси' },
+    { name: 'testBallari', label: 'Кириш тестларида тўпланган баллар' },
+    { name: 'tarjimaiXol', label: 'Номзоднинг автобиографияси' },
+    { name: 'reytingDaftarcha', label: 'Рейтинг дафтарчаси' },
+    { name: 'guvohnoma', label: 'Муаллифлик гувоҳномаси' },
+    { name: 'yutuqlar', label: 'Ютуқлар' },
+    { name: 'boshqa', label: 'Бошқалар' },
   ];
 
   return (
@@ -430,7 +430,7 @@ const Cabinet = () => {
       <ContentWrapper>
         <LeftColumn>
           <Typography variant="h6" fontWeight={600} color={colors.textPrimary} mb={2}>
-            Личная информация
+            Шахсий маълумотлар
           </Typography>
 
           <AvatarContainer>
@@ -462,7 +462,7 @@ const Cabinet = () => {
 
           <Box mb={2} width="100%">
             <Typography variant="body2" color={colors.textPrimary} fontWeight={500}>
-              Имя
+              Исм
             </Typography>
             <Typography variant="body1" color={colors.textPrimary}>
               {user.firstName}
@@ -485,13 +485,13 @@ const Cabinet = () => {
             </Typography>
           </Box>
           <LogoutButton fullWidth onClick={handleLogout}>
-            Выйти
+            Чиқиш
           </LogoutButton>
         </LeftColumn>
 
         <RightColumn>
           <Typography variant="h6" fontWeight={600} color={colors.textPrimary} mb={2}>
-            Отправить документы
+            Ҳужжатларни жўнатиш
           </Typography>
           {error && (
             <Typography align="center" color={colors.error} sx={{ mb: 2, fontSize: 13 }}>
@@ -501,7 +501,7 @@ const Cabinet = () => {
           <form onSubmit={handleSubmit}>
             <StyledTextField
               fullWidth
-              label="Тема письма"
+              label="Хат мавзуси"
               name="subject"
               value={formData.subject}
               onChange={handleChange}
@@ -514,19 +514,19 @@ const Cabinet = () => {
               onChange={handleChange}
               displayEmpty
               renderValue={(selected) => {
-                if (!selected) return 'Кому отправить';
+                if (!selected) return 'Кимга жўнатилсин';
                 const selectedReviewer = reviewers.find((rev) => rev.email === selected);
                 return selectedReviewer ? `${selectedReviewer.firstName} ${selectedReviewer.lastName}` : selected;
               }}
               disabled={fetchingReviewers}
             >
               <MenuItem value="" disabled>
-                Кому отправить
+                Кимга жўнатилсин
               </MenuItem>
               {fetchingReviewers ? (
                 <MenuItem disabled>
                   <CircularProgress size={20} />
-                  Загрузка...
+                  Юкланмоқда...
                 </MenuItem>
               ) : (
                 reviewers.map((reviewer) => (
@@ -538,7 +538,7 @@ const Cabinet = () => {
             </StyledSelect>
             <StyledTextField
               fullWidth
-              label="Краткое содержание"
+              label="Қисқа мазмуни"
               name="content"
               value={formData.content}
               onChange={handleChange}
@@ -552,7 +552,7 @@ const Cabinet = () => {
               </Typography>
               <StyledInput type="file" name="file" onChange={handleChange} fullWidth />
               <Typography variant="caption" color={colors.textPrimary} mt={1}>
-                {formData.file ? formData.file.name : 'Файл не выбран'}
+                {formData.file ? formData.file.name : 'Файл танланмаган'}
               </Typography>
             </Box>
 
@@ -563,7 +563,7 @@ const Cabinet = () => {
                 </Typography>
                 <StyledInput type="file" name={field.name} onChange={handleChange} fullWidth />
                 <Typography variant="caption" color={colors.textPrimary} mt={1}>
-                  {formData[field.name] ? formData[field.name].name : 'Файл не выбран'}
+                  {formData[field.name] ? formData[field.name].name : 'Файл танланмаган'}
                 </Typography>
               </Box>
             ))}
@@ -572,12 +572,12 @@ const Cabinet = () => {
               {loading ? (
                 <>
                   <CircularProgress size={20} color="inherit" />
-                  Отправка идет, подождите до 1 минуты
+                  1 дақиқагача кутинг
                 </>
               ) : success ? (
-                'Успешно отправлено'
+                'Муваффақиятли жўнатилди'
               ) : (
-                'Отправить'
+                'Жўнатиш'
               )}
             </SubmitButton>
           </form>

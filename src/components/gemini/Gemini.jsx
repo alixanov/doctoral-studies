@@ -17,9 +17,9 @@ import {
 import { styled } from '@mui/material/styles';
 import SendIcon from '@mui/icons-material/Send';
 import { format, parseISO } from 'date-fns';
-import { ru } from 'date-fns/locale';
+import { uz } from 'date-fns/locale';
 
-// Цветовая палитра, совместимая с предыдущими компонентами
+// Ранглар палитраси
 const colors = {
   primary: '#173957',
   secondary: '#F5F7FA',
@@ -32,7 +32,7 @@ const colors = {
   assistantMessage: '#F1F8E9',
 };
 
-// Стилизованные компоненты
+// Стилланган компонентлар
 const ChatContainer = styled(Box)(({ theme }) => ({
   maxWidth: "100%",
   margin: 'auto',
@@ -106,35 +106,35 @@ const SendButton = styled(Button)(({ theme }) => ({
   },
 }));
 
-// Фейковые данные
+// Намуна хабарлар
 const fakeMessages = [
   {
     id: 1,
     role: 'user',
-    content: 'Привет! Что ты можешь рассказать о космосе?',
+    content: 'Салом! Космос хақида нима дейола оласан?',
     timestamp: '2025-04-22T10:00:00Z',
   },
   {
     id: 2,
     role: 'assistant',
-    content: 'Космос — это бесконечное пространство, полное звезд, галактик и загадок! Хочешь узнать о черных дырах или о миссиях на Марс?',
+    content: 'Космос - бу юлдузлар, галактикалар ва сирлар билан тўл чексиз фазо! Қора дўликлар ёки Марсга сафарлар хақида билмокчимисан?',
     timestamp: '2025-04-22T10:01:00Z',
   },
   {
     id: 3,
     role: 'user',
-    content: 'Расскажи про черные дыры.',
+    content: 'Қора дўликлар хақида айтиб бер.',
     timestamp: '2025-04-22T10:02:00Z',
   },
   {
     id: 4,
     role: 'assistant',
-    content: 'Черные дыры — это области пространства, где гравитация настолько сильна, что даже свет не может вырваться. Они образуются из массивных звезд, которые коллапсируют под собственной массой. Интересный факт: их горизонт событий — точка невозврата!',
+    content: 'Қора дўликлар - бу гравитация жуда кучли бўлиб, ҳатто нур хам қочиб қутула олмайдиган фазо минтақалари. Улар ўз массаси остида қулайдиган юлдузлардан ҳосил бўлади. Қизиқарли факт: уларнинг воқеа уфуқи - қайтиб бўлмайдиган нуқта!',
     timestamp: '2025-04-22T10:03:00Z',
   },
 ];
 
-// Компонент Gemini
+// Gemini компоненти
 const Gemini = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -143,24 +143,24 @@ const Gemini = () => {
   const [loading, setLoading] = useState(false);
   const messageListRef = useRef(null);
 
-  // Прокрутка к последнему сообщению
+  // Охирги хабарга ўтиш
   useEffect(() => {
     if (messageListRef.current) {
       messageListRef.current.scrollTop = messageListRef.current.scrollHeight;
     }
   }, [messages]);
 
-  // Форматирование времени
+  // Вақтни форматлаш
   const formatTimestamp = (timestamp) => {
     try {
       const date = parseISO(timestamp);
-      return format(date, 'HH:mm, dd MMMM yyyy', { locale: ru });
+      return format(date, 'HH:mm, dd MMMM yyyy', { locale: uz });
     } catch (error) {
-      return 'Ошибка времени';
+      return 'Вақт хатоси';
     }
   };
 
-  // Отправка сообщения
+  // Хабар жўнатиш
   const handleSend = () => {
     if (!input.trim()) return;
 
@@ -175,12 +175,12 @@ const Gemini = () => {
     setInput('');
     setLoading(true);
 
-    // Имитация ответа бота (фейковый ответ)
+    // Бот жавобини симуляция қилиш
     setTimeout(() => {
       const fakeResponse = {
         id: messages.length + 2,
         role: 'assistant',
-        content: `Это мой ответ на твой вопрос: "${input}". Я пока только имитирую работу, но могу ответить что-то интересное! 😊 Хочешь узнать больше?`,
+        content: `Бу сизнинг "${input}" саволингизга жавобим. Мен ҳозирча ишлашни симуляция қиляпман, лекин қизиқарли нарсалар айтиб бера оламан! 😊 Кўпроқ билмокчимисиз?`,
         timestamp: new Date().toISOString(),
       };
       setMessages((prev) => [...prev, fakeResponse]);
@@ -188,7 +188,7 @@ const Gemini = () => {
     }, 1000);
   };
 
-  // Обработка нажатия Enter
+  // Enter босишни қайта ишлаш
   const handleKeyPress = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -198,7 +198,7 @@ const Gemini = () => {
 
   return (
     <ChatContainer>
-      {/* Заголовок */}
+      {/* Сарлавҳа */}
       <Box
         sx={{
           padding: theme.spacing(2),
@@ -213,7 +213,7 @@ const Gemini = () => {
         </Typography>
       </Box>
 
-      {/* Список сообщений */}
+      {/* Хабарлар рўйхати */}
       <MessageList ref={messageListRef}>
         <List>
           {messages.map((message) => (
@@ -249,7 +249,7 @@ const Gemini = () => {
                         bgcolor: message.role === 'user' ? colors.primary : colors.accent,
                       }}
                     >
-                      {message.role === 'user' ? 'Я' : 'G'}
+                      {message.role === 'user' ? 'М' : 'G'}
                     </Avatar>
                   </ListItemAvatar>
                   <ListItemText
@@ -287,7 +287,7 @@ const Gemini = () => {
         </List>
       </MessageList>
 
-      {/* Поле ввода */}
+      {/* Кириш майдони */}
       <InputContainer>
         <StyledTextField
           fullWidth
@@ -296,7 +296,7 @@ const Gemini = () => {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyPress={handleKeyPress}
-          placeholder="Напишите ваше сообщение..."
+          placeholder="Хабарингизни ёзинг..."
           variant="outlined"
           disabled={loading}
         />
@@ -305,7 +305,7 @@ const Gemini = () => {
           disabled={loading || !input.trim()}
           startIcon={isMobile ? null : <SendIcon />}
         >
-          {isMobile ? <SendIcon /> : 'Отправить'}
+          {isMobile ? <SendIcon /> : 'Жўнатиш'}
         </SendButton>
       </InputContainer>
     </ChatContainer>

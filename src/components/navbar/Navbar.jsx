@@ -14,8 +14,7 @@ import SchoolIcon from '@mui/icons-material/School';
 import MarkChatUnreadIcon from '@mui/icons-material/MarkChatUnread';
 import GradingIcon from '@mui/icons-material/Grading';
 
-
-// Цветовая палитра
+// Ранглар палитраси
 const colors = {
   primaryGradient: 'linear-gradient(135deg, rgb(14, 49, 80) 0%, #1a3c59 100%)',
   secondaryGradient: 'linear-gradient(135deg, #9333EA 0%, #D8B4FE 100%)',
@@ -26,7 +25,7 @@ const colors = {
   error: '#EF4444',
 };
 
-// Стили
+// Стиллар
 const NavbarContainer = styled(Drawer)(({ theme }) => ({
   '& .MuiDrawer-paper': {
     width: 270,
@@ -38,7 +37,7 @@ const NavbarContainer = styled(Drawer)(({ theme }) => ({
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
-    alignItems:"start"
+    alignItems: "start"
   },
 }));
 
@@ -58,10 +57,10 @@ const FooterContainer = styled(Box)({
 const LogoContainer = styled(Box)({
   padding: '30px 20px',
   textAlign: 'center',
-  display:"flex",
-  alignItems:"center",
-  justifyContent:"center",
-  gap:"10px",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: "10px",
   borderBottom: `1px solid ${colors.hoverBg}`,
 });
 
@@ -99,7 +98,6 @@ const NavItem = styled(Link)(({ theme, active, ismobile }) => ({
     color: colors.textPrimary,
     transform: ismobile ? 'scale(1.05)' : 'translateX(5px)',
   },
-  // Добавляем визуальный акцент для активного пункта в мобильной версии
   ...(ismobile && active && {
     borderBottom: `2px solid ${colors.textPrimary}`,
     paddingBottom: 10,
@@ -122,7 +120,6 @@ const ActionButton = styled(Box)(({ theme, ismobile, islogout }) => ({
     color: islogout ? '#D32F2F' : colors.textPrimary,
     transform: ismobile ? 'scale(1.05)' : 'translateX(5px)',
   },
-  // Для кнопки выхода в мобильной версии
   ...(ismobile && islogout && {
     borderBottom: '2px solid transparent',
   }),
@@ -133,51 +130,50 @@ const Navbar = ({ isMobile = false, sidebarOpen = false, setSidebarOpen = () => 
   const navigate = useNavigate();
   const [activePath, setActivePath] = useState(location.pathname);
 
-  // Получаем данные пользователя из localStorage
+  // Фойдаланувчи маълумотлари
   const userData = JSON.parse(localStorage.getItem('userData')) || {};
   const isAuthenticated = !!localStorage.getItem('token');
   const userRole = userData?.role || '';
 
-  // Синхронизируем активный путь при изменении маршрута
+  // Фаол йўналишни кўзда тутиш
   useEffect(() => {
     setActivePath(location.pathname);
   }, [location.pathname]);
 
-
-  // Навигационные ссылки (только на русском)
+  // Навигация линклари
   const links = [
-    { to: '/', label: 'Главная', icon: HomeFilledIcon },
+    { to: '/', label: 'Бош саҳифа', icon: HomeFilledIcon },
     { to: '/gemini', label: 'ChatAi', icon: MarkChatUnreadIcon },
-    { to: '/testing', label: 'Проверка', icon: GradingIcon },
-
+    { to: '/testing', label: 'Текшириш', icon: GradingIcon },
+    // { to: '/result', label: 'Натижа', icon: GradingIcon },
 
     isAuthenticated && userRole === 'doctoral' && {
       to: '/documents',
-      label: 'Мои заявки',
+      label: 'Менинг аризаларим',
       icon: FileOpenIcon,
     },
     isAuthenticated && userRole === 'doctoral' && {
       to: '/assessments-doctorant',
-      label: 'Заяка к оценку',
+      label: 'Баҳолаш учун ариза',
       icon: AssessmentIcon,
     },
     isAuthenticated && userRole === 'reviewer' && {
       to: '/review-news',
-      label: 'Новости',
+      label: 'Янгиликлар',
       icon: AssignmentTurnedInIcon,
     },
     isAuthenticated && userRole === 'reviewer' && {
       to: '/reviewer-assessments',
-      label: 'Отправка оценок',
-      icon: AssessmentIcon, // Иконку можно сменить
+      label: 'Баҳолаш',
+      icon: AssessmentIcon,
     },
     isAuthenticated
       ? {
         to: userRole === 'reviewer' ? '/reviewer-cabinet' : '/cabinet',
-        label: userRole === 'reviewer' ? 'Кабинет' : 'Личный кабинет',
+        label: userRole === 'reviewer' ? 'Кабинет' : 'Шахсий кабинет',
         icon: AccountBoxIcon,
       }
-      : { to: '/doctoral-register', label: 'Регистрация', icon: AccountBoxIcon },
+      : { to: '/doctoral-register', label: 'Рўйхатдан ўтиш', icon: AccountBoxIcon },
   ].filter(Boolean);
 
   const handleLogout = () => {
@@ -227,7 +223,7 @@ const Navbar = ({ isMobile = false, sidebarOpen = false, setSidebarOpen = () => 
     <NavbarContainer variant="permanent" open>
       <Box>
         <LogoContainer>
-          <SchoolIcon sx={{color:"white"}} />
+          <SchoolIcon sx={{ color: "white" }} />
           <LogoText>PHD</LogoText>
         </LogoContainer>
         <NavItems>{links.map(renderLink)}</NavItems>
@@ -237,7 +233,7 @@ const Navbar = ({ isMobile = false, sidebarOpen = false, setSidebarOpen = () => 
           <ActionButton ismobile={0} islogout={1} onClick={handleLogout}>
             <LogoutIcon sx={{ fontSize: 28, color: 'inherit' }} />
             <Typography sx={{ fontSize: 16, fontWeight: 500, ml: 1 }}>
-              Выйти
+              Чиқиш
             </Typography>
           </ActionButton>
         )}

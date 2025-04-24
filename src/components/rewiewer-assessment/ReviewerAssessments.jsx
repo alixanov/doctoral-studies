@@ -34,7 +34,7 @@ import CommentIcon from '@mui/icons-material/Comment';
 import DoneIcon from '@mui/icons-material/Done';
 import HistoryIcon from '@mui/icons-material/History';
 
-// Educational theme color palette
+// Таълим мавзуси учун ранг палитраси
 const colors = {
   primary: '#1565C0',
   secondary: '#F5F7FA',
@@ -129,29 +129,29 @@ const StyledTextField = styled(TextField)({
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://doctoral-studies-server.vercel.app';
 
-// Правила преобразования баллов в оценки
+// Бахоларни баллларга айлантириш қоидалари
 const getGradeFromRating = (rating, questionIndex) => {
   if (!rating) return 0;
   switch (questionIndex) {
-    case 0: // Вопрос 1 (1–5)
-    case 1: // Вопрос 2 (1–5)
-    case 8: // Вопрос 9 (1–5)
+    case 0: // Савол 1 (1–5)
+    case 1: // Савол 2 (1–5)
+    case 8: // Савол 9 (1–5)
       return Math.min(5, Math.max(1, Math.round(rating)));
-    case 2: // Вопрос 3 (1–20)
-    case 4: // Вопрос 5 (1–20)
+    case 2: // Савол 3 (1–20)
+    case 4: // Савол 5 (1–20)
       if (rating >= 17) return 5;
       if (rating >= 14) return 4;
       if (rating >= 11) return 3;
       return 2;
-    case 3: // Вопрос 4 (1–10)
-    case 6: // Вопрос 7 (1–10)
-    case 7: // Вопрос 8 (1–10)
-    case 9: // Вопрос 10 (1–10)
+    case 3: // Савол 4 (1–10)
+    case 6: // Савол 7 (1–10)
+    case 7: // Савол 8 (1–10)
+    case 9: // Савол 10 (1–10)
       if (rating >= 9) return 5;
       if (rating >= 7) return 4;
       if (rating >= 5) return 3;
       return 2;
-    case 5: // Вопрос 6 (1–15)
+    case 5: // Савол 6 (1–15)
       if (rating >= 13) return 5;
       if (rating >= 11) return 4;
       if (rating >= 9) return 3;
@@ -161,9 +161,9 @@ const getGradeFromRating = (rating, questionIndex) => {
   }
 };
 
-// Вычисление итогового балла и оценки
+// Якуний баҳо ва баллларни ҳисоблаш
 const calculateFinalGrade = (grades) => {
-  const weight = 2.2; // Вес для преобразования оценок в баллы (5 × 2.2 = 11)
+  const weight = 2.2; // Бахоларни баллларга айлантириш коэффициенти (5 × 2.2 = 11)
   const total = grades.reduce((sum, grade) => sum + grade * weight, 0);
   if (total < 60) return { grade: 0, status: 'rejected', total: Math.round(total * 10) / 10 };
   if (total >= 90) return { grade: 5, status: 'approved', total: Math.round(total * 10) / 10 };
@@ -172,7 +172,7 @@ const calculateFinalGrade = (grades) => {
   return { grade: 0, status: 'rejected', total: Math.round(total * 10) / 10 };
 };
 
-// Максимальные баллы для каждого вопроса
+// Ҳар бир савол учун максимал балллар
 const maxRatings = [5, 5, 20, 10, 20, 15, 10, 10, 5, 10];
 
 const ReviewerAssessments = () => {
@@ -187,14 +187,14 @@ const ReviewerAssessments = () => {
   const [selectedAssessment, setSelectedAssessment] = useState(null);
   const [selectedCompletedAssessment, setSelectedCompletedAssessment] = useState(null);
   const [ratings, setRatings] = useState([]);
-  const [questionFeedbacks, setQuestionFeedbacks] = useState([]); // Комментарии для каждого вопроса
-  const [feedback, setFeedback] = useState(''); // Итоговый комментарий
+  const [questionFeedbacks, setQuestionFeedbacks] = useState([]); // Ҳар бир савол учун изоҳлар
+  const [feedback, setFeedback] = useState(''); // Якуний изоҳ
   const [debugInfo, setDebugInfo] = useState(null);
   const [debugOpen, setDebugOpen] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  // Debug function to inspect API responses
+  // API жавобларини текшириш учун debug функцияси
   const inspectResponse = async (response) => {
     const debugData = {
       url: response.url,
@@ -219,13 +219,13 @@ const ReviewerAssessments = () => {
     return debugData;
   };
 
-  // Load assessments
+  // Баҳоларни юклаш
   const fetchAssessments = async () => {
     setLoading(true);
     setError('');
     try {
       const token = localStorage.getItem('token');
-      if (!token) throw new Error('Authorization token not found');
+      if (!token) throw new Error('Авторизация токени топилмади');
 
       const response = await fetch(`${API_BASE_URL}/reviewer-assessments`, {
         headers: {
@@ -241,7 +241,7 @@ const ReviewerAssessments = () => {
         throw new Error(
           debugData.parsedJson?.error ||
           debugData.body ||
-          `HTTP error! status: ${response.status}`
+          `HTTP хатолиги! статус: ${response.status}`
         );
       }
 
@@ -249,20 +249,20 @@ const ReviewerAssessments = () => {
       setAssessments(assessmentsData);
       await fetchCompletedAssessments();
     } catch (err) {
-      setError(`Не удалось загрузить оценки: ${err.message}`);
-      console.error('API Error:', err);
-      console.log('Debug Info:', debugInfo);
+      setError(`Баҳоларни юклаб бўлмади: ${err.message}`);
+      console.error('API хатолиги:', err);
+      console.log('Debug маълумотлари:', debugInfo);
       setAssessments([]);
     } finally {
       setLoading(false);
     }
   };
 
-  // Load completed assessments
+  // Текширилган баҳоларни юклаш
   const fetchCompletedAssessments = async () => {
     try {
       const token = localStorage.getItem('token');
-      if (!token) throw new Error('Authorization token not found');
+      if (!token) throw new Error('Авторизация токени топилмади');
 
       const response = await fetch(`${API_BASE_URL}/completed-assessments-reviewer`, {
         headers: {
@@ -278,15 +278,15 @@ const ReviewerAssessments = () => {
         throw new Error(
           debugData.parsedJson?.error ||
           debugData.body ||
-          `HTTP error! status: ${response.status}`
+          `HTTP хатолиги! статус: ${response.status}`
         );
       }
 
       const completedData = Array.isArray(debugData.parsedJson) ? debugData.parsedJson : [];
       setCompletedAssessments(completedData);
     } catch (err) {
-      console.error('Failed to fetch completed assessments:', err);
-      setError('Не удалось загрузить проверенные работы');
+      console.error('Текширилган баҳоларни юклаб бўлмади:', err);
+      setError('Текширилган ишларни юклаб бўлмади');
       setCompletedAssessments([]);
     }
   };
@@ -295,7 +295,7 @@ const ReviewerAssessments = () => {
     fetchAssessments();
   }, []);
 
-  // Handle assessment selection
+  // Баҳоларни танлаш
   const handleSelectAssessment = (assessment) => {
     setSelectedAssessment(assessment);
     setSelectedCompletedAssessment(null);
@@ -313,7 +313,7 @@ const ReviewerAssessments = () => {
     if (isMobile) setDrawerOpen(false);
   };
 
-  // Handle completed assessment selection
+  // Текширилган баҳоларни танлаш
   const handleSelectCompletedAssessment = (assessment) => {
     setSelectedCompletedAssessment(assessment);
     setSelectedAssessment(null);
@@ -322,7 +322,7 @@ const ReviewerAssessments = () => {
     if (isMobile) setDrawerOpen(false);
   };
 
-  // Handle rating changes
+  // Баллларни ўзгартириш
   const handleRatingChange = (index, value) => {
     let numericValue = Number(value);
     if (isNaN(numericValue)) numericValue = 0;
@@ -333,26 +333,26 @@ const ReviewerAssessments = () => {
     setRatings(newRatings);
   };
 
-  // Handle question feedback changes
+  // Савол изоҳларини ўзгартириш
   const handleQuestionFeedbackChange = (index, value) => {
     const newFeedbacks = [...questionFeedbacks];
     newFeedbacks[index] = value;
     setQuestionFeedbacks(newFeedbacks);
   };
 
-  // Handle tab change
+  // Табни ўзгартириш
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
     setSelectedAssessment(null);
     setSelectedCompletedAssessment(null);
   };
 
-  // Handle submit review
+  // Текширишни жўнатиш
   const handleSubmitReview = async () => {
     if (!selectedAssessment) return;
 
     if (ratings.some(rating => rating === 0)) {
-      setError('Пожалуйста, оцените все ответы');
+      setError('Илтимос, барча жавобларни баҳоланг');
       return;
     }
 
@@ -362,15 +362,15 @@ const ReviewerAssessments = () => {
 
     try {
       const token = localStorage.getItem('token');
-      if (!token) throw new Error('Authorization token not found');
+      if (!token) throw new Error('Авторизация токени топилмади');
 
       const reviewData = {
         assessmentId: selectedAssessment._id,
         answers: selectedAssessment.answers.map((answerItem, index) => ({
           rating: ratings[index],
-          feedback: questionFeedbacks[index] // Комментарий к каждому вопросу
+          feedback: questionFeedbacks[index] // Ҳар бир савол учун изоҳ
         })),
-        feedback // Итоговый комментарий
+        feedback // Якуний изоҳ
       };
 
       const response = await fetch(`${API_BASE_URL}/submit-review`, {
@@ -389,11 +389,11 @@ const ReviewerAssessments = () => {
         throw new Error(
           debugData.parsedJson?.error ||
           debugData.body ||
-          `HTTP error! status: ${response.status}`
+          `HTTP хатолиги! статус: ${response.status}`
         );
       }
 
-      setSuccess('Оценка успешно отправлена');
+      setSuccess('Баҳо муваффақиятли жўнатилди');
       setAssessments(assessments.filter(assessment =>
         assessment._id !== selectedAssessment._id
       ));
@@ -403,32 +403,32 @@ const ReviewerAssessments = () => {
       setFeedback('');
       await fetchAssessments();
     } catch (err) {
-      setError(`Не удалось отправить оценку: ${err.message}`);
-      console.error('Submission Error:', err);
-      console.log('Debug Info:', debugInfo);
+      setError(`Баҳони жўнатиб бўлмади: ${err.message}`);
+      console.error('Жўнатиш хатолиги:', err);
+      console.log('Debug маълумотлари:', debugInfo);
     } finally {
       setSubmitting(false);
     }
   };
 
-  // Render status chip
+  // Статус чипини кўрсатиш
   const renderStatus = (status) => {
     return <StyledChip
       label={
-        status === 'pending' ? 'Ожидает проверки' :
-          status === 'reviewed' ? 'Проверено' :
-            status === 'completed' ? 'Оценено' :
-              'Неизвестно'
+        status === 'pending' ? 'Текшириш кутилмокда' :
+          status === 'reviewed' ? 'Текширилган' :
+            status === 'completed' ? 'Баҳоланган' :
+              'Номаълум'
       }
       status={status}
     />;
   };
 
-  // Format date
+  // Санани форматлаш
   const formatDate = (dateString) => {
     if (!dateString) return '';
     try {
-      return new Date(dateString).toLocaleDateString('ru-RU', {
+      return new Date(dateString).toLocaleDateString('uz-UZ', {
         day: '2-digit',
         month: 'long',
         year: 'numeric',
@@ -440,11 +440,11 @@ const ReviewerAssessments = () => {
     }
   };
 
-  // Debug dialog
+  // Debug диалоги
   const handleDebugClose = () => setDebugOpen(false);
   const handleDebugOpen = () => setDebugOpen(true);
 
-  // Вычисление итогового результата
+  // Якуний натижани ҳисоблаш
   const calculateResult = () => {
     const grades = ratings.map((rating, index) => getGradeFromRating(rating, index));
     return calculateFinalGrade(grades);
@@ -458,12 +458,15 @@ const ReviewerAssessments = () => {
     );
   }
 
+
+
+  
   return (
     <Box sx={{
       p: { xs: 2, md: 3 },
       maxWidth: 1200,
       mx: 'auto',
-      bgcolor: colors.secondary,
+      // bgcolor: colors.secondary,
       borderRadius: 3,
       minHeight: 'calc(100vh - 32px)'
     }}>
@@ -471,7 +474,7 @@ const ReviewerAssessments = () => {
         <Box display="flex" alignItems="center">
           <SchoolIcon sx={{ fontSize: { xs: 28, md: 32 }, color: colors.primary, mr: 1.5 }} />
           <Typography variant="h5" fontWeight={700} color={colors.primary} sx={{ fontSize: { xs: '1.4rem', md: '1.5rem' } }}>
-            Проверка академических работ
+            Академик ишларни текшириш
           </Typography>
         </Box>
         {isMobile && (selectedAssessment || selectedCompletedAssessment) && (
@@ -485,7 +488,7 @@ const ReviewerAssessments = () => {
               fontSize: 14
             }}
           >
-            Список работ
+            Ишлар рўйхати
           </Button>
         )}
       </Box>
@@ -531,21 +534,21 @@ const ReviewerAssessments = () => {
         <Tab
           icon={<AssignmentIcon sx={{ fontSize: { xs: 20, md: 24 } }} />}
           iconPosition="start"
-          label={isMobile ? 'На проверку' : 'Работы на проверку'}
+          label={isMobile ? 'Текшириш учун' : 'Текшириш учун ишлар'}
           id="tab-pending"
           sx={{ minHeight: 48 }}
         />
         <Tab
           icon={<DoneIcon sx={{ fontSize: { xs: 20, md: 24 } }} />}
           iconPosition="start"
-          label={isMobile ? 'Проверенные' : 'Проверенные работы'}
+          label={isMobile ? 'Текширилган' : 'Текширилган ишлар'}
           id="tab-completed"
           sx={{ minHeight: 48 }}
         />
       </Tabs>
 
       <Grid container spacing={3}>
-        {/* Assessments list - Pending tab */}
+        {/* Текшириш учун ишлар рўйхати */}
         {activeTab === 0 && (
           <Grid item xs={12} md={selectedAssessment ? (isMobile && !drawerOpen ? 0 : 4) : 12}
             sx={{
@@ -556,14 +559,14 @@ const ReviewerAssessments = () => {
             <Box mb={2} display="flex" alignItems="center">
               <AssignmentIcon sx={{ color: colors.primary, mr: 1 }} />
               <Typography variant="h6" fontWeight={600} color={colors.text}>
-                {isMobile ? 'На проверку' : 'Список работ на проверку'}
+                {isMobile ? 'Текшириш учун' : 'Текшириш учун ишлар рўйхати'}
               </Typography>
             </Box>
 
             {!assessments || assessments.length === 0 ? (
               <Box bgcolor="#FFFFFF" p={3} borderRadius={2} textAlign="center" border={`1px dashed ${colors.borderColor}`}>
                 <Typography color={colors.lightText} fontSize={15}>
-                  Нет работ для проверки
+                  Текшириш учун ишлар мавжуд эмас
                 </Typography>
               </Box>
             ) : (
@@ -588,10 +591,10 @@ const ReviewerAssessments = () => {
                     </Avatar>
                     <Box flexGrow={1} sx={{ overflow: 'hidden' }}>
                       <Typography fontWeight={600} fontSize={15} color={colors.text} noWrap>
-                        {assessment.userInfo?.firstName || 'Неизвестно'} {assessment.userInfo?.lastName || ''}
+                        {assessment.userInfo?.firstName || 'Номаълум'} {assessment.userInfo?.lastName || ''}
                       </Typography>
                       <Typography fontSize={13} color={colors.lightText} noWrap>
-                        Дата сдачи: {formatDate(assessment.createdAt)}
+                        Топширилган сана: {formatDate(assessment.createdAt)}
                       </Typography>
                     </Box>
                     {renderStatus(assessment.status || 'pending')}
@@ -602,7 +605,7 @@ const ReviewerAssessments = () => {
           </Grid>
         )}
 
-        {/* Completed Assessments list */}
+        {/* Текширилган ишлар рўйхати */}
         {activeTab === 1 && (
           <Grid item xs={12} md={selectedCompletedAssessment ? (isMobile && !drawerOpen ? 0 : 4) : 12}
             sx={{
@@ -613,14 +616,14 @@ const ReviewerAssessments = () => {
             <Box mb={2} display="flex" alignItems="center">
               <DoneIcon sx={{ color: colors.primary, mr: 1 }} />
               <Typography variant="h6" fontWeight={600} color={colors.text}>
-                {isMobile ? 'Проверенные' : 'Проверенные работы'}
+                {isMobile ? 'Текширилган' : 'Текширилган ишлар рўйхати'}
               </Typography>
             </Box>
 
             {!completedAssessments || completedAssessments.length === 0 ? (
               <Box bgcolor="#FFFFFF" p={3} borderRadius={2} textAlign="center" border={`1px dashed ${colors.borderColor}`}>
                 <Typography color={colors.lightText} fontSize={15}>
-                  Нет проверенных работ
+                  Текширилган ишлар мавжуд эмас
                 </Typography>
               </Box>
             ) : (
@@ -645,10 +648,10 @@ const ReviewerAssessments = () => {
                     </Avatar>
                     <Box flexGrow={1} sx={{ overflow: 'hidden' }}>
                       <Typography fontWeight={600} fontSize={15} color={colors.text} noWrap>
-                        {assessment.userInfo?.firstName || 'Неизвестно'} {assessment.userInfo?.lastName || ''}
+                        {assessment.userInfo?.firstName || 'Номаълум'} {assessment.userInfo?.lastName || ''}
                       </Typography>
                       <Typography fontSize={13} color={colors.lightText} noWrap>
-                        Проверено: {formatDate(assessment.completedAt)}
+                        Текширилган сана: {formatDate(assessment.completedAt)}
                       </Typography>
                     </Box>
                     {renderStatus('completed')}
@@ -659,7 +662,7 @@ const ReviewerAssessments = () => {
           </Grid>
         )}
 
-        {/* Assessment details for pending */}
+        {/* Текшириш учун иш тафсилотлари */}
         {activeTab === 0 && selectedAssessment && (
           <Grid item xs={12} md={8}
             sx={{
@@ -671,16 +674,16 @@ const ReviewerAssessments = () => {
               <Box display="flex" alignItems="center" mb={2}>
                 <SchoolIcon sx={{ color: colors.primary, mr: 1.5 }} />
                 <Typography variant="h6" fontWeight={600} color={colors.primary}>
-                  Проверка работы студента
+                  Талоба ишини текшириш
                 </Typography>
               </Box>
 
               <Box p={2} mb={3} bgcolor={colors.highlight} borderRadius={2}>
                 <Typography fontWeight={600} fontSize={15} color={colors.text}>
-                  {selectedAssessment.userInfo?.firstName || 'Неизвестно'} {selectedAssessment.userInfo?.lastName || ''}
+                  {selectedAssessment.userInfo?.firstName || 'Номаълум'} {selectedAssessment.userInfo?.lastName || ''}
                 </Typography>
                 <Typography fontSize={14} color={colors.lightText}>
-                  Дата сдачи: {formatDate(selectedAssessment.createdAt)}
+                  Топширилган сана: {formatDate(selectedAssessment.createdAt)}
                 </Typography>
               </Box>
 
@@ -692,21 +695,21 @@ const ReviewerAssessments = () => {
                     expandIcon={<ExpandMoreIcon sx={{ color: colors.primary }} />}
                   >
                     <Typography fontWeight={600} fontSize={15} color={colors.text}>
-                      Вопрос {index + 1}: {item.question || 'Без названия'}
+                      Савол {index + 1}: {item.question || 'Номсиз'}
                     </Typography>
                   </AccordionSummary>
                   <AccordionDetails sx={{ p: 2 }}>
                     <Box mb={2}>
                       <Typography fontWeight={600} fontSize={14} color={colors.text} mb={1}>
-                        Ответ студента:
+                        Талоба жавоби:
                       </Typography>
                       <Typography fontSize={14} color={colors.lightText} whiteSpace="pre-wrap">
-                        {item.answer || 'Нет ответа'}
+                        {item.answer || 'Жавоб йўқ'}
                       </Typography>
                     </Box>
                     <Box display="flex" alignItems="center" mt={2} sx={{ flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'flex-start', sm: 'center' } }}>
                       <Typography fontWeight={600} fontSize={14} color={colors.text} sx={{ mb: { xs: 1, sm: 0 } }}>
-                        Баллы (1–{maxRatings[index]}):
+                        Балллар (1–{maxRatings[index]}):
                       </Typography>
                       <TextField
                         type="number"
@@ -723,13 +726,13 @@ const ReviewerAssessments = () => {
                       />
                       {ratings[index] > 0 && (
                         <Typography sx={{ ml: { xs: 0, sm: 2 }, fontSize: 14, color: colors.text }}>
-                          Оценка: {getGradeFromRating(ratings[index], index)} (Баллы: {(getGradeFromRating(ratings[index], index) * 2.2).toFixed(1)})
+                          Баҳо: {getGradeFromRating(ratings[index], index)} (Балллар: {(getGradeFromRating(ratings[index], index) * 2.2).toFixed(1)})
                         </Typography>
                       )}
                     </Box>
                     <Box mt={2}>
                       <Typography fontWeight={600} fontSize={14} color={colors.text} mb={1}>
-                        Комментарий:
+                        Изоҳ:
                       </Typography>
                       <StyledTextField
                         fullWidth
@@ -737,7 +740,7 @@ const ReviewerAssessments = () => {
                         rows={2}
                         value={questionFeedbacks[index] || ''}
                         onChange={(e) => handleQuestionFeedbackChange(index, e.target.value)}
-                        placeholder="Напишите комментарий к ответу"
+                        placeholder="Жавоб учун изоҳ ёзинг"
                         variant="outlined"
                       />
                     </Box>
@@ -748,7 +751,7 @@ const ReviewerAssessments = () => {
               <Box mt={4} mb={2} display="flex" alignItems="center">
                 <CommentIcon sx={{ color: colors.primary, mr: 1 }} />
                 <Typography fontWeight={600} fontSize={15} color={colors.text}>
-                  Итоговый комментарий:
+                  Якуний изоҳ:
                 </Typography>
               </Box>
 
@@ -758,16 +761,16 @@ const ReviewerAssessments = () => {
                 rows={4}
                 value={feedback}
                 onChange={(e) => setFeedback(e.target.value)}
-                placeholder="Напишите общие замечания и рекомендации для студента"
+                placeholder="Талоба учун умумий изоҳ ва таклифлар ёзинг"
                 variant="outlined"
                 sx={{ mb: 3 }}
               />
 
-              {/* Итоговый результат */}
+              {/* Якуний натижа */}
               {ratings.every(r => r > 0) && (
                 <Box bgcolor={colors.highlight} p={2} borderRadius={2} mb={3}>
                   <Typography fontWeight={600} fontSize={15} color={colors.text} mb={1}>
-                    Итоговый результат:
+                    Якуний натижа:
                   </Typography>
                   {(() => {
                     const result = calculateResult();
@@ -778,8 +781,8 @@ const ReviewerAssessments = () => {
                         fontWeight={600}
                       >
                         {result.status === 'rejected'
-                          ? `Отказ (общий балл: ${result.total})`
-                          : `Оценка: ${result.grade} (общий балл: ${result.total})`}
+                          ? `Рад этилди (жами балл: ${result.total})`
+                          : `Баҳо: ${result.grade} (жами балл: ${result.total})`}
                       </Typography>
                     );
                   })()}
@@ -795,16 +798,16 @@ const ReviewerAssessments = () => {
                 {submitting ? (
                   <CircularProgress size={24} color="inherit" />
                 ) : selectedAssessment.status === 'reviewed' ? (
-                  'Работа уже проверена'
+                  'Иш аллақачон текширилган'
                 ) : (
-                  'Отправить оценку'
+                  'Баҳони жўнатиш'
                 )}
               </SubmitButton>
             </Box>
           </Grid>
         )}
 
-        {/* Completed Assessment details */}
+        {/* Текширилган иш тафсилотлари */}
         {activeTab === 1 && selectedCompletedAssessment && (
           <Grid item xs={12} md={8}
             sx={{
@@ -816,16 +819,16 @@ const ReviewerAssessments = () => {
               <Box display="flex" alignItems="center" mb={2}>
                 <SchoolIcon sx={{ color: colors.primary, mr: 1.5 }} />
                 <Typography variant="h6" fontWeight={600} color={colors.primary}>
-                  Проверенная работа
+                  Текширилган иш
                 </Typography>
               </Box>
 
               <Box p={2} mb={3} bgcolor={colors.highlight} borderRadius={2}>
                 <Typography fontWeight={600} fontSize={15} color={colors.text}>
-                  {selectedCompletedAssessment.userInfo?.firstName || 'Неизвестно'} {selectedCompletedAssessment.userInfo?.lastName || ''}
+                  {selectedCompletedAssessment.userInfo?.firstName || 'Номаълум'} {selectedCompletedAssessment.userInfo?.lastName || ''}
                 </Typography>
                 <Typography fontSize={14} color={colors.lightText}>
-                  Проверено: {formatDate(selectedCompletedAssessment.completedAt)}
+                  Текширилган сана: {formatDate(selectedCompletedAssessment.completedAt)}
                 </Typography>
               </Box>
 
@@ -837,32 +840,32 @@ const ReviewerAssessments = () => {
                     expandIcon={<ExpandMoreIcon sx={{ color: colors.primary }} />}
                   >
                     <Typography fontWeight={600} fontSize={15} color={colors.text}>
-                      Вопрос {index + 1}: {item.question || 'Без названия'}
+                      Савол {index + 1}: {item.question || 'Номсиз'}
                     </Typography>
                   </AccordionSummary>
                   <AccordionDetails sx={{ p: 2 }}>
                     <Box mb={2}>
                       <Typography fontWeight={600} fontSize={14} color={colors.text} mb={1}>
-                        Ответ студента:
+                        Талоба жавоби:
                       </Typography>
                       <Typography fontSize={14} color={colors.lightText} whiteSpace="pre-wrap">
-                        {item.answer || 'Нет ответа'}
+                        {item.answer || 'Жавоб йўқ'}
                       </Typography>
                     </Box>
                     <Box mb={2}>
                       <Typography fontWeight={600} fontSize={14} color={colors.text} mb={1}>
-                        Оценка:
+                        Баҳо:
                       </Typography>
                       <Box display="flex" flexDirection="column">
                         <Typography fontSize={14} color={colors.text} mb={0.5}>
-                          Баллы: {item.rating || 'Нет оценки'}
+                          Балллар: {item.rating || 'Баҳо йўқ'}
                         </Typography>
                         <Typography fontSize={14} color={colors.text} mb={0.5}>
-                          Оценка: {getGradeFromRating(item.rating, index)} (Баллы: {(getGradeFromRating(item.rating, index) * 2.2).toFixed(1)})
+                          Баҳо: {getGradeFromRating(item.rating, index)} (Балллар: {(getGradeFromRating(item.rating, index) * 2.2).toFixed(1)})
                         </Typography>
                         {item.feedback && (
                           <Typography fontSize={14} color={colors.text}>
-                            Комментарий: {item.feedback}
+                            Изоҳ: {item.feedback}
                           </Typography>
                         )}
                       </Box>
@@ -876,7 +879,7 @@ const ReviewerAssessments = () => {
                   <Box mt={4} mb={2} display="flex" alignItems="center">
                     <CommentIcon sx={{ color: colors.primary, mr: 1 }} />
                     <Typography fontWeight={600} fontSize={15} color={colors.text}>
-                      Итоговый комментарий:
+                      Якуний изоҳ:
                     </Typography>
                   </Box>
                   <Box bgcolor={colors.highlight} p={2} borderRadius={2}>
@@ -887,10 +890,10 @@ const ReviewerAssessments = () => {
                 </>
               )}
 
-              {/* Итоговый результат для завершенной работы */}
+              {/* Текширилган иш учун якуний натижа */}
               <Box bgcolor={colors.highlight} p={2} borderRadius={2} mt={3}>
                 <Typography fontWeight={600} fontSize={15} color={colors.text} mb={1}>
-                  Итоговый результат:
+                  Якуний натижа:
                 </Typography>
                 {(() => {
                   const grades = selectedCompletedAssessment.questions.map((item, index) =>
@@ -904,8 +907,8 @@ const ReviewerAssessments = () => {
                       fontWeight={600}
                     >
                       {result.status === 'rejected'
-                        ? `Отказ (общий балл: ${result.total})`
-                        : `Оценка: ${result.grade} (общий балл: ${result.total})`}
+                        ? `Рад этилди (жами балл: ${result.total})`
+                        : `Баҳо: ${result.grade} (жами балл: ${result.total})`}
                     </Typography>
                   );
                 })()}
@@ -915,10 +918,10 @@ const ReviewerAssessments = () => {
         )}
       </Grid>
 
-      {/* Debug Dialog */}
+      {/* Debug диалоги */}
       <Dialog open={debugOpen} onClose={handleDebugClose} maxWidth="md" fullWidth>
         <DialogTitle sx={{ bgcolor: colors.highlight }}>
-          Отладочная информация
+          Debug маълумотлари
           <IconButton
             onClick={handleDebugClose}
             sx={{ position: 'absolute', right: 8, top: 8, color: colors.text }}
@@ -937,7 +940,7 @@ const ReviewerAssessments = () => {
               </DialogContentText>
               <Box mt={2}>
                 <Typography variant="subtitle2" fontWeight={600} color={colors.text}>
-                  Заголовки:
+                  Сарлавҳалар:
                 </Typography>
                 <pre style={{ fontSize: 12, backgroundColor: colors.highlight, padding: 12, borderRadius: 8 }}>
                   {JSON.stringify(debugInfo.headers, null, 2)}
@@ -945,7 +948,7 @@ const ReviewerAssessments = () => {
               </Box>
               <Box mt={2}>
                 <Typography variant="subtitle2" fontWeight={600} color={colors.text}>
-                  Тело ответа:
+                  Жавоб матни:
                 </Typography>
                 <pre style={{ fontSize: 12, backgroundColor: colors.highlight, padding: 12, borderRadius: 8 }}>
                   {debugInfo.body}
@@ -953,7 +956,7 @@ const ReviewerAssessments = () => {
               </Box>
               {debugInfo.jsonError && (
                 <Typography color={colors.error} mt={1} fontSize={14}>
-                  Ошибка разбора JSON: {debugInfo.jsonError}
+                  JSON таҳлил хатоси: {debugInfo.jsonError}
                 </Typography>
               )}
             </>
@@ -961,7 +964,7 @@ const ReviewerAssessments = () => {
         </DialogContent>
         <DialogActions sx={{ bgcolor: colors.highlight }}>
           <Button onClick={handleDebugClose} sx={{ color: colors.primary, fontSize: 14, fontWeight: 600 }}>
-            Закрыть
+            Ёпиш
           </Button>
         </DialogActions>
       </Dialog>

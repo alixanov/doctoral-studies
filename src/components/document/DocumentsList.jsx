@@ -40,7 +40,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import DescriptionIcon from '@mui/icons-material/Description';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
-// Цветовая схема с улучшенной палитрой
+// Ранг схемаси
 const colors = {
   primary: '#1A3C59',
   secondary: '#F5F6F5',
@@ -54,7 +54,7 @@ const colors = {
   border: '#E2E8F0',
 };
 
-// Стилизованные компоненты с улучшенной анимацией и отступами
+// Стилланган компонентлар
 const DocumentsContainer = styled(Box)(({ theme }) => ({
   minHeight: '100vh',
   padding: theme.spacing(2),
@@ -157,10 +157,10 @@ const DocumentsList = () => {
         if (response.ok) {
           setDocuments(data);
         } else {
-          setError(data.error || 'Ошибка при загрузке документов');
+          setError(data.error || 'Ҳужжатларни юклашда хатолик');
         }
       } catch (err) {
-        setError('Произошла ошибка: ' + err.message);
+        setError('Хатолик юз берди: ' + err.message);
       } finally {
         setLoading(false);
       }
@@ -189,10 +189,10 @@ const DocumentsList = () => {
         link.remove();
       } else {
         const errorData = await response.json();
-        setError(errorData.error || 'Ошибка при скачивании файла');
+        setError(errorData.error || 'Файлни юклаб олишда хатолик');
       }
     } catch (err) {
-      setError('Произошла ошибка: ' + err.message);
+      setError('Хатолик юз берди: ' + err.message);
     }
   };
 
@@ -216,10 +216,10 @@ const DocumentsList = () => {
         setOpenImageDialog(true);
       } else {
         const errorData = await response.json();
-        setError(errorData.error || 'Ошибка при получении изображения');
+        setError(errorData.error || 'Расмни олишда хатолик');
       }
     } catch (err) {
-      setError('Произошла ошибка: ' + err.message);
+      setError('Хатолик юз берди: ' + err.message);
     }
   };
 
@@ -239,18 +239,18 @@ const DocumentsList = () => {
   const getStatusColor = (status) => {
     switch (status) {
       case 'approved':
-        return { color: colors.success, label: 'Одобрено', icon: '✅' };
+        return { color: colors.success, label: 'Қабул қилинди', icon: '✅' };
       case 'rejected':
-        return { color: colors.error, label: 'Отклонено', icon: '❌' };
+        return { color: colors.error, label: 'Рад этилди', icon: '❌' };
       case 'reviewed':
-        return { color: colors.warning, label: 'Рассмотрено', icon: '🔍' };
+        return { color: colors.warning, label: 'Кўриб чиқилди', icon: '🔍' };
       default:
-        return { color: colors.primary, label: 'В обработке', icon: '⏳' };
+        return { color: colors.primary, label: 'Жараёнда', icon: '⏳' };
     }
   };
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('ru-RU', {
+    return new Date(dateString).toLocaleDateString('uz-UZ', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
@@ -259,7 +259,7 @@ const DocumentsList = () => {
     });
   };
 
-  // Улучшенный мобильный список документов
+  // Мобил учун ҳужжатлар рўйхати
   const MobileDocumentsList = () => (
     <Stack spacing={2} alignItems="center">
       {documents.map((doc) => {
@@ -276,7 +276,7 @@ const DocumentsList = () => {
               <Avatar sx={{ bgcolor: colors.primary + '20', color: colors.primary }}>
                 <DescriptionIcon />
               </Avatar>
-              <Box sx={{ flex: 1, minWidth: 0 }}> {/* Добавляем minWidth: 0 для правильного обрезания текста */}
+              <Box sx={{ flex: 1, minWidth: 0 }}>
                 <Typography variant="subtitle1" fontWeight={600} noWrap>
                   {doc.subject}
                 </Typography>
@@ -325,17 +325,17 @@ const DocumentsList = () => {
     </Stack>
   );
 
-  // Улучшенный десктопный список документов
+  // Десктоп учун ҳужжатлар рўйхати
   const DesktopDocumentsList = () => (
     <TableContainer component={Paper} elevation={0} sx={{ border: `1px solid ${colors.border}` }}>
       <StyledTable>
         <TableHead>
           <TableRow>
-            <TableCell sx={{ fontWeight: 600 }}>Тема</TableCell>
-            <TableCell sx={{ fontWeight: 600 }}>Получатель</TableCell>
-            <TableCell sx={{ fontWeight: 600 }}>Дата отправки</TableCell>
-            <TableCell sx={{ fontWeight: 600 }}>Статус</TableCell>
-            <TableCell sx={{ fontWeight: 600 }}>Действия</TableCell>
+            <TableCell sx={{ fontWeight: 600 }}>Мавзу</TableCell>
+            <TableCell sx={{ fontWeight: 600 }}>Қабул қилувчи</TableCell>
+            <TableCell sx={{ fontWeight: 600 }}>Юборилган сана</TableCell>
+            <TableCell sx={{ fontWeight: 600 }}>Ҳолати</TableCell>
+            <TableCell sx={{ fontWeight: 600 }}>Ҳаракатлар</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -379,7 +379,7 @@ const DocumentsList = () => {
                       }
                     }}
                   >
-                    Просмотр
+                    Кўриш
                   </Button>
                 </TableCell>
               </TableRow>
@@ -397,7 +397,7 @@ const DocumentsList = () => {
           <Box display="flex" flexDirection="column" alignItems="center" py={4}>
             <CircularProgress color="primary" size={60} thickness={4} />
             <Typography variant="body1" mt={2} color="text.secondary">
-              Загрузка ваших документов...
+              Ҳужжатларингиз юкланмоқда...
             </Typography>
           </Box>
         </ContentWrapper>
@@ -417,7 +417,7 @@ const DocumentsList = () => {
             textAlign="center"
           >
             <Typography color="error" variant="h6" gutterBottom>
-              Ошибка загрузки
+              Юклашда хатолик
             </Typography>
             <Typography color="text.secondary" paragraph>
               {error}
@@ -428,7 +428,7 @@ const DocumentsList = () => {
               onClick={() => window.location.reload()}
               sx={{ mt: 2 }}
             >
-              Попробовать снова
+              Қайта уриниш
             </Button>
           </Box>
         </ContentWrapper>
@@ -446,7 +446,7 @@ const DocumentsList = () => {
           color={colors.textPrimary}
           sx={{ mb: 3 }}
         >
-          Мои документы
+          Менинг ҳужжатларим
         </Typography>
 
         {documents.length === 0 ? (
@@ -459,10 +459,10 @@ const DocumentsList = () => {
           >
             <DescriptionIcon sx={{ fontSize: 60, color: colors.border, mb: 2 }} />
             <Typography variant="h6" color="text.secondary" gutterBottom>
-              Документы не найдены
+              Ҳужжатлар топилмади
             </Typography>
             <Typography variant="body1" color={colors.textPrimary}>
-              Вы еще не отправляли документы или они не загружены
+              Сиз ҳали ҳужжат юбормагансиз ёки улар юкланмаган
             </Typography>
             <Button
               variant="outlined"
@@ -470,14 +470,14 @@ const DocumentsList = () => {
               sx={{ mt: 3 }}
               onClick={() => navigate('/create-document')}
             >
-              Создать документ
+              Ҳужжат яратиш
             </Button>
           </Box>
         ) : (
           <>
             {isMobile ? <MobileDocumentsList /> : <DesktopDocumentsList />}
 
-            {/* Диалог просмотра документа */}
+            {/* Ҳужжат тафсилотлари диалоги */}
             <Dialog
               open={openDialog}
               onClose={handleCloseDialog}
@@ -505,7 +505,7 @@ const DocumentsList = () => {
                   >
                     <ArrowBackIcon />
                   </IconButton>
-                  Детали документа
+                  Ҳужжат тафсилотлари
                 </DialogTitle>
               )}
 
@@ -514,7 +514,7 @@ const DocumentsList = () => {
                   borderBottom: `1px solid ${colors.border}`,
                   fontWeight: 600
                 }}>
-                  Детали документа
+                  Ҳужжат тафсилотлари
                 </DialogTitle>
               )}
 
@@ -523,7 +523,7 @@ const DocumentsList = () => {
                   <Stack spacing={3}>
                     <Stack spacing={1}>
                       <Typography variant="subtitle2" color="text.secondary">
-                        Тема
+                        Мавзу
                       </Typography>
                       <Typography variant="body1" fontWeight={500}>
                         {selectedDocument.subject}
@@ -533,7 +533,7 @@ const DocumentsList = () => {
                     <Stack direction="row" spacing={4}>
                       <Stack spacing={1} flex={1}>
                         <Typography variant="subtitle2" color="text.secondary">
-                          Получатель
+                          Қабул қилувчи
                         </Typography>
                         <Typography variant="body1">
                           {selectedDocument.recipient}
@@ -542,7 +542,7 @@ const DocumentsList = () => {
 
                       <Stack spacing={1} flex={1}>
                         <Typography variant="subtitle2" color="text.secondary">
-                          Дата отправки
+                          Юборилган сана
                         </Typography>
                         <Typography variant="body1">
                           {formatDate(selectedDocument.createdAt)}
@@ -552,7 +552,7 @@ const DocumentsList = () => {
 
                     <Stack spacing={1}>
                       <Typography variant="subtitle2" color="text.secondary">
-                        Статус
+                        Ҳолати
                       </Typography>
                       <StatusChip
                         label={getStatusColor(selectedDocument.status).label}
@@ -569,7 +569,7 @@ const DocumentsList = () => {
 
                     <Stack spacing={1}>
                       <Typography variant="subtitle2" color="text.secondary">
-                        Содержание
+                        Матн
                       </Typography>
                       <Typography variant="body1" paragraph sx={{ whiteSpace: 'pre-line' }}>
                         {selectedDocument.content}
@@ -582,14 +582,14 @@ const DocumentsList = () => {
 
                         <Stack spacing={2}>
                           <Typography variant="subtitle2" color="text.secondary">
-                            Прикрепленные файлы ({selectedDocument.files.length})
+                            Илова қилинган файллар ({selectedDocument.files.length})
                           </Typography>
 
-                          {/* Изображения */}
+                          {/* Расмлар */}
                           {selectedDocument.files.some(file => isImageFile(file)) && (
                             <Stack spacing={1}>
                               <Typography variant="subtitle2">
-                                Изображения
+                                Расмлар
                               </Typography>
                               <Grid container spacing={2}>
                                 {selectedDocument.files
@@ -630,11 +630,11 @@ const DocumentsList = () => {
                             </Stack>
                           )}
 
-                          {/* Другие файлы */}
+                          {/* Бошқа файллар */}
                           {selectedDocument.files.some(file => !isImageFile(file)) && (
                             <Stack spacing={1}>
                               <Typography variant="subtitle2">
-                                Документы
+                                Ҳужжатлар
                               </Typography>
                               <List dense sx={{
                                 backgroundColor: colors.background,
@@ -693,7 +693,7 @@ const DocumentsList = () => {
                     }
                   }}
                 >
-                  Закрыть
+                  Ёпиш
                 </Button>
                 {selectedDocument?.files?.some(file => isImageFile(file)) && (
                   <Button
@@ -711,13 +711,13 @@ const DocumentsList = () => {
                       }
                     }}
                   >
-                    Просмотр изображений
+                    Расмларни кўриш
                   </Button>
                 )}
               </DialogActions>
             </Dialog>
 
-            {/* Диалог предпросмотра изображения */}
+            {/* Расмни кўриш диалоги */}
             <ImagePreviewDialog
               open={openImageDialog}
               onClose={closeImageDialog}
@@ -746,7 +746,7 @@ const DocumentsList = () => {
                   >
                     <ArrowBackIcon />
                   </IconButton>
-                  Просмотр изображения
+                  Расмни кўриш
                 </DialogTitle>
               )}
 
@@ -755,7 +755,7 @@ const DocumentsList = () => {
                   borderBottom: `1px solid ${colors.border}`,
                   fontWeight: 600
                 }}>
-                  Просмотр изображения
+                  Расмни кўриш
                 </DialogTitle>
               )}
 
@@ -797,7 +797,7 @@ const DocumentsList = () => {
                     }
                   }}
                 >
-                  Закрыть
+                  Ёпиш
                 </Button>
                 <Button
                   color="primary"
@@ -816,7 +816,7 @@ const DocumentsList = () => {
                     }
                   }}
                 >
-                  Скачать
+                  Юклаб олиш
                 </Button>
               </DialogActions>
             </ImagePreviewDialog>

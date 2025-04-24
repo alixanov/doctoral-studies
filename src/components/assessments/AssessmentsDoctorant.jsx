@@ -61,16 +61,16 @@ const StatusChip = ({ status, hasRatings }) => {
 
   switch (status) {
     case 'completed':
-      color = colors.success; // Исправлено: colorsadvocate -> colors
-      label = 'Завершено';
+      color = colors.success;
+      label = 'Тугалланди';
       break;
     case 'pending':
       color = hasRatings ? colors.info : colors.warning;
-      label = hasRatings ? 'Результат' : 'На проверке';
+      label = hasRatings ? 'Натижа' : 'Текширувда';
       break;
     default:
       color = 'default';
-      label = 'Неизвестно';
+      label = 'Номаълум';
   }
 
   return (
@@ -89,29 +89,29 @@ const StatusChip = ({ status, hasRatings }) => {
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://doctoral-studies-server.vercel.app';
 
-// Правила преобразования баллов в оценки
+// Балларни баҳоларга айлантириш қоидалари
 const getGradeFromRating = (rating, questionIndex) => {
   if (!rating) return 0;
   switch (questionIndex) {
-    case 0: // Вопрос 1 (1–5)
-    case 1: // Вопрос 2 (1–5)
-    case 8: // Вопрос 9 (1–5)
+    case 0: // Савол 1 (1–5)
+    case 1: // Савол 2 (1–5)
+    case 8: // Савол 9 (1–5)
       return Math.min(5, Math.max(1, Math.round(rating)));
-    case 2: // Вопрос 3 (1–20)
-    case 4: // Вопрос 5 (1–20)
+    case 2: // Савол 3 (1–20)
+    case 4: // Савол 5 (1–20)
       if (rating >= 17) return 5;
       if (rating >= 14) return 4;
       if (rating >= 11) return 3;
       return 2;
-    case 3: // Вопрос 4 (1–10)
-    case 6: // Вопрос 7 (1–10)
-    case 7: // Вопрос 8 (1–10)
-    case 9: // Вопрос 10 (1–10)
+    case 3: // Савол 4 (1–10)
+    case 6: // Савол 7 (1–10)
+    case 7: // Савол 8 (1–10)
+    case 9: // Савол 10 (1–10)
       if (rating >= 9) return 5;
       if (rating >= 7) return 4;
       if (rating >= 5) return 3;
       return 2;
-    case 5: // Вопрос 6 (1–15)
+    case 5: // Савол 6 (1–15)
       if (rating >= 13) return 5;
       if (rating >= 11) return 4;
       if (rating >= 9) return 3;
@@ -121,9 +121,9 @@ const getGradeFromRating = (rating, questionIndex) => {
   }
 };
 
-// Вычисление итогового балла и оценки
+// Якуний баҳони ҳисоблаш
 const calculateFinalGrade = (grades) => {
-  const weight = 2.2; // Вес для преобразования оценок в баллы (5 × 2.2 = 11)
+  const weight = 2.2; // Баҳоларни балларга айлантириш учун вазн (5 × 2.2 = 11)
   const total = grades.reduce((sum, grade) => sum + grade * weight, 0);
   if (total < 60) return { grade: 0, status: 'rejected', total: Math.round(total * 10) / 10 };
   if (total >= 90) return { grade: 5, status: 'approved', total: Math.round(total * 10) / 10 };
@@ -133,16 +133,16 @@ const calculateFinalGrade = (grades) => {
 };
 
 const questions = [
-  '🔹 Dissertatsiyaning ko‘rsatilgan ixtisoslikka mosligi.',
-  '🔹 Dissertatsiyaning ilmiy saviyasi.',
-  '🔹 Dissertatsiyaning ilmiy va amaliy ahamiyati.',
-  '🔹 Tadqiqot natijalarining asoslanganligi.',
-  '🔹 E’lon qilingan ishlarda dissertatsiya natijalarining to‘liq bayon etilganligi.',
-  '🔹 Dissertatsiyaning ilmiy natijalarini amaliyotga joriy etilganligi.',
-  '🔹 Izlanuvchiga qo‘yilgan talablarning bajarilganligi.',
-  '🔹 Dissertatsiya va dissertatsiya avtoreferatini belgilangan talablarga mos ravishda rasmiylashtirilganligi.',
-  '🔹 Tavsiya.',
-  '🔹 Mavzu bilan grant uchun loyihalarda va tanlovlarda ishtirok etganligi.',
+  '🔹 Диссертациянинг кўрсатилган ихтисосликка мослиги.',
+  '🔹 Диссертациянинг илмий савияси.',
+  '🔹 Диссертациянинг илмий ва амалий аҳамияти.',
+  '🔹 Тадқиқот натижаларининг асосланганлиги.',
+  '🔹 Эълон қилинган ишларда диссертация натижаларининг тўлиқ баён этилганлиги.',
+  '🔹 Диссертациянинг илмий натижаларини амалиётга жорий этилганлиги.',
+  '🔹 Изланувчига қўйилган талабларнинг бажарилганлиги.',
+  '🔹 Диссертация ва диссертация авторефератини белгиланган талабларга мувофиқ расмийлаштирилганлиги.',
+  '🔹 Тавсия.',
+  '🔹 Мавзу билан грант учун лойиҳаларда ва танловларда иштирок этганлиги.',
 ];
 
 const AssessmentsDoctorant = () => {
@@ -178,10 +178,10 @@ const AssessmentsDoctorant = () => {
         if (response.ok) {
           setReviewers(data);
         } else {
-          setError(data.error || 'Ошибка при загрузке проверяющих');
+          setError(data.error || 'Текширувчиларни юклашда хатолик');
         }
       } catch (err) {
-        setError('Произошла ошибка: ' + err.message);
+        setError('Хатолик юз берди: ' + err.message);
       } finally {
         setFetchingReviewers(false);
       }
@@ -214,7 +214,7 @@ const AssessmentsDoctorant = () => {
           setCompletedAssessments(completedData);
         }
       } catch (err) {
-        console.error('Ошибка при загрузке оценок:', err);
+        console.error('Баҳоларни юклашда хатолик:', err);
       } finally {
         setLoadingAssessments(false);
       }
@@ -231,7 +231,7 @@ const AssessmentsDoctorant = () => {
     setSuccess(false);
 
     if (!recipient) {
-      setError('Выберите проверяющего');
+      setError('Текширувчини танланг');
       setLoading(false);
       return;
     }
@@ -239,7 +239,7 @@ const AssessmentsDoctorant = () => {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
-        setError('Необходима авторизация');
+        setError('Авторизация талаб қилинади');
         setLoading(false);
         return;
       }
@@ -274,10 +274,10 @@ const AssessmentsDoctorant = () => {
           setSubmittedAssessments(updatedData);
         }
       } else {
-        throw new Error(data.error || 'Ошибка отправки');
+        throw new Error(data.error || 'Юборишда хатолик');
       }
     } catch (err) {
-      setError(err.message || 'Ошибка');
+      setError(err.message || 'Хатолик');
     } finally {
       setLoading(false);
     }
@@ -287,19 +287,19 @@ const AssessmentsDoctorant = () => {
     try {
       const date = parseISO(dateString);
       if (!isValid(date)) {
-        return 'Недействительная дата';
+        return 'Нотўғри сана';
       }
       return format(date, 'dd MMMM yyyy, HH:mm', { locale: ru });
     } catch (error) {
-      console.error("Ошибка форматирования даты:", error);
-      return 'Ошибка даты';
+      console.error("Сана форматлашда хатолик:", error);
+      return 'Сана хатоси';
     }
   };
 
   const renderAssessmentItem = (assessment) => {
     const hasRatings = assessment.questions.some(q => q.rating > 0);
 
-    // Рассчитываем итоговую оценку
+    // Якуний баҳони ҳисоблаш
     const grades = assessment.questions.map((q, idx) => getGradeFromRating(q.rating, idx));
     const result = calculateFinalGrade(grades);
 
@@ -333,8 +333,8 @@ const AssessmentsDoctorant = () => {
                 }}
               >
                 {result.status === 'rejected'
-                  ? `Отказ (общий балл: ${result.total})`
-                  : `Оценка: ${result.grade} (общий балл: ${result.total})`}
+                  ? `Рад этилди (умумрий балл: ${result.total})`
+                  : `Баҳо: ${result.grade} (умумрий балл: ${result.total})`}
               </Typography>
             )}
           </Box>
@@ -347,7 +347,7 @@ const AssessmentsDoctorant = () => {
             {assessment.feedback && (
               <>
                 <Typography variant="body2" fontWeight={500} gutterBottom sx={{ fontSize: isMobile ? '0.8rem' : '0.875rem' }}>
-                  Общий комментарий:
+                  Умумий изоҳ:
                 </Typography>
                 <Typography variant="body2" paragraph sx={{ mb: 2, fontSize: isMobile ? '0.8rem' : '0.875rem', wordBreak: 'break-word' }}>
                   {assessment.feedback}
@@ -356,7 +356,7 @@ const AssessmentsDoctorant = () => {
             )}
 
             <Typography variant="body2" fontWeight={500} gutterBottom sx={{ fontSize: isMobile ? '0.8rem' : '0.875rem' }}>
-              {assessment.status === 'completed' ? 'Оценки по вопросам:' : 'Предварительные оценки:'}
+              {assessment.status === 'completed' ? 'Саволлар бўйича баҳолар:' : 'Олдиндан баҳолар:'}
             </Typography>
             <List dense>
               {assessment.questions.map((q, idx) => (
@@ -371,20 +371,20 @@ const AssessmentsDoctorant = () => {
                       q.rating > 0 ? (
                         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                           <Typography variant="body2" color="text.primary" sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem' }}>
-                            Баллы: {q.rating}
+                            Баллар: {q.rating}
                           </Typography>
                           <Typography variant="body2" color="text.primary" sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem' }}>
-                            Оценка: {getGradeFromRating(q.rating, idx)} (Баллы: {(getGradeFromRating(q.rating, idx) * 2.2).toFixed(1)})
+                            Баҳо: {getGradeFromRating(q.rating, idx)} (Баллар: {(getGradeFromRating(q.rating, idx) * 2.2).toFixed(1)})
                           </Typography>
                           {q.feedback && (
                             <Typography variant="body2" color="text.primary" sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem' }}>
-                              Комментарий: {q.feedback}
+                              Изоҳ: {q.feedback}
                             </Typography>
                           )}
                         </Box>
                       ) : (
                         <Typography variant="body2" color="text.secondary" sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem' }}>
-                          {assessment.status === 'completed' ? 'Без оценки' : 'Ожидает оценки'}
+                          {assessment.status === 'completed' ? 'Баҳо йўқ' : 'Баҳо кутилмоқда'}
                         </Typography>
                       )
                     }
@@ -408,7 +408,7 @@ const AssessmentsDoctorant = () => {
         mb={2}
         color={colors.purple}
       >
-        Оценка докторанта
+        Докторантни баҳолаш
       </Typography>
 
       <Stack
@@ -435,7 +435,7 @@ const AssessmentsDoctorant = () => {
             })
           }}
         >
-          Новая оценка
+          Янги баҳолаш
         </Button>
         <Button
           variant={activeTab === 'submitted' ? 'contained' : 'outlined'}
@@ -455,7 +455,7 @@ const AssessmentsDoctorant = () => {
             })
           }}
         >
-          Отправленные ({submittedAssessments.length})
+          Юборилган ({submittedAssessments.length})
         </Button>
         <Button
           variant={activeTab === 'completed' ? 'contained' : 'outlined'}
@@ -475,7 +475,7 @@ const AssessmentsDoctorant = () => {
             })
           }}
         >
-          Завершенные ({completedAssessments.length})
+          Тугалланган ({completedAssessments.length})
         </Button>
       </Stack>
 
@@ -503,7 +503,7 @@ const AssessmentsDoctorant = () => {
             variant="body2"
             sx={{ mt: 3, mb: 1, fontWeight: 500, fontSize: isMobile ? '0.9rem' : '1rem' }}
           >
-            Кому отправить:
+            Кимга юбориш:
           </Typography>
           <Select
             fullWidth
@@ -513,12 +513,12 @@ const AssessmentsDoctorant = () => {
             sx={{ whiteSpace: 'normal', '& .MuiSelect-select': { py: isMobile ? 1 : 1.5 } }}
           >
             <MenuItem value="" disabled>
-              Выберите проверяющего
+              Текширувчини танланг
             </MenuItem>
             {fetchingReviewers ? (
               <MenuItem disabled>
                 <CircularProgress size={20} />
-                Загрузка...
+                Юкланмоқда...
               </MenuItem>
             ) : (
               reviewers.map((reviewer) => (
@@ -540,7 +540,7 @@ const AssessmentsDoctorant = () => {
             disabled={loading || !recipient}
             sx={{ mt: 3 }}
           >
-            {loading ? <CircularProgress size={20} color="inherit" /> : 'Отправить'}
+            {loading ? <CircularProgress size={20} color="inherit" /> : 'Юбориш'}
           </SubmitButton>
 
           {error && (
@@ -559,7 +559,7 @@ const AssessmentsDoctorant = () => {
               color="green"
               sx={{ mt: 2, fontSize: isMobile ? '0.8rem' : '0.875rem' }}
             >
-              Вопросы успешно отправлены на проверку
+              Саволлар текширишга муваффақиятли юборилди
             </Typography>
           )}
         </form>
@@ -577,7 +577,7 @@ const AssessmentsDoctorant = () => {
               color="textSecondary"
               sx={{ mt: 4, fontSize: isMobile ? '0.9rem' : '1rem' }}
             >
-              У вас нет отправленных оценок
+              Сизда юборилган баҳолар йўқ
             </Typography>
           ) : (
             <List>
@@ -603,7 +603,7 @@ const AssessmentsDoctorant = () => {
               color="textSecondary"
               sx={{ mt: 4, fontSize: isMobile ? '0.9rem' : '1rem' }}
             >
-              У вас нет завершенных оценок
+              Сизда тугалланган баҳолар йўқ
             </Typography>
           ) : (
             <Grid container spacing={isMobile ? 1 : 2}>

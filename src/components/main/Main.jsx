@@ -17,7 +17,7 @@ import HowToRegIcon from '@mui/icons-material/HowToReg';
 import PeopleIcon from '@mui/icons-material/People';
 import { keyframes } from '@emotion/react';
 
-// Анимации
+// Анимациялар
 const slideIn = keyframes`
   from {
     opacity: 0;
@@ -38,7 +38,7 @@ const fadeIn = keyframes`
   }
 `;
 
-// Цветовая палитра
+// Ранглар палитраси
 const colors = {
   primaryGradient: 'linear-gradient(135deg, #143654 0%, #1a3c59 100%)',
   secondaryGradient: 'linear-gradient(135deg, #9333EA 0%, #D8B4FE 100%)',
@@ -51,7 +51,7 @@ const colors = {
   accent: '#9333EA',
 };
 
-// Стили
+// Стиллар
 const HeroSection = styled(Box)(({ theme }) => ({
   background: colors.primaryGradient,
   color: '#FFFFFF',
@@ -77,9 +77,8 @@ const HeroSection = styled(Box)(({ theme }) => ({
   },
 }));
 
-
 const FeatureCard = styled(Paper)(({ theme }) => ({
-  width:320,
+  width: 320,
   padding: theme.spacing(4),
   background: colors.cardBg,
   borderRadius: 10,
@@ -113,7 +112,6 @@ const FeatureIcon = styled(Box)(({ theme }) => ({
 }));
 
 const NewsCard = styled(Paper)(({ theme, index }) => ({
-  // width:500,
   padding: theme.spacing(3),
   background: colors.cardBg,
   borderRadius: 12,
@@ -164,7 +162,7 @@ const StyledButton = styled(Button)(({ theme }) => ({
   },
 }));
 
-// Функция форматирования даты
+// Санани форматлаш функцияси
 const formatDate = (date) => {
   const day = String(date.getDate()).padStart(2, '0');
   const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -172,27 +170,27 @@ const formatDate = (date) => {
   return `${day}.${month}.${year}`;
 };
 
-// Генерация новостей с динамическими датами
+// Янгиликларни генерация килиш
 const generateNewsData = () => {
   const today = new Date();
   return [
     {
       id: 1,
-      title: 'Новые требования к диссертациям в 2025 году',
+      title: '2025 йилда диссертацияларга янги талаблар',
       date: formatDate(today),
-      description: 'Минобрнауки обновило требования к оформлению докторских диссертаций...',
+      description: 'Минобрнаука 2025 йил учун докторлик диссертацияларини расмийлаштириш талабларини янгилади...',
     },
     {
       id: 2,
-      title: 'Гранты для докторантов',
+      title: 'Докторантлар учун грантлар',
       date: formatDate(new Date(today.setDate(today.getDate() - 2))),
-      description: 'Объявлен конкурс на получение грантов для исследований...',
+      description: 'Илмий тадкикотлар учун грантлар олиш бўйича танлов эълон килинди...',
     },
     {
       id: 3,
-      title: 'Конференция по научным исследованиям',
+      title: 'Илмий тадкикотлар бўйича конференция',
       date: formatDate(new Date(today.setDate(today.getDate() - 2))),
-      description: 'Приглашаем докторантов на международную конференцию...',
+      description: 'Докторантларни халқаро конференцияга таклиф қиламиз...',
     },
   ];
 };
@@ -209,22 +207,22 @@ const HomePage = () => {
     {
       icon: <SchoolIcon fontSize="medium" />,
       title: 'Докторантура',
-      description: 'Электронная подача документов для поступления',
+      description: 'Докторантурага ҳужжатларни электрон тарзда топшириш',
     },
     {
       icon: <DescriptionIcon fontSize="medium" />,
-      title: 'Документы',
-      description: 'Управление и отслеживание документов',
+      title: 'Ҳужжатлар',
+      description: 'Ҳужжатларни бошқариш ва кўриб чиқиш',
     },
     {
       icon: <HowToRegIcon fontSize="medium" />,
-      title: 'Проверка',
-      description: 'Прозрачная экспертиза заявок',
+      title: 'Текшириш',
+      description: 'Аризаларнинг очиқ экспертизаси',
     },
     {
       icon: <PeopleIcon fontSize="medium" />,
-      title: 'Коммуникация',
-      description: 'Эффективное взаимодействие участников',
+      title: 'Алоқа',
+      description: 'Иштирокчилар ўртасида самарали ўзаро муносабат',
     },
   ];
 
@@ -234,7 +232,7 @@ const HomePage = () => {
 
   return (
     <Box sx={{ minHeight: '100vh', background: colors.background }}>
-      {/* Герой-секция */}
+      {/* Асосий қисм */}
       <HeroSection>
         <Container maxWidth="md">
           <Typography
@@ -247,7 +245,7 @@ const HomePage = () => {
               letterSpacing: '-0.5px',
             }}
           >
-            Система для докторантуры
+            Докторантура учун тизим
           </Typography>
           <Typography
             variant="body1"
@@ -260,15 +258,14 @@ const HomePage = () => {
               fontSize: { xs: 16, sm: 18 },
             }}
           >
-            Современное решение для подачи и проверки документов в докторантуру
+            Докторантурага ҳужжатларни топшириш ва текшириш учун замонавий ечим
           </Typography>
- 
         </Container>
       </HeroSection>
 
-      {/* Основной контент */}
+      {/* Асосий контент */}
       <Container maxWidth="lg" sx={{ py: 4 }}>
-        {/* О системе */}
+        {/* Тизим ҳақида */}
         <Box sx={{ mb: 5, textAlign: 'center' }}>
           <Typography
             variant="h6"
@@ -280,7 +277,7 @@ const HomePage = () => {
               color: colors.textPrimary,
             }}
           >
-            О системе
+            Тизим ҳақида
           </Typography>
           <Typography
             variant="body2"
@@ -289,11 +286,12 @@ const HomePage = () => {
             mx="auto"
             sx={{ fontFamily: "'Inter', sans-serif", fontSize: 15 }}
           >
-            Платформа упрощает подачу документов, их проверку и коммуникацию между докторантами и экспертами.
+            Платформа докторантлар ва экспертлар ўртасидаги ҳужжатларни топшириш, текшириш ва
+            мулоқотни соддалаштиради.
           </Typography>
         </Box>
 
-        {/* Особенности */}
+        {/* Имкониятлар */}
         <Box sx={{ mb: 5 }}>
           <Typography
             variant="h6"
@@ -307,7 +305,7 @@ const HomePage = () => {
               color: colors.textPrimary,
             }}
           >
-            Преимущества
+            Афзалликлар
           </Typography>
           <Grid container spacing={3}>
             {features.map((feature, index) => (
@@ -339,7 +337,7 @@ const HomePage = () => {
           </Grid>
         </Box>
 
-        {/* Новости */}
+        {/* Янгиликлар */}
         <Box sx={{ mb: 5 }}>
           <Typography
             variant="h6"
@@ -353,7 +351,7 @@ const HomePage = () => {
               color: colors.textPrimary,
             }}
           >
-            Новости об образовании
+            Таълим янгиликлари
           </Typography>
           <Grid container spacing={3}>
             {newsData.map((news, index) => (
@@ -396,7 +394,7 @@ const HomePage = () => {
                     className="newsButton"
                     onClick={() => handleNavigate(`/news/${news.id}`)}
                   >
-                    Подробнее
+                    Батафсил
                   </StyledButton>
                 </NewsCard>
               </Grid>
@@ -404,7 +402,7 @@ const HomePage = () => {
           </Grid>
         </Box>
 
-        {/* Как это работает */}
+        {/* Иш тартиби */}
         <Box sx={{ mb: 5, textAlign: 'center' }}>
           <Typography
             variant="h6"
@@ -416,9 +414,9 @@ const HomePage = () => {
               color: colors.textPrimary,
             }}
           >
-            Как это работает?
+            Иш тартиби қандай?
           </Typography>
-          <Grid container spacing={3} sx={{ mt: 2,display:"flex",justifyContent:"center"}}>
+          <Grid container spacing={3} sx={{ mt: 2, display: "flex", justifyContent: "center" }}>
             <Grid item xs={12} md={4}>
               <Typography
                 variant="subtitle1"
@@ -430,14 +428,14 @@ const HomePage = () => {
                   color: colors.textPrimary,
                 }}
               >
-                1. Регистрация
+                1. Рўйхатдан ўтиш
               </Typography>
               <Typography
                 variant="body2"
                 color={colors.textSecondary}
                 sx={{ fontFamily: "'Inter', sans-serif", fontSize: 14 }}
               >
-                Создайте аккаунт за минуту
+                Дақиқалар ичида аккаунт яратинг
               </Typography>
             </Grid>
             <Grid item xs={12} md={4}>
@@ -451,14 +449,14 @@ const HomePage = () => {
                   color: colors.textPrimary,
                 }}
               >
-                2. Подача документов
+                2. Ҳужжатларни топшириш
               </Typography>
               <Typography
                 variant="body2"
                 color={colors.textSecondary}
                 sx={{ fontFamily: "'Inter', sans-serif", fontSize: 14 }}
               >
-                Загрузите файлы в пару кликов
+                Файлларни бир неча клик билан юкланг
               </Typography>
             </Grid>
             <Grid item xs={12} md={4}>
@@ -472,20 +470,20 @@ const HomePage = () => {
                   color: colors.textPrimary,
                 }}
               >
-                3. Проверка
+                3. Текшириш
               </Typography>
               <Typography
                 variant="body2"
                 color={colors.textSecondary}
                 sx={{ fontFamily: "'Inter', sans-serif", fontSize: 14 }}
               >
-                Следите за статусом заявки
+                Ариза ҳолатини кўриб боринг
               </Typography>
             </Grid>
           </Grid>
         </Box>
 
-        {/* Призыв к действию */}
+        {/* Чорраха */}
         <Box
           sx={{
             background: colors.cardBg,
@@ -505,7 +503,7 @@ const HomePage = () => {
               color: colors.textPrimary,
             }}
           >
-            Начните прямо сейчас
+            Дарҳол бошланг
           </Typography>
           <Typography
             variant="body2"
@@ -518,7 +516,7 @@ const HomePage = () => {
               fontSize: 14,
             }}
           >
-            Присоединяйтесь к платформе для удобной работы с документами
+            Ҳужжатлар билан ишлаш учун қулай платформага қўшилинг
           </Typography>
           <StyledButton
             variant="contained"
@@ -533,7 +531,7 @@ const HomePage = () => {
               )
             }
           >
-            {isAuthenticated ? 'В кабинет' : 'Попробовать'}
+            {isAuthenticated ? 'Кабинетга' : 'Синаб кўриш'}
           </StyledButton>
         </Box>
       </Container>
