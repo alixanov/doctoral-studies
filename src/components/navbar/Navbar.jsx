@@ -145,7 +145,7 @@ const Navbar = ({ isMobile = false, sidebarOpen = false, setSidebarOpen = () => 
     { to: '/', label: 'Бош саҳифа', icon: HomeFilledIcon },
     { to: '/gemini', label: 'ChatAi', icon: MarkChatUnreadIcon },
     { to: '/testing', label: 'Текшириш', icon: GradingIcon },
-    // { to: '/result', label: 'Натижа', icon: GradingIcon },
+    { to: '/result', label: 'Натижа', icon: GradingIcon },
 
     isAuthenticated && userRole === 'doctoral' && {
       to: '/documents',
