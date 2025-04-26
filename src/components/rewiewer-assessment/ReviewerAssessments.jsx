@@ -34,7 +34,7 @@ import CommentIcon from '@mui/icons-material/Comment';
 import DoneIcon from '@mui/icons-material/Done';
 import HistoryIcon from '@mui/icons-material/History';
 
-// Таълим мавзуси учун ранг палитраси
+// Color palette for the educational theme
 const colors = {
   primary: '#1565C0',
   secondary: '#F5F7FA',
@@ -47,6 +47,7 @@ const colors = {
   borderColor: '#BBDEFB',
 };
 
+// Styled components
 const SubmitButton = styled(Button)(({ disabled }) => ({
   backgroundColor: disabled ? '#CFD8DC' : colors.primary,
   color: '#FFFFFF',
@@ -129,29 +130,29 @@ const StyledTextField = styled(TextField)({
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://doctoral-studies-server.vercel.app';
 
-// Бахоларни баллларга айлантириш қоидалари
+// Grading rules
 const getGradeFromRating = (rating, questionIndex) => {
   if (!rating) return 0;
   switch (questionIndex) {
-    case 0: // Савол 1 (1–5)
-    case 1: // Савол 2 (1–5)
-    case 8: // Савол 9 (1–5)
+    case 0: // Question 1 (1–5)
+    case 1: // Question 2 (1–5)
+    case 8: // Question 9 (1–5)
       return Math.min(5, Math.max(1, Math.round(rating)));
-    case 2: // Савол 3 (1–20)
-    case 4: // Савол 5 (1–20)
+    case 2: // Question 3 (1–20)
+    case 4: // Question 5 (1–20)
       if (rating >= 17) return 5;
       if (rating >= 14) return 4;
       if (rating >= 11) return 3;
       return 2;
-    case 3: // Савол 4 (1–10)
-    case 6: // Савол 7 (1–10)
-    case 7: // Савол 8 (1–10)
-    case 9: // Савол 10 (1–10)
+    case 3: // Question 4 (1–10)
+    case 6: // Question 7 (1–10)
+    case 7: // Question 8 (1–10)
+    case 9: // Question 10 (1–10)
       if (rating >= 9) return 5;
       if (rating >= 7) return 4;
       if (rating >= 5) return 3;
       return 2;
-    case 5: // Савол 6 (1–15)
+    case 5: // Question 6 (1–15)
       if (rating >= 13) return 5;
       if (rating >= 11) return 4;
       if (rating >= 9) return 3;
@@ -161,9 +162,9 @@ const getGradeFromRating = (rating, questionIndex) => {
   }
 };
 
-// Якуний баҳо ва баллларни ҳисоблаш
+// Calculate final grade
 const calculateFinalGrade = (grades) => {
-  const weight = 2.2; // Бахоларни баллларга айлантириш коэффициенти (5 × 2.2 = 11)
+  const weight = 2.2;
   const total = grades.reduce((sum, grade) => sum + grade * weight, 0);
   if (total < 60) return { grade: 0, status: 'rejected', total: Math.round(total * 10) / 10 };
   if (total >= 90) return { grade: 5, status: 'approved', total: Math.round(total * 10) / 10 };
@@ -172,8 +173,13 @@ const calculateFinalGrade = (grades) => {
   return { grade: 0, status: 'rejected', total: Math.round(total * 10) / 10 };
 };
 
-// Ҳар бир савол учун максимал балллар
+// Maximum ratings per question (total) and sub-ratings
 const maxRatings = [5, 5, 20, 10, 20, 15, 10, 10, 5, 10];
+const subMaxRatings = {
+  2: [5, 5, 10], // Question 3: 5 + 5 + 10 = 20
+  4: [5, 5, 10], // Question 5: 5 + 5 + 10 = 20
+  5: [5, 5, 5],  // Question 6: 5 + 5 + 5 = 15
+};
 
 const ReviewerAssessments = () => {
   const theme = useTheme();
@@ -186,15 +192,18 @@ const ReviewerAssessments = () => {
   const [completedAssessments, setCompletedAssessments] = useState([]);
   const [selectedAssessment, setSelectedAssessment] = useState(null);
   const [selectedCompletedAssessment, setSelectedCompletedAssessment] = useState(null);
-  const [ratings, setRatings] = useState([]);
-  const [questionFeedbacks, setQuestionFeedbacks] = useState([]); // Ҳар бир савол учун изоҳлар
-  const [feedback, setFeedback] = useState(''); // Якуний изоҳ
+  const [ratings, setRatings] = useState([]); // Total ratings per question
+  const [subRatings, setSubRatings] = useState([]); // Sub-ratings for Questions 3, 5, 6
+  const [inputValues, setInputValues] = useState([]); // Input display values (includes sub-ratings)
+  const [inputErrors, setInputErrors] = useState([]); // Input validation errors (includes sub-ratings)
+  const [questionFeedbacks, setQuestionFeedbacks] = useState([]);
+  const [feedback, setFeedback] = useState('');
   const [debugInfo, setDebugInfo] = useState(null);
   const [debugOpen, setDebugOpen] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  // API жавобларини текшириш учун debug функцияси
+  // API response inspection for debugging
   const inspectResponse = async (response) => {
     const debugData = {
       url: response.url,
@@ -203,7 +212,6 @@ const ReviewerAssessments = () => {
       headers: Object.fromEntries(response.headers.entries()),
       body: null
     };
-
     try {
       const text = await response.clone().text();
       debugData.body = text;
@@ -215,28 +223,24 @@ const ReviewerAssessments = () => {
     } catch (e) {
       debugData.bodyError = e.message;
     }
-
     return debugData;
   };
 
-  // Баҳоларни юклаш
+  // Fetch assessments
   const fetchAssessments = async () => {
     setLoading(true);
     setError('');
     try {
       const token = localStorage.getItem('token');
       if (!token) throw new Error('Авторизация токени топилмади');
-
       const response = await fetch(`${API_BASE_URL}/reviewer-assessments`, {
         headers: {
           'Authorization': token,
           'Content-Type': 'application/json'
         },
       });
-
       const debugData = await inspectResponse(response);
       setDebugInfo(debugData);
-
       if (!response.ok) {
         throw new Error(
           debugData.parsedJson?.error ||
@@ -244,7 +248,6 @@ const ReviewerAssessments = () => {
           `HTTP хатолиги! статус: ${response.status}`
         );
       }
-
       const assessmentsData = Array.isArray(debugData.parsedJson) ? debugData.parsedJson : [];
       setAssessments(assessmentsData);
       await fetchCompletedAssessments();
@@ -258,22 +261,19 @@ const ReviewerAssessments = () => {
     }
   };
 
-  // Текширилган баҳоларни юклаш
+  // Fetch completed assessments
   const fetchCompletedAssessments = async () => {
     try {
       const token = localStorage.getItem('token');
       if (!token) throw new Error('Авторизация токени топилмади');
-
       const response = await fetch(`${API_BASE_URL}/completed-assessments-reviewer`, {
         headers: {
           'Authorization': token,
           'Content-Type': 'application/json'
         },
       });
-
       const debugData = await inspectResponse(response);
       setDebugInfo(debugData);
-
       if (!response.ok) {
         throw new Error(
           debugData.parsedJson?.error ||
@@ -281,7 +281,6 @@ const ReviewerAssessments = () => {
           `HTTP хатолиги! статус: ${response.status}`
         );
       }
-
       const completedData = Array.isArray(debugData.parsedJson) ? debugData.parsedJson : [];
       setCompletedAssessments(completedData);
     } catch (err) {
@@ -295,17 +294,40 @@ const ReviewerAssessments = () => {
     fetchAssessments();
   }, []);
 
-  // Баҳоларни танлаш
+  // Select assessment
   const handleSelectAssessment = (assessment) => {
     setSelectedAssessment(assessment);
     setSelectedCompletedAssessment(null);
     const initialRatings = assessment.answers?.length
       ? assessment.answers.map(answer => answer.rating || 0)
       : Array(10).fill(0);
+    const initialSubRatings = assessment.answers?.length
+      ? assessment.answers.map((answer, index) => {
+        if ([2, 4, 5].includes(index)) {
+          return answer.subRatings || Array(3).fill(0);
+        }
+        return [];
+      })
+      : Array(10).fill([]);
+    const initialInputValues = initialRatings.map((rating, index) => {
+      if ([2, 4, 5].includes(index)) {
+        return initialSubRatings[index].map(r => (r > 0 ? r.toString() : ''));
+      }
+      return rating > 0 ? rating.toString() : '';
+    });
+    const initialInputErrors = initialRatings.map((rating, index) => {
+      if ([2, 4, 5].includes(index)) {
+        return Array(3).fill('');
+      }
+      return '';
+    });
     const initialFeedbacks = assessment.answers?.length
       ? assessment.answers.map(answer => answer.feedback || '')
       : Array(10).fill('');
     setRatings(initialRatings);
+    setSubRatings(initialSubRatings);
+    setInputValues(initialInputValues);
+    setInputErrors(initialInputErrors);
     setQuestionFeedbacks(initialFeedbacks);
     setFeedback(assessment.feedback || '');
     setError('');
@@ -313,7 +335,7 @@ const ReviewerAssessments = () => {
     if (isMobile) setDrawerOpen(false);
   };
 
-  // Текширилган баҳоларни танлаш
+  // Select completed assessment
   const handleSelectCompletedAssessment = (assessment) => {
     setSelectedCompletedAssessment(assessment);
     setSelectedAssessment(null);
@@ -322,57 +344,128 @@ const ReviewerAssessments = () => {
     if (isMobile) setDrawerOpen(false);
   };
 
-  // Баллларни ўзгартириш
-  const handleRatingChange = (index, value) => {
-    let numericValue = Number(value);
-    if (isNaN(numericValue)) numericValue = 0;
-    numericValue = Math.min(maxRatings[index], Math.max(1, numericValue));
+  // Handle rating input change
+  const handleRatingChange = (index, subIndex, value) => {
+    const newInputValues = [...inputValues];
+    const newInputErrors = [...inputErrors];
+    if ([2, 4, 5].includes(index)) {
+      newInputValues[index][subIndex] = value;
+      setInputValues(newInputValues);
 
-    const newRatings = [...ratings];
-    newRatings[index] = numericValue;
-    setRatings(newRatings);
+      // Validate input
+      const numericValue = parseFloat(value);
+      const max = subMaxRatings[index][subIndex];
+      let error = '';
+      if (value === '') {
+        error = ''; // Allow empty input during typing
+      } else if (isNaN(numericValue)) {
+        error = 'Фақат рақамлар';
+      } else if (numericValue < 1) {
+        error = `Мин: 1`;
+      } else if (numericValue > max) {
+        error = `Макс: ${max}`;
+      }
+      newInputErrors[index][subIndex] = error;
+    } else {
+      newInputValues[index] = value;
+      setInputValues(newInputValues);
+
+      // Validate input
+      const numericValue = parseFloat(value);
+      const max = maxRatings[index];
+      let error = '';
+      if (value === '') {
+        error = ''; // Allow empty input during typing
+      } else if (isNaN(numericValue)) {
+        error = 'Фақат рақамлар';
+      } else if (numericValue < 1) {
+        error = `Мин: 1`;
+      } else if (numericValue > max) {
+        error = `Макс: ${max}`;
+      }
+      newInputErrors[index] = error;
+    }
+    setInputErrors(newInputErrors);
   };
 
-  // Савол изоҳларини ўзгартириш
+  // Commit rating on blur
+  const handleRatingBlur = (index, subIndex) => {
+    const newInputValues = [...inputValues];
+    const newInputErrors = [...inputErrors];
+    const newSubRatings = [...subRatings];
+    const newRatings = [...ratings];
+
+    if ([2, 4, 5].includes(index)) {
+      const value = newInputValues[index][subIndex];
+      let numericValue = parseFloat(value);
+      if (isNaN(numericValue) || value === '') {
+        numericValue = 0;
+      } else {
+        numericValue = Math.min(subMaxRatings[index][subIndex], Math.max(1, Math.round(numericValue)));
+      }
+
+      newSubRatings[index][subIndex] = numericValue;
+      newInputValues[index][subIndex] = numericValue > 0 ? numericValue.toString() : '';
+      newInputErrors[index][subIndex] = '';
+
+      // Update total rating for the question
+      newRatings[index] = newSubRatings[index].reduce((sum, val) => sum + val, 0);
+    } else {
+      const value = newInputValues[index];
+      let numericValue = parseFloat(value);
+      if (isNaN(numericValue) || value === '') {
+        numericValue = 0;
+      } else {
+        numericValue = Math.min(maxRatings[index], Math.max(1, Math.round(numericValue)));
+      }
+
+      newRatings[index] = numericValue;
+      newInputValues[index] = numericValue > 0 ? numericValue.toString() : '';
+      newInputErrors[index] = '';
+    }
+
+    setRatings(newRatings);
+    setSubRatings(newSubRatings);
+    setInputValues(newInputValues);
+    setInputErrors(newInputErrors);
+  };
+
+  // Handle question feedback change
   const handleQuestionFeedbackChange = (index, value) => {
     const newFeedbacks = [...questionFeedbacks];
     newFeedbacks[index] = value;
     setQuestionFeedbacks(newFeedbacks);
   };
 
-  // Табни ўзгартириш
+  // Tab change
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
     setSelectedAssessment(null);
     setSelectedCompletedAssessment(null);
   };
 
-  // Текширишни жўнатиш
+  // Submit review
   const handleSubmitReview = async () => {
     if (!selectedAssessment) return;
-
     if (ratings.some(rating => rating === 0)) {
       setError('Илтимос, барча жавобларни баҳоланг');
       return;
     }
-
     setSubmitting(true);
     setError('');
     setSuccess('');
-
     try {
       const token = localStorage.getItem('token');
       if (!token) throw new Error('Авторизация токени топилмади');
-
       const reviewData = {
         assessmentId: selectedAssessment._id,
         answers: selectedAssessment.answers.map((answerItem, index) => ({
           rating: ratings[index],
-          feedback: questionFeedbacks[index] // Ҳар бир савол учун изоҳ
+          subRatings: [2, 4, 5].includes(index) ? subRatings[index] : undefined,
+          feedback: questionFeedbacks[index]
         })),
-        feedback // Якуний изоҳ
+        feedback
       };
-
       const response = await fetch(`${API_BASE_URL}/submit-review`, {
         method: 'POST',
         headers: {
@@ -381,10 +474,8 @@ const ReviewerAssessments = () => {
         },
         body: JSON.stringify(reviewData),
       });
-
       const debugData = await inspectResponse(response);
       setDebugInfo(debugData);
-
       if (!response.ok) {
         throw new Error(
           debugData.parsedJson?.error ||
@@ -392,13 +483,15 @@ const ReviewerAssessments = () => {
           `HTTP хатолиги! статус: ${response.status}`
         );
       }
-
       setSuccess('Баҳо муваффақиятли жўнатилди');
       setAssessments(assessments.filter(assessment =>
         assessment._id !== selectedAssessment._id
       ));
       setSelectedAssessment(null);
       setRatings([]);
+      setSubRatings([]);
+      setInputValues([]);
+      setInputErrors([]);
       setQuestionFeedbacks([]);
       setFeedback('');
       await fetchAssessments();
@@ -411,7 +504,7 @@ const ReviewerAssessments = () => {
     }
   };
 
-  // Статус чипини кўрсатиш
+  // Render status chip
   const renderStatus = (status) => {
     return <StyledChip
       label={
@@ -424,7 +517,7 @@ const ReviewerAssessments = () => {
     />;
   };
 
-  // Санани форматлаш
+  // Format date
   const formatDate = (dateString) => {
     if (!dateString) return '';
     try {
@@ -440,11 +533,11 @@ const ReviewerAssessments = () => {
     }
   };
 
-  // Debug диалоги
+  // Debug dialog
   const handleDebugClose = () => setDebugOpen(false);
   const handleDebugOpen = () => setDebugOpen(true);
 
-  // Якуний натижани ҳисоблаш
+  // Calculate result
   const calculateResult = () => {
     const grades = ratings.map((rating, index) => getGradeFromRating(rating, index));
     return calculateFinalGrade(grades);
@@ -458,15 +551,11 @@ const ReviewerAssessments = () => {
     );
   }
 
-
-
-  
   return (
     <Box sx={{
       p: { xs: 2, md: 3 },
       maxWidth: 1200,
       mx: 'auto',
-      // bgcolor: colors.secondary,
       borderRadius: 3,
       minHeight: 'calc(100vh - 32px)'
     }}>
@@ -548,7 +637,6 @@ const ReviewerAssessments = () => {
       </Tabs>
 
       <Grid container spacing={3}>
-        {/* Текшириш учун ишлар рўйхати */}
         {activeTab === 0 && (
           <Grid item xs={12} md={selectedAssessment ? (isMobile && !drawerOpen ? 0 : 4) : 12}
             sx={{
@@ -605,7 +693,6 @@ const ReviewerAssessments = () => {
           </Grid>
         )}
 
-        {/* Текширилган ишлар рўйхати */}
         {activeTab === 1 && (
           <Grid item xs={12} md={selectedCompletedAssessment ? (isMobile && !drawerOpen ? 0 : 4) : 12}
             sx={{
@@ -662,7 +749,6 @@ const ReviewerAssessments = () => {
           </Grid>
         )}
 
-        {/* Текшириш учун иш тафсилотлари */}
         {activeTab === 0 && selectedAssessment && (
           <Grid item xs={12} md={8}
             sx={{
@@ -707,25 +793,54 @@ const ReviewerAssessments = () => {
                         {item.answer || 'Жавоб йўқ'}
                       </Typography>
                     </Box>
-                    <Box display="flex" alignItems="center" mt={2} sx={{ flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'flex-start', sm: 'center' } }}>
-                      <Typography fontWeight={600} fontSize={14} color={colors.text} sx={{ mb: { xs: 1, sm: 0 } }}>
-                        Балллар (1–{maxRatings[index]}):
+                    <Box mt={2}>
+                      <Typography fontWeight={600} fontSize={14} color={colors.text} sx={{ mb: 1 }}>
+                        Балллар (Жами: 1–{maxRatings[index]}):
                       </Typography>
-                      <TextField
-                        type="number"
-                        value={ratings[index] || ''}
-                        onChange={(e) => handleRatingChange(index, e.target.value)}
-                        inputProps={{
-                          min: 1,
-                          max: maxRatings[index],
-                          step: 1
-                        }}
-                        size="small"
-                        sx={{ width: 100, ml: { xs: 0, sm: 2 }, mb: { xs: 1, sm: 0 } }}
-                        placeholder={`1–${maxRatings[index]}`}
-                      />
+                      {[2, 4, 5].includes(index) ? (
+                        <Box display="flex" flexDirection={{ xs: 'column', sm: 'row' }} gap={2}>
+                          {subMaxRatings[index].map((max, subIndex) => (
+                            <Box key={subIndex} display="flex" alignItems="center" sx={{ mb: { xs: 1, sm: 0 } }}>
+                              <StyledTextField
+                                type="text"
+                                value={inputValues[index][subIndex] || ''}
+                                onChange={(e) => handleRatingChange(index, subIndex, e.target.value)}
+                                onBlur={() => handleRatingBlur(index, subIndex)}
+                                error={!!inputErrors[index][subIndex]}
+                                helperText={inputErrors[index][subIndex]}
+                                size="small"
+                                sx={{ width: 100 }}
+                                placeholder={`1–${max}`}
+                                inputProps={{
+                                  pattern: '[0-9]*',
+                                }}
+                              />
+                              <Typography sx={{ ml: 1, fontSize: 14, color: colors.text }}>
+                                Макс: {max}
+                              </Typography>
+                            </Box>
+                          ))}
+                        </Box>
+                      ) : (
+                        <Box display="flex" alignItems="center" sx={{ flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'flex-start', sm: 'center' } }}>
+                          <StyledTextField
+                            type="text"
+                            value={inputValues[index] || ''}
+                            onChange={(e) => handleRatingChange(index, null, e.target.value)}
+                            onBlur={() => handleRatingBlur(index, null)}
+                            error={!!inputErrors[index]}
+                            helperText={inputErrors[index]}
+                            size="small"
+                            sx={{ width: 100, mb: { xs: 1, sm: 0 } }}
+                            placeholder={`1–${maxRatings[index]}`}
+                            inputProps={{
+                              pattern: '[0-9]*',
+                            }}
+                          />
+                        </Box>
+                      )}
                       {ratings[index] > 0 && (
-                        <Typography sx={{ ml: { xs: 0, sm: 2 }, fontSize: 14, color: colors.text }}>
+                        <Typography sx={{ mt: 1, fontSize: 14, color: colors.text }}>
                           Баҳо: {getGradeFromRating(ratings[index], index)} (Балллар: {(getGradeFromRating(ratings[index], index) * 2.2).toFixed(1)})
                         </Typography>
                       )}
@@ -766,7 +881,6 @@ const ReviewerAssessments = () => {
                 sx={{ mb: 3 }}
               />
 
-              {/* Якуний натижа */}
               {ratings.every(r => r > 0) && (
                 <Box bgcolor={colors.highlight} p={2} borderRadius={2} mb={3}>
                   <Typography fontWeight={600} fontSize={15} color={colors.text} mb={1}>
@@ -807,7 +921,6 @@ const ReviewerAssessments = () => {
           </Grid>
         )}
 
-        {/* Текширилган иш тафсилотлари */}
         {activeTab === 1 && selectedCompletedAssessment && (
           <Grid item xs={12} md={8}
             sx={{
@@ -857,9 +970,17 @@ const ReviewerAssessments = () => {
                         Баҳо:
                       </Typography>
                       <Box display="flex" flexDirection="column">
-                        <Typography fontSize={14} color={colors.text} mb={0.5}>
-                          Балллар: {item.rating || 'Баҳо йўқ'}
-                        </Typography>
+                        {[2, 4, 5].includes(index) && item.subRatings ? (
+                          item.subRatings.map((subRating, subIndex) => (
+                            <Typography key={subIndex} fontSize={14} color={colors.text} mb={0.5}>
+                              Балл {subIndex + 1} (макс: {subMaxRatings[index][subIndex]}): {subRating || 'Баҳо йўқ'}
+                            </Typography>
+                          ))
+                        ) : (
+                          <Typography fontSize={14} color={colors.text} mb={0.5}>
+                            Балллар: {item.rating || 'Баҳо йўқ'}
+                          </Typography>
+                        )}
                         <Typography fontSize={14} color={colors.text} mb={0.5}>
                           Баҳо: {getGradeFromRating(item.rating, index)} (Балллар: {(getGradeFromRating(item.rating, index) * 2.2).toFixed(1)})
                         </Typography>
@@ -890,7 +1011,6 @@ const ReviewerAssessments = () => {
                 </>
               )}
 
-              {/* Текширилган иш учун якуний натижа */}
               <Box bgcolor={colors.highlight} p={2} borderRadius={2} mt={3}>
                 <Typography fontWeight={600} fontSize={15} color={colors.text} mb={1}>
                   Якуний натижа:
@@ -918,7 +1038,6 @@ const ReviewerAssessments = () => {
         )}
       </Grid>
 
-      {/* Debug диалоги */}
       <Dialog open={debugOpen} onClose={handleDebugClose} maxWidth="md" fullWidth>
         <DialogTitle sx={{ bgcolor: colors.highlight }}>
           Debug маълумотлари
