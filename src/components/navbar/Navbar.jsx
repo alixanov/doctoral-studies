@@ -140,6 +140,8 @@ const Navbar = ({ isMobile = false, sidebarOpen = false, setSidebarOpen = () => 
     setActivePath(location.pathname);
   }, [location.pathname]);
 
+
+  
   // Навигация линклари
   const links = [
     { to: '/', label: 'Бош саҳифа', icon: HomeFilledIcon },

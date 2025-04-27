@@ -61,7 +61,7 @@ const AppRoutes = () => {
         }}
       >
         <Routes>
-          <Route path="/" element={<Main />} />
+          {/* <Route path="/" element={<Main />} />
           <Route path="/doctoral-register" element={<Register />} />
           <Route path="/reviewer-cabinet" element={<ReviewerCabinet />} />
           <Route path="/documents" element={<DocumentsList />} />
@@ -71,7 +71,7 @@ const AppRoutes = () => {
           <Route path='/gemini' element={<Gemini />} />
           <Route path='/testing' element={<Testing />} />
 
-          <Route path='/result' element={<Result />} />
+          <Route path='/result' element={<Result />} /> */}
           <Route
             path="/cabinet"
             element={
