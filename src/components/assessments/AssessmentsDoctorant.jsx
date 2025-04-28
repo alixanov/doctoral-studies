@@ -17,11 +17,24 @@ import {
   Chip,
   Stack,
   useMediaQuery,
-  useTheme
+  useTheme,
+  IconButton
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { format, isValid, parseISO } from 'date-fns';
 import { ru } from 'date-fns/locale';
+import {
+  Send as SendIcon,
+  Description as DescriptionIcon,
+  CheckCircle as CheckCircleIcon,
+  HourglassEmpty as HourglassEmptyIcon,
+  Person as PersonIcon,
+  Assignment as AssignmentIcon,
+  Star as StarIcon,
+  FileDownload as FileDownloadIcon
+} from '@mui/icons-material';
+import { jsPDF } from 'jspdf';
+import 'jspdf-autotable';
 
 const colors = {
   primaryGradient: 'linear-gradient(135deg, #143654 0%, rgb(26, 84, 136) 100%)',
@@ -58,24 +71,29 @@ const SubmitButton = styled(Button)(({ error, theme }) => ({
 const StatusChip = ({ status, hasRatings }) => {
   let color;
   let label;
+  let icon;
 
   switch (status) {
     case 'completed':
       color = colors.success;
       label = 'Тугалланди';
+      icon = <CheckCircleIcon fontSize="small" />;
       break;
     case 'pending':
       color = hasRatings ? colors.info : colors.warning;
       label = hasRatings ? 'Натижа' : 'Текширувда';
+      icon = <HourglassEmptyIcon fontSize="small" />;
       break;
     default:
       color = 'default';
       label = 'Номаълум';
+      icon = null;
   }
 
   return (
     <Chip
       label={label}
+      icon={icon}
       size="medium"
       sx={{
         backgroundColor: color,
@@ -144,6 +162,112 @@ const questions = [
   '🔹 Тавсия.',
   '🔹 Мавзу билан грант учун лойиҳаларда ва танловларда иштирок этганлиги.',
 ];
+
+const generateAssessmentPDF = (assessment) => {
+  const doc = new jsPDF();
+
+  // Add title
+  doc.setFontSize(16);
+  doc.setTextColor(20, 54, 84);
+  doc.text('Диссертация баҳолаш натижалари', 105, 15, null, null, 'center');
+
+  // Add assessment info
+  doc.setFontSize(12);
+  doc.setTextColor(0, 0, 0);
+
+  const date = format(parseISO(assessment.createdAt), 'dd.MM.yyyy HH:mm');
+  doc.text(`Текширувчи: ${assessment.reviewerInfo.firstName} ${assessment.reviewerInfo.lastName}`, 14, 30);
+  doc.text(`Сана: ${date}`, 14, 38);
+
+  // Add status
+  doc.setTextColor(assessment.status === 'completed' ? colors.success : colors.warning);
+  doc.text(`Ҳолат: ${assessment.status === 'completed' ? 'Тугалланган' : 'Текширувда'}`, 14, 46);
+
+  // Add questions and ratings
+  doc.setFontSize(12);
+  doc.setTextColor(0, 0, 0);
+  let yPosition = 60;
+
+  const grades = assessment.questions.map((q, idx) => getGradeFromRating(q.rating, idx));
+  const result = calculateFinalGrade(grades);
+
+  // Add summary
+  doc.setFontSize(14);
+  doc.setTextColor(20, 54, 84);
+  doc.text('Якуний баҳо:', 14, yPosition);
+  yPosition += 8;
+
+  doc.setFontSize(12);
+  doc.setTextColor(result.status === 'rejected' ? colors.error : colors.success);
+  doc.text(
+    result.status === 'rejected'
+      ? `Рад этилди (умумрий балл: ${result.total})`
+      : `Баҳо: ${result.grade} (умумрий балл: ${result.total})`,
+    14,
+    yPosition
+  );
+  yPosition += 15;
+
+  // Add questions table
+  doc.setFontSize(14);
+  doc.setTextColor(20, 54, 84);
+  doc.text('Саволлар бўйича баҳолар:', 14, yPosition);
+  yPosition += 10;
+
+  const tableData = assessment.questions.map((q, idx) => {
+    const grade = getGradeFromRating(q.rating, idx);
+    return [
+      idx + 1,
+      q.question,
+      q.rating || '0',
+      grade,
+      (grade * 2.2).toFixed(1),
+      q.feedback || ''
+    ];
+  });
+
+  doc.autoTable({
+    startY: yPosition,
+    head: [['№', 'Савол', 'Балл', 'Баҳо', 'Ҳисобланиши', 'Изоҳ']],
+    body: tableData,
+    margin: { left: 14 },
+    headStyles: {
+      fillColor: [20, 54, 84],
+      textColor: 255,
+      fontSize: 10
+    },
+    bodyStyles: {
+      fontSize: 9,
+      cellWidth: 'wrap'
+    },
+    columnStyles: {
+      0: { cellWidth: 10 },
+      1: { cellWidth: 70 },
+      2: { cellWidth: 20 },
+      3: { cellWidth: 20 },
+      4: { cellWidth: 30 },
+      5: { cellWidth: 'auto' }
+    },
+    styles: {
+      overflow: 'linebreak',
+      minCellHeight: 10
+    }
+  });
+
+  // Add general feedback if exists
+  if (assessment.feedback) {
+    doc.setFontSize(14);
+    doc.setTextColor(20, 54, 84);
+    doc.text('Умумий изоҳ:', 14, doc.lastAutoTable.finalY + 15);
+
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0);
+    doc.text(assessment.feedback, 14, doc.lastAutoTable.finalY + 25, { maxWidth: 180 });
+  }
+
+  // Save the PDF
+  doc.save(`disertation_baholash_${assessment._id}.pdf`);
+};
 
 const AssessmentsDoctorant = () => {
   const [loading, setLoading] = useState(false);
@@ -304,7 +428,23 @@ const AssessmentsDoctorant = () => {
     const result = calculateFinalGrade(grades);
 
     return (
-      <Paper elevation={2} sx={{ mb: 2, p: isMobile ? 1.5 : 2 }}>
+      <Paper elevation={2} sx={{ mb: 2, p: isMobile ? 1.5 : 2, position: 'relative' }}>
+        {/* Download PDF button */}
+        {(assessment.status === 'completed' || hasRatings) && (
+          <IconButton
+            onClick={() => generateAssessmentPDF(assessment)}
+            sx={{
+              position: 'absolute',
+              top: isMobile ? 8 : 16,
+              right: isMobile ? 8 : 16,
+              color: colors.purple
+            }}
+            title="PDF юклаб олиш"
+          >
+            <FileDownloadIcon />
+          </IconButton>
+        )}
+
         <Box display="flex" justifyContent="space-between" alignItems="center" mb={1} flexDirection={isMobile ? 'column' : 'row'} gap={isMobile ? 1 : 0}>
           <Box display="flex" alignItems="center" width={isMobile ? '100%' : 'auto'}>
             <Avatar
@@ -347,6 +487,7 @@ const AssessmentsDoctorant = () => {
             {assessment.feedback && (
               <>
                 <Typography variant="body2" fontWeight={500} gutterBottom sx={{ fontSize: isMobile ? '0.8rem' : '0.875rem' }}>
+                  <AssignmentIcon sx={{ fontSize: isMobile ? '0.8rem' : '0.875rem', mr: 0.5, verticalAlign: 'middle' }} />
                   Умумий изоҳ:
                 </Typography>
                 <Typography variant="body2" paragraph sx={{ mb: 2, fontSize: isMobile ? '0.8rem' : '0.875rem', wordBreak: 'break-word' }}>
@@ -356,6 +497,7 @@ const AssessmentsDoctorant = () => {
             )}
 
             <Typography variant="body2" fontWeight={500} gutterBottom sx={{ fontSize: isMobile ? '0.8rem' : '0.875rem' }}>
+              <StarIcon sx={{ fontSize: isMobile ? '0.8rem' : '0.875rem', mr: 0.5, verticalAlign: 'middle' }} />
               {assessment.status === 'completed' ? 'Саволлар бўйича баҳолар:' : 'Олдиндан баҳолар:'}
             </Typography>
             <List dense>
@@ -371,13 +513,16 @@ const AssessmentsDoctorant = () => {
                       q.rating > 0 ? (
                         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                           <Typography variant="body2" color="text.primary" sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem' }}>
+                            <PersonIcon sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem', mr: 0.5, verticalAlign: 'middle' }} />
                             Баллар: {q.rating}
                           </Typography>
                           <Typography variant="body2" color="text.primary" sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem' }}>
+                            <StarIcon sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem', mr: 0.5, verticalAlign: 'middle' }} />
                             Баҳо: {getGradeFromRating(q.rating, idx)} (Баллар: {(getGradeFromRating(q.rating, idx) * 2.2).toFixed(1)})
                           </Typography>
                           {q.feedback && (
                             <Typography variant="body2" color="text.primary" sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem' }}>
+                              <AssignmentIcon sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem', mr: 0.5, verticalAlign: 'middle' }} />
                               Изоҳ: {q.feedback}
                             </Typography>
                           )}
@@ -408,6 +553,7 @@ const AssessmentsDoctorant = () => {
         mb={2}
         color={colors.purple}
       >
+        <DescriptionIcon sx={{ verticalAlign: 'middle', mr: 1 }} />
         Докторантни баҳолаш
       </Typography>
 
@@ -503,6 +649,7 @@ const AssessmentsDoctorant = () => {
             variant="body2"
             sx={{ mt: 3, mb: 1, fontWeight: 500, fontSize: isMobile ? '0.9rem' : '1rem' }}
           >
+            <PersonIcon sx={{ verticalAlign: 'middle', mr: 1 }} />
             Кимга юбориш:
           </Typography>
           <Select
@@ -539,6 +686,7 @@ const AssessmentsDoctorant = () => {
             type="submit"
             disabled={loading || !recipient}
             sx={{ mt: 3 }}
+            startIcon={<SendIcon />}
           >
             {loading ? <CircularProgress size={20} color="inherit" /> : 'Юбориш'}
           </SubmitButton>
