@@ -24,18 +24,8 @@ import {
 import { styled } from '@mui/material/styles';
 import { format, isValid, parseISO } from 'date-fns';
 import { ru } from 'date-fns/locale';
-import {
-  Send as SendIcon,
-  Description as DescriptionIcon,
-  CheckCircle as CheckCircleIcon,
-  HourglassEmpty as HourglassEmptyIcon,
-  Person as PersonIcon,
-  Assignment as AssignmentIcon,
-  Star as StarIcon,
-  FileDownload as FileDownloadIcon,
-} from '@mui/icons-material';
 import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable'; // Correct import for autoTable
 
 const colors = {
   primaryGradient: 'linear-gradient(135deg, #143654 0%, rgb(26, 84, 136) 100%)',
@@ -166,7 +156,7 @@ const generateAssessmentPDF = (assessment, setError, setDownloading) => {
   setDownloading(true);
   try {
     const doc = new jsPDF();
-    doc.setFont('Helvetica'); // Use built-in font to avoid font loading issues
+    doc.setFont('Helvetica'); // Use built-in font to avoid font issues
 
     // Add title
     doc.setFontSize(16);
@@ -176,16 +166,15 @@ const generateAssessmentPDF = (assessment, setError, setDownloading) => {
     let yPosition = 30;
 
     // Add general feedback
-    if (assessment.feedback) {
-      doc.setFontSize(14);
-      doc.setTextColor(20, 54, 84);
-      doc.text('Умумий изоҳ:', 14, yPosition);
+    const feedback = assessment.feedback || 'Итоговой комментария'; // Fallback feedback
+    doc.setFontSize(14);
+    doc.setTextColor(20, 54, 84);
+    doc.text('Умумий изоҳ:', 14, yPosition);
 
-      doc.setFontSize(12);
-      doc.setTextColor(0, 0, 0);
-      doc.text(assessment.feedback, 14, yPosition + 10, { maxWidth: 180 });
-      yPosition += 20 + doc.splitTextToSize(assessment.feedback, 180).length * 5;
-    }
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0);
+    doc.text(feedback, 14, yPosition + 10, { maxWidth: 180 });
+    yPosition += 20 + doc.splitTextToSize(feedback, 180).length * 5;
 
     // Add preliminary ratings
     doc.setFontSize(14);
@@ -193,19 +182,25 @@ const generateAssessmentPDF = (assessment, setError, setDownloading) => {
     doc.text('Олдиндан баҳолар:', 14, yPosition);
     yPosition += 10;
 
+    // Validate questions
+    if (!Array.isArray(assessment.questions) || assessment.questions.length === 0) {
+      throw new Error('Invalid or empty questions data');
+    }
+
     const tableData = assessment.questions.map((q, idx) => {
       const grade = getGradeFromRating(q.rating, idx);
       return [
         idx + 1,
-        q.question,
+        q.question || questions[idx], // Fallback to default question
         q.rating || '0',
         grade,
         (grade * 2.2).toFixed(1),
-        q.feedback || '',
+        q.feedback || 'Изох', // Fallback feedback
       ];
     });
 
-    doc.autoTable({
+    // Apply autoTable
+    autoTable(doc, {
       startY: yPosition,
       head: [['№', 'Савол', 'Балл', 'Баҳо', 'Ҳисобланиши', 'Изоҳ']],
       body: tableData,
@@ -235,7 +230,7 @@ const generateAssessmentPDF = (assessment, setError, setDownloading) => {
       },
     });
 
-    doc.save(`disertation_baholash_${assessment._id}.pdf`);
+    doc.save(`disertation_baholash_${assessment._id || 'unknown'}.pdf`);
   } catch (error) {
     console.error('PDF generation failed:', error);
     setError(`PDF юклаб олишда хатолик: ${error.message}`);
@@ -386,10 +381,9 @@ const AssessmentsDoctorant = () => {
 
   const formatDate = (dateString) => {
     try {
+      if (!dateString) return 'Сана белгиланмаган';
       const date = parseISO(dateString);
-      if (!isValid(date)) {
-        return 'Нотўғри сана';
-      }
+      if (!isValid(date)) return 'Нотўғри сана';
       return format(date, 'dd MMMM yyyy, HH:mm', { locale: ru });
     } catch (error) {
       console.error('Сана форматлашда хатолик:', error);
@@ -398,8 +392,8 @@ const AssessmentsDoctorant = () => {
   };
 
   const renderAssessmentItem = (assessment) => {
-    const hasRatings = assessment.questions.some((q) => q.rating > 0);
-    const grades = assessment.questions.map((q, idx) => getGradeFromRating(q.rating, idx));
+    const hasRatings = assessment.questions?.some((q) => q.rating > 0) || false;
+    const grades = assessment.questions?.map((q, idx) => getGradeFromRating(q.rating, idx)) || [];
     const result = calculateFinalGrade(grades);
 
     return (
@@ -437,19 +431,19 @@ const AssessmentsDoctorant = () => {
               src={assessment.reviewerInfo?.profilePhoto}
               sx={{ width: isMobile ? 32 : 40, height: isMobile ? 32 : 40, mr: 2 }}
             >
-              {assessment.reviewerInfo?.firstName?.charAt(0)}
-              {assessment.reviewerInfo?.lastName?.charAt(0)}
+              {assessment.reviewerInfo?.firstName?.charAt(0) || '?'}
+              {assessment.reviewerInfo?.lastName?.charAt(0) || ''}
             </Avatar>
             <Typography
               variant={isMobile ? 'subtitle2' : 'subtitle1'}
               fontWeight={500}
               sx={{ wordBreak: 'break-word' }}
             >
-              {assessment.reviewerInfo?.firstName} {assessment.reviewerInfo?.lastName}
+              {assessment.reviewerInfo?.firstName || 'Номаълум'} {assessment.reviewerInfo?.lastName || ''}
             </Typography>
           </Box>
           <Box textAlign={isMobile ? 'center' : 'right'} width={isMobile ? '100%' : 'auto'}>
-            <StatusChip status={assessment.status} hasRatings={hasRatings} />
+            <StatusChip status={assessment.status || 'pending'} hasRatings={hasRatings} />
             <Typography
               variant="body2"
               color="text.secondary"
@@ -512,7 +506,7 @@ const AssessmentsDoctorant = () => {
               {assessment.status === 'completed' ? 'Саволлар бўйича баҳолар:' : 'Олдиндан баҳолар:'}
             </Typography>
             <List dense>
-              {assessment.questions.map((q, idx) => (
+              {(assessment.questions || []).map((q, idx) => (
                 <ListItem key={idx} sx={{ py: isMobile ? 0.5 : 1 }}>
                   <ListItemText
                     primary={
@@ -521,7 +515,7 @@ const AssessmentsDoctorant = () => {
                         fontWeight={500}
                         sx={{ fontSize: isMobile ? '0.8rem' : '0.875rem' }}
                       >
-                        {q.question}
+                        {q.question || questions[idx]}
                       </Typography>
                     }
                     secondary={
