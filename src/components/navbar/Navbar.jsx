@@ -146,37 +146,37 @@ const Navbar = ({ isMobile = false, sidebarOpen = false, setSidebarOpen = () => 
   const links = [
     { to: '/', label: 'Бош саҳифа', icon: HomeFilledIcon },
 
-    // { to: '/gemini', label: 'ChatAi', icon: MarkChatUnreadIcon },
-    // { to: '/testing', label: 'Текшириш', icon: GradingIcon },
-    // { to: '/result', label: 'Натижа', icon: GradingIcon },
+    { to: '/gemini', label: 'ChatAi', icon: MarkChatUnreadIcon },
+    { to: '/testing', label: 'Текшириш', icon: GradingIcon },
+    { to: '/result', label: 'Натижа', icon: GradingIcon },
 
-    // isAuthenticated && userRole === 'doctoral' && {
-    //   to: '/documents',
-    //   label: 'Менинг аризаларим',
-    //   icon: FileOpenIcon,
-    // },
-    // isAuthenticated && userRole === 'doctoral' && {
-    //   to: '/assessments-doctorant',
-    //   label: 'Баҳолаш учун ариза',
-    //   icon: AssessmentIcon,
-    // },
-    // isAuthenticated && userRole === 'reviewer' && {
-    //   to: '/review-news',
-    //   label: 'Янгиликлар',
-    //   icon: AssignmentTurnedInIcon,
-    // },
-    // isAuthenticated && userRole === 'reviewer' && {
-    //   to: '/reviewer-assessments',
-    //   label: 'Баҳолаш',
-    //   icon: AssessmentIcon,
-    // },
-    // isAuthenticated
-    //   ? {
-    //     to: userRole === 'reviewer' ? '/reviewer-cabinet' : '/cabinet',
-    //     label: userRole === 'reviewer' ? 'Кабинет' : 'Шахсий кабинет',
-    //     icon: AccountBoxIcon,
-    //   }
-    //   : { to: '/doctoral-register', label: 'Рўйхатдан ўтиш', icon: AccountBoxIcon },
+    isAuthenticated && userRole === 'doctoral' && {
+      to: '/documents',
+      label: 'Менинг аризаларим',
+      icon: FileOpenIcon,
+    },
+    isAuthenticated && userRole === 'doctoral' && {
+      to: '/assessments-doctorant',
+      label: 'Баҳолаш учун ариза',
+      icon: AssessmentIcon,
+    },
+    isAuthenticated && userRole === 'reviewer' && {
+      to: '/review-news',
+      label: 'Янгиликлар',
+      icon: AssignmentTurnedInIcon,
+    },
+    isAuthenticated && userRole === 'reviewer' && {
+      to: '/reviewer-assessments',
+      label: 'Баҳолаш',
+      icon: AssessmentIcon,
+    },
+    isAuthenticated
+      ? {
+        to: userRole === 'reviewer' ? '/reviewer-cabinet' : '/cabinet',
+        label: userRole === 'reviewer' ? 'Кабинет' : 'Шахсий кабинет',
+        icon: AccountBoxIcon,
+      }
+      : { to: '/doctoral-register', label: 'Рўйхатдан ўтиш', icon: AccountBoxIcon },
   ].filter(Boolean);
 
   const handleLogout = () => {
