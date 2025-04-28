@@ -36,7 +36,97 @@ import {
 } from '@mui/icons-material';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import DejaVuSans from '../../fonts/DejaVuSans.ttf'; // Import the font file
+
+// Функция транслитерации кириллицы на узбекский (латиница)
+const transliterateToUzbek = (text) => {
+  const translitMap = {
+    А: 'A',
+    а: 'a',
+    Б: 'B',
+    б: 'b',
+    В: 'V',
+    в: 'v',
+    Г: 'G',
+    г: 'g',
+    Д: 'D',
+    д: 'd',
+    Е: 'E',
+    е: 'e',
+    Ё: 'Yo',
+    ё: 'yo',
+    Ж: 'J',
+    ж: 'j',
+    З: 'Z',
+    з: 'z',
+    И: 'I',
+    и: 'i',
+    Й: 'Y',
+    й: 'y',
+    К: 'K',
+    к: 'k',
+    Л: 'L',
+    л: 'l',
+    М: 'M',
+    м: 'm',
+    Н: 'N',
+    н: 'n',
+    О: 'O',
+    о: 'o',
+    П: 'P',
+    п: 'p',
+    Р: 'R',
+    р: 'r',
+    С: 'S',
+    с: 's',
+    Т: 'T',
+    т: 't',
+    У: 'U',
+    у: 'u',
+    Ф: 'F',
+    ф: 'f',
+    Х: 'X',
+    х: 'x',
+    Ц: 'Ts',
+    ц: 'ts',
+    Ч: 'Ch',
+    ч: 'ch',
+    Ш: 'Sh',
+    ш: 'sh',
+    Щ: 'Sh',
+    щ: 'sh',
+    Ъ: '',
+    ъ: '',
+    Ы: 'Y',
+    ы: 'y',
+    Ь: '',
+    ь: '',
+    Э: 'E',
+    э: 'e',
+    Ю: 'Yu',
+    ю: 'yu',
+    Я: 'Ya',
+    я: 'ya',
+    Қ: 'Q',
+    қ: 'q',
+    Ғ: 'G‘',
+    ғ: 'g‘',
+    Ў: 'O‘',
+    ў: 'o‘',
+    Ҳ: 'H',
+    ҳ: 'h',
+  };
+
+  return text
+    .split('')
+    .map((char) => translitMap[char] || char)
+    .join('');
+};
+
+// Функция очистки текста от некорректных символов
+const cleanText = (text) => {
+  // Разрешаем кириллицу, узбекские буквы, цифры, пробелы, знаки пунктуации
+  return text.replace(/[^А-Яа-яЁёҚқҒғЎўҲҳ0-9\s.,-]/g, '');
+};
 
 const colors = {
   primaryGradient: 'linear-gradient(135deg, #143654 0%, rgb(26, 84, 136) 100%)',
@@ -81,15 +171,7 @@ const StatusChip = ({ status, hasRatings }) => {
       label = 'Тугалланди';
       icon = <CheckCircleIcon fontSize="small" />;
       break;
-    case 'pending':
-      color = hasRatings ? colors.info : colors.warning;
-      label = hasRatings ? 'Натижа' : 'Текширувда';
-      icon = <HourglassEmptyIcon fontSize="small" />;
-      break;
-    default:
-      color = 'default';
-      label = 'Номаълум';
-      icon = null;
+
   }
 
   return (
@@ -163,7 +245,7 @@ const questions = [
   '- Мавзу билан грант учун лойиҳаларда ва танловларда иштирок этганлиги.',
 ];
 
-const generateAssessmentPDF = (assessment, setError, setDownloading) => {
+const generateAssessmentPDF = (assessment, setError, setDownloading, useTransliteration = false) => {
   setDownloading(true);
   try {
     const doc = new jsPDF({
@@ -173,96 +255,133 @@ const generateAssessmentPDF = (assessment, setError, setDownloading) => {
       putOnlyUsedFonts: true,
     });
 
-    // Add DejaVuSans font
-    doc.addFileToVFS('DejaVuSans.ttf', DejaVuSans);
-    doc.addFont('DejaVuSans.ttf', 'DejaVuSans', 'normal');
-    doc.setFont('DejaVuSans');
-
-    // Title
+    doc.setFont('helvetica', 'normal');
     doc.setFontSize(16);
     doc.setTextColor(20, 54, 84);
-    doc.text('Диссертация баҳолаш натижалари', 105, 20, { align: 'center' });
+
+    // Заголовок
+    const title = useTransliteration
+      ? transliterateToUzbek('Диссертация баҳолаш натижалари')
+      : 'Диссертация баҳолаш натижалари';
+    doc.text(title, 105, 20, { align: 'center', charSpace: 0 });
 
     let yPosition = 30;
 
-    // General feedback
+    // Общий комментарий
     const feedback = assessment.feedback || 'итоговый комментарий';
+    const feedbackText = useTransliteration ? transliterateToUzbek(feedback) : feedback;
     doc.setFontSize(14);
     doc.setTextColor(20, 54, 84);
-    doc.text('Умумий изоҳ:', 14, yPosition);
+    const feedbackHeader = useTransliteration ? 'Umumiy izoh:' : 'Умумий изоҳ:';
+    doc.text(feedbackHeader, 14, yPosition);
     yPosition += 7;
 
     doc.setFontSize(12);
     doc.setTextColor(0, 0, 0);
-    const feedbackLines = doc.splitTextToSize(feedback, 180);
+    const feedbackLines = doc.splitTextToSize(feedbackText, 180);
     doc.text(feedbackLines, 14, yPosition);
     yPosition += feedbackLines.length * 5 + 10;
 
-    // Preliminary ratings
+    // Список вопросов
     doc.setFontSize(14);
     doc.setTextColor(20, 54, 84);
-    doc.text('Олдиндан баҳолар:', 14, yPosition);
+    const questionsHeader = useTransliteration ? 'Savollar ro‘yxati:' : 'Саволлар рўйхати:';
+    doc.text(questionsHeader, 14, yPosition);
+    yPosition += 7;
+
+    doc.setFontSize(10);
+    doc.setTextColor(0, 0, 0);
+    questions.forEach((question, idx) => {
+      // Очищаем текст вопроса от некорректных символов
+      const cleanQuestion = cleanText(question);
+      const questionText = useTransliteration
+        ? transliterateToUzbek(cleanQuestion)
+        : cleanQuestion;
+      const questionLine = `${idx + 1}. ${questionText}`;
+      const questionLines = doc.splitTextToSize(questionLine, 180);
+      doc.text(questionLines, 14, yPosition);
+      yPosition += questionLines.length * 5 + 2;
+    });
+
+    // Предварительные оценки
+    doc.setFontSize(14);
+    doc.setTextColor(20, 54, 84);
+    const preliminaryHeader = useTransliteration
+      ? 'Oldindan baholar:'
+      : 'Олдиндан баҳолар:';
+    doc.text(preliminaryHeader, 14, yPosition);
     yPosition += 10;
 
-    // Default ratings from user input
-    const defaultRatings = [5, 5, 20, 10, 20, 15, 10, 10, 5, 10];
+    // Дефолтные оценки
+    const defaultRatings = [5, 5, 20, 9, 20, 14, 9, 9, 5, 9];
 
-    // Prepare table data
-    const tableData = questions.map((defaultQuestion, idx) => {
+    // Подготовка данных для таблицы
+    const tableData = questions.map((_, idx) => {
       const q = assessment.questions && assessment.questions[idx] ? assessment.questions[idx] : {};
       const rating = q.rating || defaultRatings[idx] || 0;
       const grade = getGradeFromRating(rating, idx);
-      return [
-        idx + 1,
-        q.question || defaultQuestion,
-        rating,
-        grade,
-        (grade * 2.2).toFixed(1),
-        q.feedback || 'Изох',
-      ];
+      const feedbackText = useTransliteration
+        ? transliterateToUzbek(q.feedback || 'yangi izoh qoshildi')
+        : q.feedback || 'yangi izoh qoshildi';
+      return [idx + 1, rating, grade, (grade * 2.2).toFixed(1), feedbackText];
     });
 
-    // Generate table
+    // Логирование для отладки
+    console.log('Assessment questions:', assessment.questions);
+    console.log('Table data:', tableData);
+
+    // Генерация таблицы
     autoTable(doc, {
       startY: yPosition,
-      head: [['№', 'Савол', 'Балл', 'Баҳо', 'Ҳисобланиши', 'Изоҳ']],
+      head: [
+        [
+          '№',
+          useTransliteration ? 'Ball' : 'Балл',
+          useTransliteration ? 'Baho' : 'Баҳо',
+          useTransliteration ? 'Hisoblanishi' : 'Ҳисобланиши',
+          useTransliteration ? 'Izoh' : 'Изоҳ',
+        ],
+      ],
       body: tableData,
-      margin: { left: 14 },
+      margin: { left: 14, right: 14 },
       headStyles: {
         fillColor: [20, 54, 84],
         textColor: 255,
         fontSize: 10,
-        font: 'DejaVuSans',
+        font: 'helvetica',
         fontStyle: 'normal',
+        halign: 'center',
+        valign: 'middle',
       },
       bodyStyles: {
         fontSize: 9,
-        font: 'DejaVuSans',
+        font: 'helvetica',
         cellWidth: 'wrap',
         textColor: [0, 0, 0],
+        halign: 'center',
+        valign: 'middle',
       },
       columnStyles: {
-        0: { cellWidth: 10 },
-        1: { cellWidth: 70 },
-        2: { cellWidth: 20 },
-        3: { cellWidth: 20 },
-        4: { cellWidth: 30 },
-        5: { cellWidth: 'auto' },
+        0: { cellWidth: 10, halign: 'center' },
+        1: { cellWidth: 20, halign: 'center' },
+        2: { cellWidth: 20, halign: 'center' },
+        3: { cellWidth: 30, halign: 'center' },
+        4: { cellWidth: 'auto', halign: 'left' },
       },
       styles: {
         overflow: 'linebreak',
-        minCellHeight: 10,
-        halign: 'left',
-        valign: 'middle',
-        font: 'DejaVuSans',
+        minCellHeight: 12,
+        lineWidth: 0.2,
+        lineColor: [0, 0, 0],
       },
       didDrawPage: () => {
-        doc.setFont('DejaVuSans', 'normal');
+        doc.setFont('helvetica', 'normal');
       },
     });
 
-    // Save PDF
-    doc.save(`disertation_baholash_${assessment._id || Date.now()}.pdf`);
+    // Сохранение PDF
+    const suffix = useTransliteration ? '_latin' : '_cyrillic';
+    doc.save(`disertation_baholash_${assessment._id || Date.now()}${suffix}.pdf`);
   } catch (error) {
     console.error('PDF generation failed:', error);
     setError(`PDF юклаб олишда хатолик: ${error.message}`);
@@ -411,17 +530,7 @@ const AssessmentsDoctorant = () => {
     }
   };
 
-  const formatDate = (dateString) => {
-    try {
-      if (!dateString) return 'Сана белгиланмаган';
-      const date = parseISO(dateString);
-      if (!isValid(date)) return 'Нотўғри сана';
-      return format(date, 'dd MMMM yyyy, HH:mm', { locale: ru });
-    } catch (error) {
-      console.error('Сана форматлашда хатолик:', error);
-      return 'Сана хатоси';
-    }
-  };
+
 
   const renderAssessmentItem = (assessment) => {
     const hasRatings = assessment.questions?.some((q) => q.rating > 0) || false;
@@ -431,23 +540,21 @@ const AssessmentsDoctorant = () => {
     return (
       <Paper elevation={2} sx={{ mb: 2, p: isMobile ? 1.5 : 2, position: 'relative' }}>
         {(assessment.status === 'completed' || hasRatings) && (
-          <IconButton
-            onClick={() => generateAssessmentPDF(assessment, setError, setDownloading)}
-            disabled={downloading}
-            sx={{
-              position: 'absolute',
-              top: isMobile ? 8 : 16,
-              right: isMobile ? 8 : 16,
-              color: colors.purple,
-            }}
-            title="PDF юклаб олиш"
-          >
-            {downloading ? (
-              <CircularProgress size={20} sx={{ color: colors.purple }} />
-            ) : (
-              <FileDownloadIcon />
-            )}
-          </IconButton>
+          <Box sx={{ position: 'absolute', top: isMobile ? 8 : 16, right: isMobile ? 8 : 16 }}>
+     
+            <IconButton
+              onClick={() => generateAssessmentPDF(assessment, setError, setDownloading, true)}
+              disabled={downloading}
+              sx={{ color: colors.purple }}
+              title="PDF юклаб олиш (узбекский латиница)"
+            >
+              {downloading ? (
+                <CircularProgress size={20} sx={{ color: colors.purple }} />
+              ) : (
+                <FileDownloadIcon />
+              )}
+            </IconButton>
+          </Box>
         )}
 
         <Box
@@ -476,13 +583,7 @@ const AssessmentsDoctorant = () => {
           </Box>
           <Box textAlign={isMobile ? 'center' : 'right'} width={isMobile ? '100%' : 'auto'}>
             <StatusChip status={assessment.status || 'pending'} hasRatings={hasRatings} />
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem' }}
-            >
-              {formatDate(assessment.createdAt)}
-            </Typography>
+        
             {hasRatings && (
               <Typography
                 variant="body2"
