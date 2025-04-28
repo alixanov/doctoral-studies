@@ -752,7 +752,7 @@ const AssessmentsDoctorant = () => {
         >
           Янги баҳолаш
         </Button>
-        <Button
+        {/* <Button
           variant={activeTab === 'submitted' ? 'contained' : 'outlined'}
           onClick={() => setActiveTab('submitted')}
           sx={{
@@ -771,7 +771,7 @@ const AssessmentsDoctorant = () => {
           }}
         >
           Юборилган ({submittedAssessments.length})
-        </Button>
+        </Button> */}
         <Button
           variant={activeTab === 'completed' ? 'contained' : 'outlined'}
           onClick={() => setActiveTab('completed')}
