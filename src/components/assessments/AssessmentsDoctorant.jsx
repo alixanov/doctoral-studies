@@ -24,8 +24,18 @@ import {
 import { styled } from '@mui/material/styles';
 import { format, isValid, parseISO } from 'date-fns';
 import { ru } from 'date-fns/locale';
+import {
+  Send as SendIcon,
+  Description as DescriptionIcon,
+  CheckCircle as CheckCircleIcon,
+  HourglassEmpty as HourglassEmptyIcon,
+  Person as PersonIcon,
+  Assignment as AssignmentIcon,
+  Star as StarIcon,
+  FileDownload as FileDownloadIcon,
+} from '@mui/icons-material';
 import { jsPDF } from 'jspdf';
-import autoTable from 'jspdf-autotable'; // Correct import for autoTable
+import autoTable from 'jspdf-autotable';
 
 const colors = {
   primaryGradient: 'linear-gradient(135deg, #143654 0%, rgb(26, 84, 136) 100%)',
@@ -795,5 +805,8 @@ const AssessmentsDoctorant = () => {
     </Box>
   );
 };
+
+// new content
+
 
 export default AssessmentsDoctorant;
