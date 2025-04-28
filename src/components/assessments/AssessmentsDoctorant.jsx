@@ -37,6 +37,9 @@ import {
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
+// Base64-encoded Times New Roman font (subset for Cyrillic)
+const timesNewRomanBase64 = 'data:font/truetype;base64,...'; // Replace with actual base64 TTF (see instructions below)
+
 const colors = {
   primaryGradient: 'linear-gradient(135deg, #143654 0%, rgb(26, 84, 136) 100%)',
   error: '#EF4444',
@@ -150,27 +153,31 @@ const calculateFinalGrade = (grades) => {
 };
 
 const questions = [
-  '🔹 Диссертациянинг кўрсатилган ихтисосликка мослиги.',
-  '🔹 Диссертациянинг илмий савияси.',
-  '🔹 Диссертациянинг илмий ва амалий аҳамияти.',
-  '🔹 Тадқиқот натижаларининг асосланганлиги.',
-  '🔹 Эълон қилинган ишларда диссертация натижаларининг тўлиқ баён этилганлиги.',
-  '🔹 Диссертациянинг илмий натижаларини амалиётга жорий этганлиги.',
-  '🔹 Изланувчига қўйилган талабларнинг бажарилганлиги.',
-  '🔹 Диссертация ва диссертация авторефератини белгиланган талабларга мувофиқ расмийлаштирилганлиги.',
-  '🔹 Тавсия.',
-  '🔹 Мавзу билан грант учун лойиҳаларда ва танловларда иштирок этганлиги.',
+  '• Диссертациянинг кўрсатилган ихтисосликка мослиги.',
+  '• Диссертациянинг илмий савияси.',
+  '• Диссертациянинг илмий ва амалий аҳамияти.',
+  '• Тадқиқот натижаларининг асосланганлиги.',
+  '• Эълон қилинган ишларда диссертация натижаларининг тўлиқ баён этилганлиги.',
+  '• Диссертациянинг илмий натижаларини амалиётга жорий этганлиги.',
+  '• Изланувчига қўйилган талабларнинг бажарилганлиги.',
+  '• Диссертация ва диссертация авторефератини белгиланган талабларга мувофиқ расмийлаштирилганлиги.',
+  '• Тавсия.',
+  '• Мавзу билан грант учун лойиҳаларда ва танловларда иштирок этганлиги.',
 ];
 
 const generateAssessmentPDF = (assessment, setError, setDownloading) => {
   setDownloading(true);
   try {
     const doc = new jsPDF({ format: 'a4', unit: 'mm', putOnlyUsedFonts: true });
-    doc.setFont('Helvetica'); // Use built-in font
-    doc.setFontSize(16);
-    doc.setTextColor(20, 54, 84);
+
+    // Add Times New Roman font
+    doc.addFileToVFS('TimesNewRoman.ttf', timesNewRomanBase64);
+    doc.addFont('TimesNewRoman.ttf', 'TimesNewRoman', 'normal');
+    doc.setFont('TimesNewRoman');
 
     // Add title
+    doc.setFontSize(16);
+    doc.setTextColor(20, 54, 84);
     doc.text('Диссертация баҳолаш натижалари', 105, 15, { align: 'center', charSpace: 0 });
 
     let yPosition = 30;
@@ -203,7 +210,7 @@ const generateAssessmentPDF = (assessment, setError, setDownloading) => {
         q.rating || '0',
         grade,
         (grade * 2.2).toFixed(1),
-        q.feedback || 'yangi izoh qoshildi',
+        q.feedback || 'Изох',
       ];
     });
 
@@ -217,11 +224,11 @@ const generateAssessmentPDF = (assessment, setError, setDownloading) => {
         fillColor: [20, 54, 84],
         textColor: 255,
         fontSize: 10,
-        font: 'Helvetica',
+        font: 'TimesNewRoman',
       },
       bodyStyles: {
         fontSize: 9,
-        font: 'Helvetica',
+        font: 'TimesNewRoman',
         cellWidth: 'wrap',
       },
       columnStyles: {
@@ -235,11 +242,11 @@ const generateAssessmentPDF = (assessment, setError, setDownloading) => {
       styles: {
         overflow: 'linebreak',
         minCellHeight: 10,
-        font: 'Helvetica',
+        font: 'TimesNewRoman',
         halign: 'left',
       },
       didDrawPage: () => {
-        doc.setFont('Helvetica'); // Ensure font consistency
+        doc.setFont('TimesNewRoman');
       },
     });
 
