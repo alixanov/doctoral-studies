@@ -37,9 +37,6 @@ import {
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
-// Base64-encoded Times New Roman font (subset for Cyrillic)
-const timesNewRomanBase64 = 'data:font/truetype;base64,...'; // Replace with actual base64 TTF (see instructions below)
-
 const colors = {
   primaryGradient: 'linear-gradient(135deg, #143654 0%, rgb(26, 84, 136) 100%)',
   error: '#EF4444',
@@ -153,56 +150,61 @@ const calculateFinalGrade = (grades) => {
 };
 
 const questions = [
-  '• Диссертациянинг кўрсатилган ихтисосликка мослиги.',
-  '• Диссертациянинг илмий савияси.',
-  '• Диссертациянинг илмий ва амалий аҳамияти.',
-  '• Тадқиқот натижаларининг асосланганлиги.',
-  '• Эълон қилинган ишларда диссертация натижаларининг тўлиқ баён этилганлиги.',
-  '• Диссертациянинг илмий натижаларини амалиётга жорий этганлиги.',
-  '• Изланувчига қўйилган талабларнинг бажарилганлиги.',
-  '• Диссертация ва диссертация авторефератини белгиланган талабларга мувофиқ расмийлаштирилганлиги.',
-  '• Тавсия.',
-  '• Мавзу билан грант учун лойиҳаларда ва танловларда иштирок этганлиги.',
+  '🔹 Диссертациянинг кўрсатилган ихтисосликка мослиги.',
+  '🔹 Диссертациянинг илмий савияси.',
+  '🔹 Диссертациянинг илмий ва амалий аҳамияти.',
+  '🔹 Тадқиқот натижаларининг асосланганлиги.',
+  '🔹 Эълон қилинган ишларда диссертация натижаларининг тўлиқ баён этилганлиги.',
+  '🔹 Диссертациянинг илмий натижаларини амалиётга жорий этганлиги.',
+  '🔹 Изланувчига қўйилган талабларнинг бажарилганлиги.',
+  '🔹 Диссертация ва диссертация авторефератини белгиланган талабларга мувофиқ расмийлаштирилганлиги.',
+  '🔹 Тавсия.',
+  '🔹 Мавзу билан грант учун лойиҳаларда ва танловларда иштирок этганлиги.',
 ];
 
-const generateAssessmentPDF = (assessment, setError, setDownloading) => {
-  setDownloading(true);
+const generateAssessmentPDF = (assessment) => {
   try {
-    const doc = new jsPDF({ format: 'a4', unit: 'mm', putOnlyUsedFonts: true });
+    // Создаем новый PDF документ
+    const doc = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4'
+    });
 
-    // Add Times New Roman font
-    doc.addFileToVFS('TimesNewRoman.ttf', timesNewRomanBase64);
-    doc.addFont('TimesNewRoman.ttf', 'TimesNewRoman', 'normal');
-    doc.setFont('TimesNewRoman');
+    // Устанавливаем шрифт, поддерживающий кириллицу
+    doc.addFont('Helvetica', 'Helvetica', 'normal');
+    doc.setFont('Helvetica');
 
-    // Add title
+    // Заголовок документа
     doc.setFontSize(16);
     doc.setTextColor(20, 54, 84);
-    doc.text('Диссертация баҳолаш натижалари', 105, 15, { align: 'center', charSpace: 0 });
+    doc.text('Диссертация баҳолаш натижалари', 105, 20, { align: 'center' });
 
     let yPosition = 30;
 
-    // Add general feedback
-    const feedback = assessment.feedback || 'итоговый комментарий';
+    // Общий комментарий
+    if (assessment.feedback) {
+      doc.setFontSize(14);
+      doc.setTextColor(20, 54, 84);
+      doc.text('Умумий изоҳ:', 20, yPosition);
+      yPosition += 7;
+
+      doc.setFontSize(12);
+      doc.setTextColor(0, 0, 0);
+      const feedbackLines = doc.splitTextToSize(assessment.feedback, 170);
+      doc.text(feedbackLines, 20, yPosition);
+      yPosition += feedbackLines.length * 6 + 10;
+    }
+
+    // Предварительные оценки
     doc.setFontSize(14);
     doc.setTextColor(20, 54, 84);
-    doc.text('Умумий изоҳ:', 14, yPosition);
-
-    doc.setFontSize(12);
-    doc.setTextColor(0, 0, 0);
-    const feedbackLines = doc.splitTextToSize(feedback, 180);
-    doc.text(feedbackLines, 14, yPosition + 10);
-    yPosition += 20 + feedbackLines.length * 5;
-
-    // Add preliminary ratings
-    doc.setFontSize(14);
-    doc.setTextColor(20, 54, 84);
-    doc.text('Олдиндан баҳолар:', 14, yPosition);
+    doc.text('Олдиндан баҳолар:', 20, yPosition);
     yPosition += 10;
 
-    // Ensure all 10 questions are included
+    // Подготовка данных для таблицы
     const tableData = questions.map((defaultQuestion, idx) => {
-      const q = assessment.questions && assessment.questions[idx] ? assessment.questions[idx] : {};
+      const q = assessment.questions[idx] || {};
       const grade = getGradeFromRating(q.rating || 0, idx);
       return [
         idx + 1,
@@ -210,52 +212,53 @@ const generateAssessmentPDF = (assessment, setError, setDownloading) => {
         q.rating || '0',
         grade,
         (grade * 2.2).toFixed(1),
-        q.feedback || 'Изох',
+        q.feedback || ''
       ];
     });
 
-    // Apply autoTable
+    // Генерация таблицы
     autoTable(doc, {
       startY: yPosition,
       head: [['№', 'Савол', 'Балл', 'Баҳо', 'Ҳисобланиши', 'Изоҳ']],
       body: tableData,
-      margin: { left: 14 },
+      margin: { left: 20 },
       headStyles: {
         fillColor: [20, 54, 84],
         textColor: 255,
         fontSize: 10,
-        font: 'TimesNewRoman',
+        font: 'Helvetica',
+        fontStyle: 'bold'
       },
       bodyStyles: {
         fontSize: 9,
-        font: 'TimesNewRoman',
+        font: 'Helvetica',
         cellWidth: 'wrap',
+        textColor: [0, 0, 0]
       },
       columnStyles: {
         0: { cellWidth: 10 },
         1: { cellWidth: 70 },
-        2: { cellWidth: 20 },
-        3: { cellWidth: 20 },
-        4: { cellWidth: 30 },
-        5: { cellWidth: 'auto' },
+        2: { cellWidth: 15 },
+        3: { cellWidth: 15 },
+        4: { cellWidth: 20 },
+        5: { cellWidth: 'auto' }
       },
       styles: {
         overflow: 'linebreak',
         minCellHeight: 10,
-        font: 'TimesNewRoman',
         halign: 'left',
+        valign: 'middle'
       },
       didDrawPage: () => {
-        doc.setFont('TimesNewRoman');
-      },
+        doc.setFont('Helvetica');
+      }
     });
 
-    doc.save(`disertation_baholash_${assessment._id || 'unknown'}.pdf`);
+    // Сохранение PDF
+    doc.save(`disertation_baholash_${assessment._id || Date.now()}.pdf`);
   } catch (error) {
-    console.error('PDF generation failed:', error);
-    setError(`PDF юклаб олишда хатолик: ${error.message}`);
-  } finally {
-    setDownloading(false);
+    console.error('PDF generation error:', error);
+    alert('PDF яратишда хатолик юз берди. Илтимос, қайта уриниб кўринг.');
   }
 };
 
