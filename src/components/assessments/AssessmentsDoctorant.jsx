@@ -37,11 +37,26 @@ import {
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 
-// Roboto font base64 (supports Cyrillic)
-const robotoFontBase64 = `
-AAEAAAARAQAABAAgR0RFRgBjADoAAADaAAAAAAACAAEAAADAABQAAAEAAQAAAEAAQAAAACAAAAABAAgAAAAAAAAA
-... (truncated for brevity; replace with full base64 string of Roboto-Regular.ttf)
-`;
+// Function to load font dynamically
+const loadFont = async () => {
+  try {
+    const response = await fetch(
+      'https://fonts.gstatic.com/s/roboto/v30/KFOmCnqEu92Fr1Mu4mxKKTU1Kg.woff2'
+    );
+    if (!response.ok) throw new Error('Failed to fetch font');
+    const fontArrayBuffer = await response.arrayBuffer();
+    const fontBase64 = btoa(
+      new Uint8Array(fontArrayBuffer).reduce(
+        (data, byte) => data + String.fromCharCode(byte),
+        ''
+      )
+    );
+    return fontBase64;
+  } catch (error) {
+    console.warn('Font loading failed:', error);
+    return null;
+  }
+};
 
 const colors = {
   primaryGradient: 'linear-gradient(135deg, #143654 0%, rgb(26, 84, 136) 100%)',
@@ -170,14 +185,27 @@ const questions = [
   '🔹 Мавзу билан грант учун лойиҳаларда ва танловларда иштирок этганлиги.',
 ];
 
-const generateAssessmentPDF = (assessment, setError) => {
+const generateAssessmentPDF = async (assessment, setError, setDownloading) => {
+  setDownloading(true);
   try {
     const doc = new jsPDF();
 
-    // Register Roboto font
-    doc.addFileToVFS('Roboto-Regular.ttf', robotoFontBase64);
-    doc.addFont('Roboto-Regular.ttf', 'Roboto', 'normal');
-    doc.setFont('Roboto');
+    // Try to load Roboto font
+    let fontName = 'Helvetica'; // Default fallback
+    const fontBase64 = await loadFont();
+    if (fontBase64) {
+      try {
+        doc.addFileToVFS('Roboto-Regular.ttf', fontBase64);
+        doc.addFont('Roboto-Regular.ttf', 'Roboto', 'normal');
+        doc.setFont('Roboto');
+        fontName = 'Roboto';
+      } catch (fontError) {
+        console.warn('Failed to register Roboto font:', fontError);
+        doc.setFont('Helvetica');
+      }
+    } else {
+      doc.setFont('Helvetica');
+    }
 
     // Add title
     doc.setFontSize(16);
@@ -198,12 +226,21 @@ const generateAssessmentPDF = (assessment, setError) => {
       console.warn('Date parsing failed:', e);
     }
 
-    doc.text(`Текширувчи: ${assessment.reviewerInfo?.firstName || 'Номаълум'} ${assessment.reviewerInfo?.lastName || ''}`, 14, 30);
+    doc.text(
+      `Текширувчи: ${assessment.reviewerInfo?.firstName || 'Номаълум'} ${assessment.reviewerInfo?.lastName || ''
+      }`,
+      14,
+      30
+    );
     doc.text(`Сана: ${date}`, 14, 38);
 
     // Add status
     doc.setTextColor(assessment.status === 'completed' ? colors.success : colors.warning);
-    doc.text(`Ҳолат: ${assessment.status === 'completed' ? 'Тугалланган' : 'Текширувда'}`, 14, 46);
+    doc.text(
+      `Ҳолат: ${assessment.status === 'completed' ? 'Тугалланган' : 'Текширувда'}`,
+      14,
+      46
+    );
 
     // Add questions and ratings
     doc.setFontSize(12);
@@ -257,11 +294,11 @@ const generateAssessmentPDF = (assessment, setError) => {
         fillColor: [20, 54, 84],
         textColor: 255,
         fontSize: 10,
-        font: 'Roboto',
+        font: fontName,
       },
       bodyStyles: {
         fontSize: 9,
-        font: 'Roboto',
+        font: fontName,
         cellWidth: 'wrap',
       },
       columnStyles: {
@@ -294,6 +331,8 @@ const generateAssessmentPDF = (assessment, setError) => {
   } catch (error) {
     console.error('PDF generation failed:', error);
     setError(`PDF юклаб олишда хатолик: ${error.message}`);
+  } finally {
+    setDownloading(false);
   }
 };
 
@@ -308,6 +347,7 @@ const AssessmentsDoctorant = () => {
   const [completedAssessments, setCompletedAssessments] = useState([]);
   const [activeTab, setActiveTab] = useState('new');
   const [loadingAssessments, setLoadingAssessments] = useState(true);
+  const [downloading, setDownloading] = useState(false);
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -463,7 +503,8 @@ const AssessmentsDoctorant = () => {
         {/* Download PDF button */}
         {(assessment.status === 'completed' || hasRatings) && (
           <IconButton
-            onClick={() => generateAssessmentPDF(assessment, setError)}
+            onClick={() => generateAssessmentPDF(assessment, setError, setDownloading)}
+            disabled={downloading}
             sx={{
               position: 'absolute',
               top: isMobile ? 8 : 16,
@@ -472,7 +513,11 @@ const AssessmentsDoctorant = () => {
             }}
             title="PDF юклаб олиш"
           >
-            <FileDownloadIcon />
+            {downloading ? (
+              <CircularProgress size={20} sx={{ color: colors.purple }} />
+            ) : (
+              <FileDownloadIcon />
+            )}
           </IconButton>
         )}
 
@@ -720,7 +765,7 @@ const AssessmentsDoctorant = () => {
       </Stack>
 
       {error && (
-        <Alert severity="error" sx={{ mb: 2 }}>
+        <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError('')}>
           {error}
         </Alert>
       )}
@@ -792,7 +837,7 @@ const AssessmentsDoctorant = () => {
           </SubmitButton>
 
           {success && (
-            <Alert severity="success" sx={{ mt: 2 }}>
+            <Alert severity="success" sx={{ mt: 2 }} onClose={() => setSuccess(false)}>
               Саволлар текширишга муваффақиятли юборилди
             </Alert>
           )}
