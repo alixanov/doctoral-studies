@@ -36,7 +36,7 @@ import {
 } from '@mui/icons-material';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
-// import DejaVuSans from './DejaVuSans.ttf'; // Import the font file
+import DejaVuSans from '../../fonts/DejaVuSans.ttf'; // Import the font file
 
 const colors = {
   primaryGradient: 'linear-gradient(135deg, #143654 0%, rgb(26, 84, 136) 100%)',
