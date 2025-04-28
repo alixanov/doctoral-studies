@@ -155,7 +155,7 @@ const questions = [
   '🔹 Диссертациянинг илмий ва амалий аҳамияти.',
   '🔹 Тадқиқот натижаларининг асосланганлиги.',
   '🔹 Эълон қилинган ишларда диссертация натижаларининг тўлиқ баён этилганлиги.',
-  '🔹 Диссертациянинг илмий натижаларини амалиётга жорий этилганлиги.',
+  '🔹 Диссертациянинг илмий натижаларини амалиётга жорий этганлиги.',
   '🔹 Изланувчига қўйилган талабларнинг бажарилганлиги.',
   '🔹 Диссертация ва диссертация авторефератини белгиланган талабларга мувофиқ расмийлаштирилганлиги.',
   '🔹 Тавсия.',
@@ -165,26 +165,27 @@ const questions = [
 const generateAssessmentPDF = (assessment, setError, setDownloading) => {
   setDownloading(true);
   try {
-    const doc = new jsPDF();
-    doc.setFont('Helvetica'); // Use built-in font to avoid font issues
-
-    // Add title
+    const doc = new jsPDF({ format: 'a4', unit: 'mm', putOnlyUsedFonts: true });
+    doc.setFont('Helvetica'); // Use built-in font
     doc.setFontSize(16);
     doc.setTextColor(20, 54, 84);
-    doc.text('Диссертация баҳолаш натижалари', 105, 15, { align: 'center' });
+
+    // Add title
+    doc.text('Диссертация баҳолаш натижалари', 105, 15, { align: 'center', charSpace: 0 });
 
     let yPosition = 30;
 
     // Add general feedback
-    const feedback = assessment.feedback || 'Итоговой комментария'; // Fallback feedback
+    const feedback = assessment.feedback || 'итоговый комментарий';
     doc.setFontSize(14);
     doc.setTextColor(20, 54, 84);
     doc.text('Умумий изоҳ:', 14, yPosition);
 
     doc.setFontSize(12);
     doc.setTextColor(0, 0, 0);
-    doc.text(feedback, 14, yPosition + 10, { maxWidth: 180 });
-    yPosition += 20 + doc.splitTextToSize(feedback, 180).length * 5;
+    const feedbackLines = doc.splitTextToSize(feedback, 180);
+    doc.text(feedbackLines, 14, yPosition + 10);
+    yPosition += 20 + feedbackLines.length * 5;
 
     // Add preliminary ratings
     doc.setFontSize(14);
@@ -192,20 +193,17 @@ const generateAssessmentPDF = (assessment, setError, setDownloading) => {
     doc.text('Олдиндан баҳолар:', 14, yPosition);
     yPosition += 10;
 
-    // Validate questions
-    if (!Array.isArray(assessment.questions) || assessment.questions.length === 0) {
-      throw new Error('Invalid or empty questions data');
-    }
-
-    const tableData = assessment.questions.map((q, idx) => {
-      const grade = getGradeFromRating(q.rating, idx);
+    // Ensure all 10 questions are included
+    const tableData = questions.map((defaultQuestion, idx) => {
+      const q = assessment.questions && assessment.questions[idx] ? assessment.questions[idx] : {};
+      const grade = getGradeFromRating(q.rating || 0, idx);
       return [
         idx + 1,
-        q.question || questions[idx], // Fallback to default question
+        q.question || defaultQuestion,
         q.rating || '0',
         grade,
         (grade * 2.2).toFixed(1),
-        q.feedback || 'Изох', // Fallback feedback
+        q.feedback || 'yangi izoh qoshildi',
       ];
     });
 
@@ -237,6 +235,11 @@ const generateAssessmentPDF = (assessment, setError, setDownloading) => {
       styles: {
         overflow: 'linebreak',
         minCellHeight: 10,
+        font: 'Helvetica',
+        halign: 'left',
+      },
+      didDrawPage: () => {
+        doc.setFont('Helvetica'); // Ensure font consistency
       },
     });
 
@@ -805,8 +808,5 @@ const AssessmentsDoctorant = () => {
     </Box>
   );
 };
-
-// new content
-
 
 export default AssessmentsDoctorant;
