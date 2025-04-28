@@ -36,6 +36,7 @@ import {
 } from '@mui/icons-material';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import DejaVuSans from './DejaVuSans.ttf'; // Import the font file
 
 const colors = {
   primaryGradient: 'linear-gradient(135deg, #143654 0%, rgb(26, 84, 136) 100%)',
@@ -172,8 +173,10 @@ const generateAssessmentPDF = (assessment, setError, setDownloading) => {
       putOnlyUsedFonts: true,
     });
 
-    // Use 'times' font for Cyrillic support
-    doc.setFont('times', 'normal');
+    // Add DejaVuSans font
+    doc.addFileToVFS('DejaVuSans.ttf', DejaVuSans);
+    doc.addFont('DejaVuSans.ttf', 'DejaVuSans', 'normal');
+    doc.setFont('DejaVuSans');
 
     // Title
     doc.setFontSize(16);
@@ -229,12 +232,12 @@ const generateAssessmentPDF = (assessment, setError, setDownloading) => {
         fillColor: [20, 54, 84],
         textColor: 255,
         fontSize: 10,
-        font: 'times',
+        font: 'DejaVuSans',
         fontStyle: 'normal',
       },
       bodyStyles: {
         fontSize: 9,
-        font: 'times',
+        font: 'DejaVuSans',
         cellWidth: 'wrap',
         textColor: [0, 0, 0],
       },
@@ -251,10 +254,10 @@ const generateAssessmentPDF = (assessment, setError, setDownloading) => {
         minCellHeight: 10,
         halign: 'left',
         valign: 'middle',
-        font: 'times',
+        font: 'DejaVuSans',
       },
       didDrawPage: () => {
-        doc.setFont('times', 'normal');
+        doc.setFont('DejaVuSans', 'normal');
       },
     });
 
