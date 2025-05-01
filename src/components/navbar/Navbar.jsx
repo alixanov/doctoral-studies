@@ -146,7 +146,7 @@ const Navbar = ({ isMobile = false, sidebarOpen = false, setSidebarOpen = () => 
   const links = [
     { to: '/', label: 'Бош саҳифа', icon: HomeFilledIcon },
 
-    { to: '/gemini', label: 'ChatAi', icon: MarkChatUnreadIcon },
+    // { to: '/gemini', label: 'ChatAi', icon: MarkChatUnreadIcon },
 
     // { to: '/testing', label: 'Текшириш', icon: GradingIcon },
     // { to: '/result', label: 'Натижа', icon: GradingIcon },
