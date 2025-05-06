@@ -145,12 +145,6 @@ const Navbar = ({ isMobile = false, sidebarOpen = false, setSidebarOpen = () => 
   // Навигация линклари
   const links = [
     { to: '/', label: 'Бош саҳифа', icon: HomeFilledIcon },
-
-    { to: '/gemini', label: 'ChatAi', icon: MarkChatUnreadIcon },
-
-    { to: '/testing', label: 'Текшириш', icon: GradingIcon },
-    { to: '/result', label: 'Натижа', icon: GradingIcon },
-
     isAuthenticated && userRole === 'doctoral' && {
       to: '/documents',
       label: 'Менинг аризаларим',
@@ -161,6 +155,20 @@ const Navbar = ({ isMobile = false, sidebarOpen = false, setSidebarOpen = () => 
       label: 'Баҳолаш учун ариза',
       icon: AssessmentIcon,
     },
+
+    { to: '/testing', label: 'Текшириш', icon: GradingIcon },
+    { to: '/result', label: 'Натижа', icon: GradingIcon },
+    { to: '/gemini', label: 'ChatAi', icon: MarkChatUnreadIcon },
+
+
+    isAuthenticated
+      ? {
+        to: userRole === 'reviewer' ? '/reviewer-cabinet' : '/cabinet',
+        label: userRole === 'reviewer' ? 'Кабинет' : 'Шахсий кабинет',
+        icon: AccountBoxIcon,
+      }
+      : { to: '/doctoral-register', label: 'Рўйхатдан ўтиш', icon: AccountBoxIcon },
+  
     isAuthenticated && userRole === 'reviewer' && {
       to: '/review-news',
       label: 'Янгиликлар',
@@ -171,13 +179,7 @@ const Navbar = ({ isMobile = false, sidebarOpen = false, setSidebarOpen = () => 
       label: 'Баҳолаш',
       icon: AssessmentIcon,
     },
-    isAuthenticated
-      ? {
-        to: userRole === 'reviewer' ? '/reviewer-cabinet' : '/cabinet',
-        label: userRole === 'reviewer' ? 'Кабинет' : 'Шахсий кабинет',
-        icon: AccountBoxIcon,
-      }
-      : { to: '/doctoral-register', label: 'Рўйхатдан ўтиш', icon: AccountBoxIcon },
+   
   ].filter(Boolean);
 
   const handleLogout = () => {
