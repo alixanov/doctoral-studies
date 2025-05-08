@@ -245,7 +245,7 @@ const HomePage = () => {
               letterSpacing: '-0.5px',
             }}
           >
-            Докторантура учун тизим
+            Докторантнинг илмий тадкикот ишининг бахолаш тизими
           </Typography>
           <Typography
             variant="body1"
@@ -392,7 +392,7 @@ const HomePage = () => {
                     variant="contained"
                     size="small"
                     className="newsButton"
-                    onClick={() => handleNavigate(`/news/${news.id}`)}
+                    onClick={() => handleNavigate('/details')}
                   >
                     Батафсил
                   </StyledButton>

@@ -152,7 +152,7 @@ const Navbar = ({ isMobile = false, sidebarOpen = false, setSidebarOpen = () => 
     },
     isAuthenticated && userRole === 'doctoral' && {
       to: '/assessments-doctorant',
-      label: 'Баҳолаш учун ариза',
+      label: 'Баҳолаш аризаси',
       icon: AssessmentIcon,
     },
 

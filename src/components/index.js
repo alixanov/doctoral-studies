@@ -10,3 +10,4 @@ export { default as ReviewerAssessments } from "../components/rewiewer-assessmen
 export {default as Gemini} from "../components/gemini/Gemini"
 export {default as Testing} from "../components/testing/Testing"
 export {default as Result} from "../components/result/Result"
+export {default as Details} from "../components/details/Details"
