@@ -101,7 +101,7 @@ const Testing = () => {
         issuesList.push('Тадқиқотга оид калит сўзлар етарли эмас. Матнда "тадқиқот", "методология", "таҳлил" каби терминлар бўлиши керак.');
       }
       if (paragraphs < 10) {
-        issuesList.push('Боп сузлар сони етарли эмас. Диссертация яхши структураланган бўлиши керак.');
+        issuesList.push('Боплар сони етарли эмас. Диссертация яхши структураланган бўлиши керак.');
       }
       setIssues(issuesList);
     } catch (err) {
@@ -149,7 +149,7 @@ const Testing = () => {
           </Typography>
           <Box sx={{ mb: 2 }}>
             <Typography><strong>Матн ҳажми:</strong> {description.wordCount} сўз, {description.charCount} белги</Typography>
-            <Typography><strong>Боп сузлар сони:</strong> {description.paragraphs}</Typography>
+            <Typography><strong>Боплар сони:</strong> {description.paragraphs}</Typography>
             <Typography>
               <strong>Топилган калит сўзлар:</strong>{' '}
               {description.foundKeywords.length > 0 ? description.foundKeywords.join(', ') : 'Йўқ'}
