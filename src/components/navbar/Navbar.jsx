@@ -13,7 +13,7 @@ import AssessmentIcon from '@mui/icons-material/Assessment';
 import SchoolIcon from '@mui/icons-material/School';
 import MarkChatUnreadIcon from '@mui/icons-material/MarkChatUnread';
 import GradingIcon from '@mui/icons-material/Grading';
-
+import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
 // Ранглар палитраси
 const colors = {
   primaryGradient: 'linear-gradient(135deg, rgb(14, 49, 80) 0%, #1a3c59 100%)',
@@ -156,7 +156,7 @@ const Navbar = ({ isMobile = false, sidebarOpen = false, setSidebarOpen = () => 
       icon: AssessmentIcon,
     },
 
-    { to: '/testing', label: 'Текшириш', icon: GradingIcon },
+    { to: '/testing', label: 'Текшириш', icon: DriveFileRenameOutlineIcon },
     { to: '/result', label: 'Натижа', icon: GradingIcon },
     { to: '/gemini', label: 'ChatAi', icon: MarkChatUnreadIcon },
 
