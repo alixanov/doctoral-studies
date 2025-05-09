@@ -136,7 +136,9 @@ const getGradeFromRating = (rating, questionIndex) => {
   switch (questionIndex) {
     case 0: // Question 1 (1–5)
     case 1: // Question 2 (1–5)
+    case 7: // Question 8 (1–5)
     case 8: // Question 9 (1–5)
+    case 9: // Question 10 (1–5)
       return Math.min(5, Math.max(1, Math.round(rating)));
     case 2: // Question 3 (1–20)
     case 4: // Question 5 (1–20)
@@ -146,8 +148,6 @@ const getGradeFromRating = (rating, questionIndex) => {
       return 2;
     case 3: // Question 4 (1–10)
     case 6: // Question 7 (1–10)
-    case 7: // Question 8 (1–10)
-    case 9: // Question 10 (1–10)
       if (rating >= 9) return 5;
       if (rating >= 7) return 4;
       if (rating >= 5) return 3;
@@ -164,7 +164,7 @@ const getGradeFromRating = (rating, questionIndex) => {
 
 // Calculate final grade
 const calculateFinalGrade = (grades) => {
-  const weight = 2.2;
+  const weight = 2.0;
   const total = grades.reduce((sum, grade) => sum + grade * weight, 0);
   if (total < 60) return { grade: 0, status: 'rejected', total: Math.round(total * 10) / 10 };
   if (total >= 90) return { grade: 5, status: 'approved', total: Math.round(total * 10) / 10 };
@@ -174,7 +174,7 @@ const calculateFinalGrade = (grades) => {
 };
 
 // Maximum ratings per question (total) and sub-ratings
-const maxRatings = [5, 5, 20, 10, 20, 15, 10, 10, 5, 10];
+const maxRatings = [5, 5, 20, 10, 20, 15, 10, 5, 5, 5];
 const subMaxRatings = {
   2: [5, 5, 10], // Question 3: 5 + 5 + 10 = 20
   4: [5, 5, 10], // Question 5: 5 + 5 + 10 = 20
@@ -841,7 +841,7 @@ const ReviewerAssessments = () => {
                       )}
                       {ratings[index] > 0 && (
                         <Typography sx={{ mt: 1, fontSize: 14, color: colors.text }}>
-                          Баҳо: {getGradeFromRating(ratings[index], index)} (Балллар: {(getGradeFromRating(ratings[index], index) * 2.2).toFixed(1)})
+                          Баҳо: {getGradeFromRating(ratings[index], index)} (Балллар: {(getGradeFromRating(ratings[index], index) * 2.0).toFixed(1)})
                         </Typography>
                       )}
                     </Box>
@@ -982,7 +982,7 @@ const ReviewerAssessments = () => {
                           </Typography>
                         )}
                         <Typography fontSize={14} color={colors.text} mb={0.5}>
-                          Баҳо: {getGradeFromRating(item.rating, index)} (Балллар: {(getGradeFromRating(item.rating, index) * 2.2).toFixed(1)})
+                          Баҳо: {getGradeFromRating(item.rating, index)} (Балллар: {(getGradeFromRating(item.rating, index) * 2.0).toFixed(1)})
                         </Typography>
                         {item.feedback && (
                           <Typography fontSize={14} color={colors.text}>
