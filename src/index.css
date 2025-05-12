@@ -34,7 +34,7 @@ body {
 @media (max-width: 768px) {
   .routes__container {
     padding: 5px;
-    margin-bottom: 60px;
+    margin-top: 90px;
     /* Учитываем высоту мобильного футера */
   }
 }
