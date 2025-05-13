@@ -166,7 +166,7 @@ const Navbar = () => {
       icon: AssessmentIcon,
     },
     { to: '/testing', label: 'Текшириш', icon: DriveFileRenameOutlineIcon },
-    { to: '/result', label: 'Натижа', icon: GradingIcon },
+    // { to: '/result', label: 'Натижа', icon: GradingIcon },
     { to: '/gemini', label: 'ChatAi', icon: MarkChatUnreadIcon },
     isAuthenticated
       ? {
